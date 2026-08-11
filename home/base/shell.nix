@@ -55,39 +55,27 @@ in
         export VISUAL="nvim"
 
         # Zsh 补全（大小写不敏感）
-        zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+        zstyle '':completion:*'' matcher-list ''m:{a-z}={A-Z}''
 
         # 快捷键
-        bindkey '^[[1;5D' backward-word
-        bindkey '^[[1;5C' forward-word
+        bindkey ''^[[1;5D'' backward-word
+        bindkey ''^[[1;5C'' forward-word
 
         # Yazi（退出时 cd 到浏览目录）
         function y() {
-          local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+          local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
           command yazi "$@" --cwd-file="$tmp"
-          IFS= read -r -d '''' cwd < "$tmp"
-          [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
-          command rm -f -- "$tmp"
+          if [ -f "$tmp" ]; then
+            local cwd="$(cat "$tmp")"
+            [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+            rm -f "$tmp"
+          fi
         }
 
         # zoxide + fzf 模糊搜索
         export _ZO_DATA_DIR="$HOME/.local/share/zoxide"
         export _ZO_EXCLUDE_DIRS="$HOME/tmp:$HOME/Downloads/*"
         export _ZO_RESOLVE_SYMLINKS=1
-
-        zx() {
-          local query="''${*}"
-          local dir
-          dir=$(zoxide query --list --score | \
-            fzf --filter="$query" --no-sort | \
-            fzf --prompt="zoxide > " --nth=2.. --ansi --height=60% \
-              --info=inline --border=rounded --layout=reverse \
-              --preview-window=down:40%:wrap \
-              --preview='ls -F -C --color=always {2..}' \
-              --bind 'ctrl-z:ignore,btab:up,tab:down,enter:become:echo {2..}' \
-              --cycle --keep-right --tabstop=1)
-          [[ -n "$dir" ]] && cd "$dir"
-        }
 
         # fastfetch 启动（不在 VSCode/Nvim 中）
         if [[ "$TERM_PROGRAM" != "vscode" && -z "$VSCODE_INJECTION" && -z "$NVIM" ]]; then

@@ -1,5 +1,5 @@
 # modules/base/user.nix — 用户账号与权限（跨 NixOS / nix-darwin 共享）
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   cfg = config.mySystem;
@@ -9,6 +9,7 @@ in
   users.users.${cfg.user} = {
     isNormalUser = true;
     description = cfg.user;
+    shell = pkgs.zsh;  # 默认 Shell
     extraGroups = [
       "wheel"
       "networkmanager"
