@@ -61,7 +61,6 @@ in
           skip-at-startup
       }
       spawn-at-startup "fcitx5"
-      spawn-at-startup "/run/current-system/sw/libexec/polkit-gnome-authentication-agent-1"
       prefer-no-csd
 
       environment {

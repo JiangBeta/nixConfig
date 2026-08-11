@@ -17,7 +17,7 @@
     user = "beta";               # 🌟 只指定用户名（用户细节在 vars/default.nix）
     diskDevice = "/dev/nvme0n1";
     bootMode = "uefi";
-    cpuMicrocode = "intel";
+    cpuMicrocode = "amd";
     firewall = "nftables";
 
     hardware = {

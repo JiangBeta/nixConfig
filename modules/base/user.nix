@@ -18,7 +18,7 @@ in
       "networkmanager"
       "audio"
       "video"
-      "docker"
+      # "docker" — 后续启用 docker.nix 后取消注释
     ];
     # 密码在安装时通过 nixos-install 交互设置，此处留空
     # 后续可集成 agenix 管理 hashedPassword
