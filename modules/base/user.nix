@@ -5,6 +5,9 @@ let
   cfg = config.mySystem;
 in
 {
+  # Zsh 系统级启用（配合 users.users.<name>.shell 使用）
+  programs.zsh.enable = true;
+
   # 用户创建（消费 common/options/user.nix 定义的 mySystem.user）
   users.users.${cfg.user} = {
     isNormalUser = true;
