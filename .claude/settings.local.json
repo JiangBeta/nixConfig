@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nix --version)",
+      "Bash(chmod +x *)"
+    ]
+  }
+}

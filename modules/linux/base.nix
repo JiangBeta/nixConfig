@@ -1,0 +1,90 @@
+# modules/linux/base.nix — Linux 基础设置（对标 Arch 脚本功能）
+{ config, pkgs, lib, ... }:
+
+{
+  # ==================== 时区与 Locale ====================
+  time.timeZone = "Asia/Shanghai";
+
+  i18n.defaultLocale = "en_US.UTF-8";
+  i18n.supportedLocales = [
+    "en_US.UTF-8/UTF-8"
+    "zh_CN.UTF-8/UTF-8"
+  ];
+
+  # 键盘布局
+  console.keyMap = "us";
+
+  # ==================== Nix 核心设置 ====================
+  nix.settings = {
+    # 中国镜像 substituters（TUNA 镜像 + 官方回退）
+    substituters = [
+      "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
+      "https://cache.nixos.org"
+    ];
+    trusted-public-keys = [
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+    ];
+    auto-optimise-store = true;
+    experimental-features = [ "nix-command" "flakes" ];
+  };
+
+  # 自动垃圾回收
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 7d";
+  };
+
+  nixpkgs.config.allowUnfree = true;
+
+  # ==================== 音频：PipeWire + WirePlumber ====================
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+    jack.enable = true;
+  };
+
+  # ==================== 蓝牙 ====================
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = true;
+  };
+  services.blueman.enable = true;
+
+  # ==================== 固件 ====================
+  hardware.enableAllFirmware = true;
+
+  # ==================== 基础系统包 ====================
+  environment.systemPackages = with pkgs; [
+    # 基础工具
+    curl
+    git
+    vim
+    tldr
+    bash-completion
+    chezmoi
+    just
+
+    # 文件系统工具
+    btrfs-progs
+    dosfstools
+  ];
+
+  # Bash 补全
+  programs.bash.completion.enable = true;
+
+  # 终端字体
+  console.font = "${pkgs.terminus_font}/share/consolefonts/ter-132n.psf.gz";
+
+  # ==================== 安全基线 ====================
+  # SSH 服务（参考 Arch 脚本，openssh 已作为依赖）
+  services.openssh = {
+    enable = true;
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+    };
+  };
+}
