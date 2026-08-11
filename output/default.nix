@@ -17,7 +17,7 @@ in
 {
   # ==================== NixOS 主机构建 ====================
   nixosConfigurations =
-    (import ./X86_64-linux inputs) //
+    ((import ./X86_64-linux) inputs) //
     # 未来:
     # (import ./Aarch64-linux inputs)   # ARM 主机（如 armbian NAS）
     { };
