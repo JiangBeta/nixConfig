@@ -526,11 +526,17 @@ main() {
     local target_hw="$REPO_DIR/hosts/${CHOSEN_HOST}/hardware.nix"
 
     if [ -f "$generated_hw" ]; then
-        # 复制并剔除 fileSystems / swapDevices（disko 管理这两项，避免冲突）
-        sed -e '/^  fileSystems = {/,/^  };/d' \
-            -e '/^  swapDevices = \[/,/^  \];/d' \
-            "$generated_hw" > "$target_hw"
-        success "硬件配置已保存至 hosts/${CHOSEN_HOST}/hardware.nix（已剔除 fileSystems/swapDevices，由 disko 管理）"
+        # 剔除 fileSystems / swapDevices（disko 管理这两项，避免冲突）
+        # 使用 awk 状态机精确跳过这些块，不影响其他内容
+        awk '
+          /^  fileSystems\./   { skip=1; next }
+          /^  swapDevices = /  { skip=1; next }
+          skip && /^    };/    { skip=0; next }
+          skip && /^  ];/      { skip=0; next }
+          skip                 { next }
+          { print }
+        ' "$generated_hw" > "$target_hw"
+        success "硬件配置已保存（已剔除 fileSystems/swapDevices，由 disko 管理）"
     else
         warn "未找到生成的硬件配置，请手动运行 nixos-generate-config --root /mnt"
     fi
