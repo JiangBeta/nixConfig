@@ -258,18 +258,16 @@ choose_root_size() {
     print_step "3/7" "根分区大小"
 
     echo -e "\n${CYAN}输入格式：${NC}"
-    echo -e "  ${WHITE}数字%${NC}  — 占用磁盘剩余空间的百分比（如 80%，默认 100%）"
-    echo -e "  ${WHITE}数字G${NC}  — 固定大小，单位 GiB（如 50G）"
+    echo -e "  ${WHITE}100%${NC}       — 占用磁盘全部剩余空间（默认）"
+    echo -e "  ${WHITE}数字G${NC}     — 固定大小，单位 GiB（如 50G）"
+    echo -e "  ${WHITE}纯数字${NC}   — 视为 GiB（如 50）"
 
     while true; do
         read -r -p "$(echo -e "${BOLD}请输入根分区大小 [回车默认 100%]: ${NC}")" root_input
         root_input=${root_input:-100%}
-        if [[ "$root_input" =~ ^[0-9]+%$ ]]; then
-            local pct=${root_input%\%}
-            if [ "$pct" -ge 1 ] && [ "$pct" -le 100 ]; then
-                ROOT_SIZE="$root_input"
-                break
-            fi
+        if [ "$root_input" = "100%" ]; then
+            ROOT_SIZE="$root_input"
+            break
         elif [[ "$root_input" =~ ^[0-9]+G$ ]]; then
             ROOT_SIZE="$root_input"
             break
@@ -278,7 +276,7 @@ choose_root_size() {
             ROOT_SIZE="${root_input}G"
             break
         else
-            echo -e "${RED}格式不正确，请输入如 '50G'、'80%' 或直接数字（GiB）。${NC}"
+            echo -e "${RED}格式不正确。disko 仅支持 100%（全部剩余空间）或固定 GiB 大小。${NC}"
         fi
     done
     success "根分区大小: ${WHITE}${ROOT_SIZE}${NC}"
