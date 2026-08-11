@@ -1,8 +1,10 @@
-# modules/linux/fonts.nix — 系统字体安装与 fontconfig 配置
+# modules/base/fonts.nix — 跨平台系统字体（NixOS / nix-darwin）
 #
 # 参考：
 #   - dotfile/config/fontconfig/fonts.conf（渲染设置 + 字体族优先级）
 #   - COMPONENTS.md 字体选型
+#
+# 注意：fonts.fontconfig 配置仅 NixOS 生效，macOS 使用 CoreText。
 { config, pkgs, lib, ... }:
 
 let

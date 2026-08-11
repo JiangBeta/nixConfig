@@ -17,7 +17,7 @@ inputs:
       ../../modules/linux/boot.nix
       ../../modules/linux/btrfs.nix
       ../../modules/linux/disko-template.nix
-      ../../modules/linux/fonts.nix
+      ../../modules/base/fonts.nix
       ../../modules/base/user.nix
       # ../../modules/linux/docker.nix       # 后续启用
 
