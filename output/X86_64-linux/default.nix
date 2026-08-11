@@ -1,5 +1,5 @@
 # output/x86_64-linux/default.nix — NixOS 主机构建
-{ inputs, ... }:
+inputs:
 
 {
   pro13 = inputs.nixpkgs.lib.nixosSystem {
