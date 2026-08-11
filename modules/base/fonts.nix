@@ -45,7 +45,7 @@ in
     noto-fonts
     noto-fonts-cjk-sans
     noto-fonts-cjk-serif
-    noto-fonts-emoji
+    noto-fonts-color-emoji
 
     # 霞鹜文楷（屏幕优化版）
     lxgw-wenkai-screen
