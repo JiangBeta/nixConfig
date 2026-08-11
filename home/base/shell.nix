@@ -18,7 +18,7 @@ in
     # ==================== Zsh ====================
     programs.zsh = {
       enable = true;
-      enableBashCompletion = true;
+      enableCompletion = true;
 
       syntaxHighlighting = {
         enable = true;
