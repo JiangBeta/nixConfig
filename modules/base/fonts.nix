@@ -26,10 +26,8 @@ let
   lxgw-neozhisong = pkgs.stdenvNoCC.mkDerivation {
     pname = "lxgw-neozhisong";
     version = "1.0";
-    src = pkgs.fetchFromGitHub {
-      owner = "lxgw";
-      repo = "LxgwNeoZhiSong";
-      rev = "v1.0";
+    src = pkgs.fetchzip {
+      url = "https://github.com/lxgw/LxgwNeoZhiSong/archive/refs/heads/main.zip";
       sha256 = "0000000000000000000000000000000000000000000000000000"; # ⚠️ 首次构建后替换
     };
     installPhase = ''
