@@ -23,9 +23,11 @@ inputs:
       # 4. 桌面系统模块
       ../../modules/linux/desktop/ly.nix
       ../../modules/linux/desktop/niri.nix
+      ../../modules/linux/desktop/noctalia.nix
       {
         modules-nixos-desktop-ly.enable = true;
         modules-nixos-desktop-niri.enable = true;
+        modules-nixos-desktop-noctalia.enable = true;
       }
 
       # 5. Disko
