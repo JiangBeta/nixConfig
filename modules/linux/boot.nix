@@ -35,8 +35,11 @@ in
     "vm.swappiness" = 10;
   };
 
-  # 3. 内核：linux-zen（对齐 Arch 脚本选型）
-  boot.kernelPackages = pkgs.linuxPackages_zen;
+  # 3. 内核
+  boot.kernelPackages =
+    if cfg.kernel == "lts"
+    then pkgs.linuxPackages_lts
+    else pkgs.linuxPackages_zen;
 
   # 4. CPU 微码
   hardware.cpu.intel.updateMicrocode = lib.mkIf (cfg.cpuMicrocode == "intel") true;

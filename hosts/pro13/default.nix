@@ -14,6 +14,7 @@
     user = "beta";
     diskDevice = "/dev/nvme0n1";
     bootMode = "uefi";
+    kernel = "zen";
     cpuMicrocode = "intel";
     firewall = "nftables";
 

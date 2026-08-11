@@ -13,6 +13,13 @@ in
       description = "系统的引导模式：UEFI (systemd-boot) 或 BIOS (GRUB)";
     };
 
+    # Linux 内核版本
+    kernel = mkOption {
+      type = types.enum [ "zen" "lts" ];
+      default = "zen";
+      description = "Linux 内核版本：zen（桌面优化）或 lts（长期支持）";
+    };
+
     # 防火墙
     firewall = mkOption {
       type = types.enum [ "nftables" "none" ];
