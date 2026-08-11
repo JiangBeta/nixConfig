@@ -1,4 +1,4 @@
-# output/x86_64-linux/default.nix — NixOS 主机构建（含 Home Manager）
+# output/x86_64-linux/default.nix — NixOS 主机构建（含 Home Manager + 桌面）
 inputs:
 
 {
@@ -6,40 +6,50 @@ inputs:
     system = "x86_64-linux";
     specialArgs = { inherit inputs; };
     modules = [
-      # 1. 全局 Custom Options 定义
+      # 1. 全局 Custom Options
       ../../common/options
 
-      # 2. 🌟 全局数据（用户身份等）— 在 hosts 之前加载
+      # 2. 全局数据
       ../../vars
 
-      # 3. Linux 通用系统模块
+      # 3. 系统模块
       ../../modules/linux/base.nix
       ../../modules/linux/boot.nix
       ../../modules/linux/btrfs.nix
       ../../modules/linux/disko-template.nix
       ../../modules/base/fonts.nix
       ../../modules/base/user.nix
-      # ../../modules/linux/docker.nix       # 后续启用
 
-      # 4. Disko 官方模块
+      # 4. 桌面系统模块
+      ../../modules/linux/desktop/ly.nix
+      ../../modules/linux/desktop/niri.nix
+      {
+        modules-nixos-desktop-ly.enable = true;
+        modules-nixos-desktop-niri.enable = true;
+      }
+
+      # 5. Disko
       inputs.disko.nixosModules.disko
 
-      # 5. Home Manager（作为 NixOS module 集成）
+      # 6. Home Manager
       inputs.home-manager.nixosModules.home-manager
       ({ config, ... }: {
         home-manager = {
           useGlobalPkgs = true;
           useUserPackages = true;
+          # 将 flake inputs 传入 HM 子模块（gtk/niri/noctalia 需要）
+          extraSpecialArgs = {
+            inherit (inputs) niri noctalia catppuccin;
+          };
           users.${config.mySystem.user} = {
             imports = [ (import ../../home/linux) ];
-            # Git 用户身份（从 NixOS config 注入）
             programs.git.userName = config.myHome.userFullName;
             programs.git.userEmail = config.myHome.userEmail;
           };
         };
       })
 
-      # 6. 具体主机声明参数
+      # 7. 主机参数
       ../../hosts/pro13
     ];
   };
