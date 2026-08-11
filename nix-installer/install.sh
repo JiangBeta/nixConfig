@@ -288,11 +288,29 @@ choose_root_size() {
 choose_swap() {
     print_step "4/7" "休眠与 SWAP 配置"
 
-    # 检测物理内存
-    local mem_kb
-    mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-    MEM_GB=$(awk "BEGIN {printf \"%.1f\", $mem_kb/1048576}")
-    local mem_int=$(printf "%.0f" "$MEM_GB")
+    # 检测物理内存（优先 dmidecode 读取 DIMM 硬件规格，回退 /proc/meminfo）
+    local mem_bytes=0
+    if command -v dmidecode &>/dev/null; then
+        while read -r line; do
+            if [[ "$line" =~ ^[[:space:]]+Size:[[:space:]]+([0-9]+)[[:space:]]+(MB|GB) ]]; then
+                local size="${BASH_REMATCH[1]}"
+                local unit="${BASH_REMATCH[2]}"
+                [[ "$unit" == "GB" ]] && size=$((size * 1024))
+                mem_bytes=$((mem_bytes + size))
+            fi
+        done < <(dmidecode -t memory 2>/dev/null | grep -E '^[[:space:]]+Size:')
+    fi
+
+    if [ "$mem_bytes" -eq 0 ]; then
+        warn "dmidecode 不可用或未检测到 DIMM 信息，回退到 /proc/meminfo"
+        local mem_kb
+        mem_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+        mem_bytes=$((mem_kb / 1024)) # KB → MB
+    fi
+
+    MEM_GB=$(awk "BEGIN {printf \"%.1f\", $mem_bytes/1024}")
+    local mem_int
+    mem_int=$(awk "BEGIN {printf \"%.0f\", $mem_bytes/1024}")
     # 向上取整
     if [ "$mem_int" -lt "$MEM_GB" ] || [ "$mem_int" -eq 0 ]; then
         mem_int=$((mem_int + 1))
