@@ -527,13 +527,14 @@ main() {
 
     if [ -f "$generated_hw" ]; then
         # 剔除 fileSystems / swapDevices（disko 管理这两项，避免冲突）
-        # awk 状态机：处理单行和多行两种格式
+        # fs=1/sw=1 独立追踪，防止 options 里的 ]; 误匹配
         awk '
-          /^  fileSystems\./        { skip=1; next }
-          /^  swapDevices/          { if (!/];/) skip=1; next }
-          skip && /};/              { skip=0; next }
-          skip && /];/              { skip=0; next }
-          skip                      { next }
+          /^  fileSystems\./        { fs=1; next }
+          fs && /};/                { fs=0; next }
+          fs                        { next }
+          /^  swapDevices/          { if (!/];/) sw=1; next }
+          sw && /];/                { sw=0; next }
+          sw                        { next }
           { print }
         ' "$generated_hw" > "$target_hw"
         success "硬件配置已保存（已剔除 fileSystems/swapDevices，由 disko 管理）"
