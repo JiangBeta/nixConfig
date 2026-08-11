@@ -527,16 +527,11 @@ main() {
 
     if [ -f "$generated_hw" ]; then
         # 剔除 fileSystems / swapDevices（disko 管理这两项，避免冲突）
-        # fs=1/sw=1 独立追踪，防止 options 里的 ]; 误匹配
-        awk '
-          /^  fileSystems\./        { fs=1; next }
-          fs && /};/                { fs=0; next }
-          fs                        { next }
-          /^  swapDevices/          { if (!/];/) sw=1; next }
-          sw && /];/                { sw=0; next }
-          sw                        { next }
-          { print }
-        ' "$generated_hw" > "$target_hw"
+        # sed 范围删除：fileSystems 每项以 "  fileSystems." 开头、"    };" 结尾
+        # swapDevices 为单行，直接删
+        sed -e '/^  fileSystems\./,/^    };/d' \
+            -e '/^  swapDevices/d' \
+            "$generated_hw" > "$target_hw"
         success "硬件配置已保存（已剔除 fileSystems/swapDevices，由 disko 管理）"
     else
         warn "未找到生成的硬件配置，请手动运行 nixos-generate-config --root /mnt"
