@@ -9,4 +9,6 @@
       type == "regular" && lib.hasSuffix ".nix" name && name != "default.nix"))
     (lib.mapAttrsToList (name: _: ./. + "/${name}"))
   ];
+
+  home.stateVersion = "25.05";
 }
