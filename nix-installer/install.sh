@@ -290,6 +290,13 @@ choose_swap() {
 
     # 检测物理内存（优先 dmidecode 读取 DIMM 硬件规格，回退 /proc/meminfo）
     local mem_bytes=0
+
+    if ! command -v dmidecode &>/dev/null; then
+        info "正在安装 dmidecode（读取 DIMM 硬件信息）..."
+        nix --extra-experimental-features "nix-command flakes" \
+            profile install nixpkgs#dmidecode 2>/dev/null || true
+    fi
+
     if command -v dmidecode &>/dev/null; then
         while read -r line; do
             if [[ "$line" =~ ^[[:space:]]+Size:[[:space:]]+([0-9]+)[[:space:]]+(MB|GB) ]]; then
