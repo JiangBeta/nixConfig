@@ -55,11 +55,11 @@ in
         export VISUAL="nvim"
 
         # Zsh 补全（大小写不敏感）
-        zstyle '':completion:*'' matcher-list ''m:{a-z}={A-Z}''
+        zstyle ''':completion:*''' matcher-list '''m:{a-z}={A-Z}'''
 
         # 快捷键
-        bindkey ''^[[1;5D'' backward-word
-        bindkey ''^[[1;5C'' forward-word
+        bindkey '''^[[1;5D''' backward-word
+        bindkey '''^[[1;5C''' forward-word
 
         # Yazi（退出时 cd 到浏览目录）
         function y() {
