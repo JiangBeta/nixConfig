@@ -23,7 +23,7 @@
     hardware = {
       swap = {
         enable = true;
-        size = "16G";
+        size = "20G";
         enableHibernation = true;
       };
 

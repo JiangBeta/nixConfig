@@ -21,7 +21,7 @@ in
     enable = true;
     # 默认：入站拒绝，出站允许
     allowedTCPPorts = [
-      # 22   # SSH（如需远程访问取消注释）
+      22 #（如需远程访问取消注释）
     ];
     allowedUDPPorts = [ ];
   };
