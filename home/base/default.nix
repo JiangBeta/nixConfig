@@ -10,5 +10,5 @@
     (lib.mapAttrsToList (name: _: ./. + "/${name}"))
   ];
 
-  home.stateVersion = "25.05";
+  home.stateVersion = "26.05";
 }
