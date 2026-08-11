@@ -237,39 +237,38 @@ in
     };
 
     # ==================== Sheldon ====================
-    # 来自 dotfile/config/sheldon/plugins.toml
-    programs.sheldon = {
-      enable = true;
-      plugins = [
-        {
-          name = "zsh-defer";
-          github = "romkatv/zsh-defer";
-        }
-        {
-          name = "zsh-autosuggestions";
-          github = "zsh-users/zsh-autosuggestions";
-        }
-        {
-          name = "zsh-syntax-highlighting";
-          github = "zsh-users/zsh-syntax-highlighting";
-        }
-        {
-          name = "zsh-completions";
-          github = "zsh-users/zsh-completions";
-        }
-        {
-          name = "you-should-use";
-          github = "MichaelAquilina/zsh-you-should-use";
-        }
-        {
-          name = "ohmyzsh-plugin";
-          github = "ohmyzsh/ohmyzsh";
-          dir = "plugins";
-          use = [ "{command-not-found,git,sudo,systemd,extract,fzf}/*.plugin.zsh" ];
-          apply = [ "defer" ];
-        }
-      ];
-    };
+    # 当前 HM 版本没有 programs.sheldon.plugins，
+    # 使用 xdg.configFile 直接部署 plugins.toml
+    programs.sheldon.enable = true;
+
+    xdg.configFile."sheldon/plugins.toml".text = ''
+      shell = "zsh"
+
+      [templates]
+      defer = "{% for file in files %}zsh-defer source \"{{ file }}\"\n{% endfor %}"
+
+      [plugins]
+      [plugins.zsh-defer]
+      github = "romkatv/zsh-defer"
+
+      [plugins.zsh-autosuggestions]
+      github = "zsh-users/zsh-autosuggestions"
+
+      [plugins.zsh-syntax-highlighting]
+      github = "zsh-users/zsh-syntax-highlighting"
+
+      [plugins.zsh-completions]
+      github = "zsh-users/zsh-completions"
+
+      [plugins.you-should-use]
+      github = "MichaelAquilina/zsh-you-should-use"
+
+      [plugins.ohmyzsh-plugin]
+      github = "ohmyzsh/ohmyzsh"
+      dir = "plugins"
+      use = ["{command-not-found,git,sudo,systemd,extract,fzf}/*.plugin.zsh"]
+      apply = ["defer"]
+    '';
 
     # ==================== Atuin ====================
     programs.atuin = {
