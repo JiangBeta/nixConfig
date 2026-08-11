@@ -1,4 +1,7 @@
 # hosts/pro13/default.nix — pro13 主机参数赋值
+#
+# 🌟 本文件只做「参数赋值」，不写实现逻辑。
+# 用户身份（fullName/email）在 vars/default.nix 中统一管理，此处只指定用户名。
 { ... }:
 {
   imports = [
@@ -9,12 +12,11 @@
   # 1. 主机身份
   networking.hostName = "pro13";
 
-  # 2. 注入硬件与底层配置参数（触发 common/options 与 modules/linux/ 联动）
+  # 2. 指定用哪个用户 + 硬件参数
   mySystem = {
-    user = "beta";
+    user = "beta";               # 🌟 只指定用户名（用户细节在 vars/default.nix）
     diskDevice = "/dev/nvme0n1";
     bootMode = "uefi";
-    kernel = "zen";
     cpuMicrocode = "intel";
     firewall = "nftables";
 

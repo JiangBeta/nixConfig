@@ -66,14 +66,22 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `hosts/pro13/`：default/hardware/networking 全部填充
 - ✅ `output/`：default.nix 入口 + X86_64-linux 分发
 - ✅ `nix-installer/`：disko 独立配置 + 半自动安装脚本
+- ✅ `home/base/`：shell(Zsh+Starship+Sheldon+Atuin)、cli(eza/bat/fzf等)、git(Delta+LazyGit)、tui(Yazi+btop)、neovim
+- ✅ `home/linux/default.nix`：Linux HM 聚合入口
+- ✅ `vars/default.nix`：共享变量（用户名/邮箱）
+- ✅ `common/lib/default.nix`：scanPaths 辅助函数
+- ✅ `common/options/user.nix`：新增 `myHome.userFullName` / `myHome.userEmail`
+- ✅ `flake.nix`：新增 niri/noctalia/catppuccin inputs
+- ✅ `output/X86_64-linux/default.nix`：集成 `home-manager.nixosModules.home-manager`
 
 ### 待完成
 - 🔲 `flake.lock`：需在 Nix 环境中运行 `nix flake update` 生成
 - 🔲 `hosts/pro13/hardware.nix`：需在 ISO live 环境用 `nixos-generate-config` 生成实际内容
-- 🔲 Home Manager + 桌面环境（`home/` 目录）
-- 🔲 `common/` 下 `env.nix`、`lib/`、`overlays/`、`assets/`
+- 🔲 桌面环境（`home/linux/Desktop/`）：Niri + Noctalia + Kitty + Fcitx5 + Zen Browser（Phase 4b）
+- 🔲 `modules/linux/desktop/`：Ly/greetd、niri 系统服务、字体
+- 🔲 `common/` 下 `env.nix`、`overlays/`、`assets/`
 - 🔲 `modules/linux/docker.nix`
-- 🔲 `modules/darwin/`、`hosts/m4macmini/`
+- 🔲 `modules/darwin/`、`hosts/m4macmini/`、`home/darwin/`
 - 🔲 `secrets/`（agenix）
 
 ## 规范约定

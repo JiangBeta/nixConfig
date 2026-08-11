@@ -3,3 +3,14 @@
 
 # Claude Code 本地配置
 .claude/settings.local.json
+
+# dotfile 参考数据（非 Nix 配置，嵌套 git 仓库等）
+dotfile/config/.git/
+dotfile/config/dconf/
+dotfile/config/zen/
+dotfile/local/
+dotfile/ssh/
+
+# Nix 构建结果
+result
+result-*
