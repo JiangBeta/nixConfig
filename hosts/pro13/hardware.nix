@@ -1,17 +1,8 @@
 # hosts/pro13/hardware.nix — pro13 硬件配置
 #
-# ⚠️ 此文件在安装时由 nixos-generate-config 生成，请按以下步骤操作：
-#
-# 1. ISO live 环境中运行 disko 分区并挂载后：
-#    nixos-generate-config --root /mnt
-#
-# 2. 将生成的 /mnt/etc/nixos/hardware-configuration.nix 内容复制到此文件中
-#
-# 3. 生成的内容包含：
-#    - fileSystems（由 disko 创建的分区挂载信息）
-#    - boot.initrd.availableKernelModules（硬件驱动模块）
-#    - boot.initrd.kernelModules
-#    - swapDevices（由 disko 创建的 SWAP 分区）
+# 此文件由 install.sh 在安装时自动生成（从 nixos-generate-config 输出）。
+# fileSystems 和 swapDevices 由 disko 模块管理，生成时自动剔除，
+# 避免双重定义冲突。此处仅保留硬件驱动相关信息。
 #
 # 在未实际安装前，此文件保持为最小骨架：
 
@@ -22,24 +13,14 @@
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
-  # 引导内核模块（需根据实际硬件调整）
+  # 引导内核模块（安装时 nixos-generate-config 自动填充实际值）
   boot.initrd.availableKernelModules = [
-    "xhci_pci"       # USB 3.0
-    "nvme"           # NVMe SSD
+    "xhci_pci"
+    "nvme"
     "usb_storage"
     "sd_mod"
-    "rtsx_pci_sdmmc" # 读卡器
+    "rtsx_pci_sdmmc"
   ];
 
   boot.initrd.kernelModules = [ ];
-
-  # 文件系统与 SWAP 由 disko 管理，安装时自动生成
-  # 此处为空，nixos-generate-config 会填充实际值
-
-  # 示例（安装后替换为实际生成内容）：
-  # fileSystems."/" = {
-  #   device = "/dev/disk/by-uuid/xxxx";
-  #   fsType = "btrfs";
-  #   options = [ "subvol=@" "compress=zstd" "noatime" ];
-  # };
 }
