@@ -10,7 +10,7 @@ let
     owner = "witt-bit";
     repo = "fcitx5-theme-macos12";
     rev = "master";
-    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # ⚠️ 首次构建后替换
+    hash = "sha256-H0X3+/mJ8KH73cZhv3ilNz77CBviQma4D2cKQ/iNiVM=";
   };
 
   # 万象语法模型（不在 nixpkgs 中）
