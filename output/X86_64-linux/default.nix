@@ -30,10 +30,17 @@ inputs:
         modules-nixos-desktop-noctalia.enable = true;
       }
 
-      # 5. Disko
+      # 5. Zen Browser
+      ({ pkgs, ... }: {
+        environment.systemPackages = [
+          inputs.zen-browser.packages.x86_64-linux.default
+        ];
+      })
+
+      # 7. Disko
       inputs.disko.nixosModules.disko
 
-      # 6. Home Manager
+      # 8. Home Manager
       inputs.home-manager.nixosModules.home-manager
       ({ config, ... }: {
         home-manager = {

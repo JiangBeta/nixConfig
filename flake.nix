@@ -32,8 +32,14 @@
       url = "github:catppuccin/nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Zen Browser
+    zen-browser = {
+      url = "github:youwen5/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs @ { self, nixpkgs, disko, home-manager, niri, noctalia, catppuccin, ... }:
+  outputs = inputs @ { self, nixpkgs, disko, home-manager, niri, noctalia, catppuccin, zen-browser, ... }:
     import ./output inputs;
 }
