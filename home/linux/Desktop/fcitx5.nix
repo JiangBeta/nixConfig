@@ -58,12 +58,9 @@ in
       ".local/share/fcitx5/rime/rime_ice.schema.yaml".source =
         "${pkgs.rime-ice}/share/rime-data/rime_ice.schema.yaml";
 
-      # 默认方案 — 覆盖 schema_list，只保留雾凇和小鹤双拼
+      # 默认方案（雾凇 + 小鹤双拼）
       ".local/share/fcitx5/rime/default.custom.yaml".text = ''
         patch:
-          "schema_list/@0/schema": double_pinyin_flypy
-          "schema_list/@1/schema": rime_ice
-          "schema_list/@after 1": __delete
           __include: rime_ice_suggestion:/
           "menu/page_size": 9
           "ascii_composer/switch_key/Shift_L": commit_code
@@ -132,6 +129,11 @@ in
         0=默认
       '';
     };
+
+    # 删除 rime 自动生成的 installation.yaml（防止覆盖 default.custom.yaml）
+    home.activation.removeRimeInstallation = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      rm -f ${config.home.homeDirectory}/.local/share/fcitx5/rime/installation.yaml
+    '';
 
     # ==================== 主题 ====================
     home.file.".local/share/fcitx5/themes/macos12-dark".source =
