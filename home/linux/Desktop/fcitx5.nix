@@ -28,9 +28,10 @@ in
     # ==================== Fcitx5 框架 ====================
     i18n.inputMethod = {
       enabled = "fcitx5";
+      fcitx5.waylandFrontend = true;
       fcitx5.addons = with pkgs; [
         (fcitx5-rime.override {
-          rimeDataPkgs = [ rime-data rime-ice ];
+          rimeDataPkgs = [ rime-ice ];
         })
         qt6Packages.fcitx5-configtool
         fcitx5-gtk
@@ -50,18 +51,10 @@ in
       # 万象语法模型
       ".local/share/fcitx5/rime/wanxiang-lts-zh-hans.gram".source = wanxiang-gram;
 
-      # 🌟 用 rime-ice 的 suggestion.yaml 直接作为 default.yaml
-      # 这会覆盖 rime-data 的 luna_pinyin 默认配置
-      ".local/share/fcitx5/rime/default.yaml".source =
-        "${pkgs.rime-ice}/share/rime-data/rime_ice_suggestion.yaml";
-      ".local/share/fcitx5/rime/rime_ice.dict.yaml".source =
-        "${pkgs.rime-ice}/share/rime-data/rime_ice.dict.yaml";
-      ".local/share/fcitx5/rime/rime_ice.schema.yaml".source =
-        "${pkgs.rime-ice}/share/rime-data/rime_ice.schema.yaml";
-
-      # 在 rime-ice 基础上追加自定义
+      # 雾凇拼音方案
       ".local/share/fcitx5/rime/default.custom.yaml".text = ''
         patch:
+          __include: rime_ice_suggestion:/
           "schema_list/@after 0": __delete
           alternative_select_labels: [ ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨, ⑩ ]
           "menu/page_size": 9
