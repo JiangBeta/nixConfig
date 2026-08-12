@@ -56,6 +56,13 @@
   # ==================== 固件 ====================
   hardware.enableAllFirmware = true;
 
+  # ==================== Fcitx5 系统级 — GTK/Qt IM 模块注册 ====================
+  # 仅负责注册 IM 模块路径，用户端配置（rime、theme 等）由 HM fcitx5.nix 处理
+  i18n.inputMethod = {
+    enabled = "fcitx5";
+    fcitx5.addons = with pkgs; [ fcitx5-gtk ];
+  };
+
   # ==================== 基础系统包 ====================
   environment.systemPackages = with pkgs; [
     # 基础工具
@@ -70,9 +77,6 @@
     # 文件系统工具
     btrfs-progs
     dosfstools
-
-    # Fcitx5 GTK 模块 — 系统级 GTK 应用（如 Zen Browser）的输入法支持
-    fcitx5-gtk
   ];
 
   # Bash 补全
