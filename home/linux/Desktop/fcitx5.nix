@@ -1,19 +1,17 @@
 # home/linux/Desktop/fcitx5.nix — Fcitx5 + Rime 雾凇拼音
 #
-# 参考：用户提供的 Arch 安装文档
+# 参考：NixOS Wiki + 用户提供的 Arch 文档
+#
+# 架构说明：
+#   - fcitx5-rime: Rime 引擎 addon（默认含 rime-data）
+#   - rime-ice: 雾凇拼音数据包（通过 override 注入）
+#   - default.yaml: 直接嵌入 rime-ice 的 suggestion.yaml 内容
+#   - default.custom.yaml: 用户自定义补丁
 { config, lib, pkgs, ... }:
 let
   cfg = config.modules-home-linux-desktop-fcitx5;
 
-  # macOS 风格主题（不在 nixpkgs 中）
-  fcitx5-theme = pkgs.fetchFromGitHub {
-    owner = "witt-bit";
-    repo = "fcitx5-theme-macos12";
-    rev = "master";
-    hash = "sha256-H0X3+/mJ8KH73cZhv3ilNz77CBviQma4D2cKQ/iNiVM=";
-  };
-
-  # 万象语法模型（不在 nixpkgs 中）
+  # 万象语法模型
   wanxiang-gram = pkgs.fetchurl {
     url = "https://github.com/amzxyz/RIME-LMDG/releases/download/LTS/wanxiang-lts-zh-hans.gram";
     hash = "sha256-kNI4X2Uzf4uMexuly+h03z8tkbRi1o+i+f6QxXqjvGY=";
@@ -26,6 +24,7 @@ in
 
   config = lib.mkIf cfg.enable {
     # ==================== Fcitx5 框架 ====================
+    # 参考 NixOS Wiki：fcitx5.addons 中加入 fcitx5-rime + rime-ice 数据
     i18n.inputMethod = {
       enabled = "fcitx5";
       fcitx5.waylandFrontend = true;
@@ -33,8 +32,9 @@ in
         (fcitx5-rime.override {
           rimeDataPkgs = [ rime-data rime-ice ];
         })
-        qt6Packages.fcitx5-configtool
+        fcitx5-rime
         fcitx5-gtk
+        fcitx5-material-color  # 主题（来自 nixpkgs）
       ];
     };
 
@@ -46,12 +46,12 @@ in
       SDL_IM_MODULE = "fcitx";
     };
 
-    # ==================== Rime 数据与配置 ====================
+    # ==================== Rime 数据 ====================
     home.file = {
       # 万象语法模型
       ".local/share/fcitx5/rime/wanxiang-lts-zh-hans.gram".source = wanxiang-gram;
 
-      # 🌟 直接嵌入 rime-ice 的 suggestion 作为 default.yaml（非 symlink）
+      # 🌟 直接嵌入 rime-ice 的 suggestion.yaml 作为 default.yaml
       ".local/share/fcitx5/rime/default.yaml".text =
         builtins.readFile "${pkgs.rime-ice}/share/rime-data/rime_ice_suggestion.yaml";
 
@@ -84,10 +84,8 @@ in
 
     # ==================== Fcitx5 配置 ====================
     xdg.configFile = {
-      # 外观配置
       "fcitx5/conf/classicui.conf".text = ''
-        Theme=macos12-dark
-        DarkTheme=macos12-dark
+        Theme=Material-Color-Pink
         Font="霞鹜文楷等宽 屏幕阅读版 14"
         MenuFont="OPPO Sans 4.0 14"
         TrayFont="OPPO Sans 4.0 14"
@@ -128,15 +126,9 @@ in
       '';
     };
 
-    # 删除 rime 自动生成的 installation.yaml（防止覆盖 default.custom.yaml）
+    # 清理 rime 自动生成的 installation.yaml
     home.activation.removeRimeInstallation = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       rm -f ${config.home.homeDirectory}/.local/share/fcitx5/rime/installation.yaml
     '';
-
-    # ==================== 主题 ====================
-    home.file.".local/share/fcitx5/themes/macos12-dark".source =
-      "${fcitx5-theme}/macos12-dark";
-
-    # GTK IM + 环境变量 — 由 home.sessionVariables 和 gtk.enable 处理
   };
 }
