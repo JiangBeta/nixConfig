@@ -51,14 +51,13 @@ in
       # 万象语法模型
       ".local/share/fcitx5/rime/wanxiang-lts-zh-hans.gram".source = wanxiang-gram;
 
-      # 用 rime-ice 的 suggestion 作为 default.yaml（覆盖 rime-data 的 luna_pinyin）
-      ".local/share/fcitx5/rime/default.yaml".source =
-        "${pkgs.rime-ice}/share/rime-data/rime_ice_suggestion.yaml";
+      # 🌟 直接嵌入 rime-ice 的 suggestion 作为 default.yaml（非 symlink）
+      ".local/share/fcitx5/rime/default.yaml".text =
+        builtins.readFile "${pkgs.rime-ice}/share/rime-data/rime_ice_suggestion.yaml";
 
-      # 雾凇拼音方案
+      # 用户自定义补丁
       ".local/share/fcitx5/rime/default.custom.yaml".text = ''
         patch:
-          __include: rime_ice_suggestion:/
           "schema_list/@after 0": __delete
           alternative_select_labels: [ ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨, ⑩ ]
           "menu/page_size": 9
