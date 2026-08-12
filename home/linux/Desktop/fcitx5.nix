@@ -5,15 +5,7 @@
 let
   cfg = config.modules-home-linux-desktop-fcitx5;
 
-  # 雾凇拼音 rime-ice 数据
-  rime-ice = pkgs.fetchFromGitHub {
-    owner = "iDvel";
-    repo = "rime-ice";
-    rev = "main-2025";
-    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # ⚠️ 首次构建后替换
-  };
-
-  # macOS 风格主题
+  # macOS 风格主题（不在 nixpkgs 中）
   fcitx5-theme = pkgs.fetchFromGitHub {
     owner = "witt-bit";
     repo = "fcitx5-theme-macos12";
@@ -21,7 +13,7 @@ let
     hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # ⚠️ 首次构建后替换
   };
 
-  # 万象语法模型
+  # 万象语法模型（不在 nixpkgs 中）
   wanxiang-gram = pkgs.fetchurl {
     url = "https://github.com/amzxyz/RIME-LMDG/releases/download/LTS/wanxiang-lts-zh-hans.gram";
     hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # ⚠️ 首次构建后替换
@@ -37,7 +29,9 @@ in
     i18n.inputMethod = {
       enabled = "fcitx5";
       fcitx5.addons = with pkgs; [
-        fcitx5-rime
+        (fcitx5-rime.override {
+          rimeDataPkgs = [ rime-data rime-ice ];
+        })
         qt6Packages.fcitx5-configtool
         fcitx5-gtk
       ];
@@ -53,8 +47,6 @@ in
 
     # ==================== Rime 数据 ====================
     home.file = {
-      # 雾凇拼音方案数据
-      ".local/share/fcitx5/rime".source = "${rime-ice}";
       # 万象语法模型
       ".local/share/fcitx5/rime/wanxiang-lts-zh-hans.gram".source = wanxiang-gram;
     };
