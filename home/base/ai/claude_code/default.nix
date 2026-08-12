@@ -213,9 +213,18 @@ in
       (if cfg.package != null then
         cfg.package
       else
-        pkgs.nodePackages."@anthropic-ai/claude-code"
-        or pkgs.nodePackages.claude-code
-        or (builtins.throw "Claude Code 包未找到！请设置 modules-home-base-ai-claudeCode.package。"))
+        let
+          # 新版 nixpkgs 已移除 nodePackages，用 tryEval 安全回退
+          hasNP = builtins.tryEval (pkgs.nodePackages or null);
+          fromNP =
+            if hasNP.success && hasNP.value != null
+            then hasNP.value."@anthropic-ai/claude-code" or hasNP.value.claude-code or null
+            else null;
+          fromTop = builtins.tryEval pkgs.claude-code or null;
+        in
+          if fromTop.success then fromTop.value
+          else if fromNP != null then fromNP
+          else builtins.throw "Claude Code 包未找到！请设置 modules-home-base-ai-claudeCode.package。")
     ];
 
     home.file = lib.mkMerge [
