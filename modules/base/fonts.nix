@@ -28,7 +28,7 @@ let
   oppo-sans = pkgs.stdenvNoCC.mkDerivation {
     pname = "oppo-sans";
     version = "4.0";
-    src = ../../assets/fonts/OPPO_Sans_4.0.zip;
+    src = ../../common/assets/fonts/OPPO_Sans_4.0.zip;
     nativeBuildInputs = [ pkgs.unzip ];
     unpackPhase = "unzip $src";
     installPhase = ''
