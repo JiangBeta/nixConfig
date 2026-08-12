@@ -31,7 +31,7 @@ in
       fcitx5.waylandFrontend = true;
       fcitx5.addons = with pkgs; [
         (fcitx5-rime.override {
-          rimeDataPkgs = [ rime-ice ];
+          rimeDataPkgs = [ rime-data rime-ice ];
         })
         qt6Packages.fcitx5-configtool
         fcitx5-gtk
@@ -50,6 +50,10 @@ in
     home.file = {
       # 万象语法模型
       ".local/share/fcitx5/rime/wanxiang-lts-zh-hans.gram".source = wanxiang-gram;
+
+      # 用 rime-ice 的 suggestion 作为 default.yaml（覆盖 rime-data 的 luna_pinyin）
+      ".local/share/fcitx5/rime/default.yaml".source =
+        "${pkgs.rime-ice}/share/rime-data/rime_ice_suggestion.yaml";
 
       # 雾凇拼音方案
       ".local/share/fcitx5/rime/default.custom.yaml".text = ''
