@@ -1,21 +1,55 @@
 # home/linux/Desktop/fcitx5.nix — Fcitx5 + Rime 雾凇拼音
 #
-# 参考：NixOS Wiki + 用户提供的 Arch 文档
-#
-# 架构说明：
-#   - fcitx5-rime: Rime 引擎 addon（默认含 rime-data）
-#   - rime-ice: 雾凇拼音数据包（通过 override 注入）
-#   - default.yaml: 直接嵌入 rime-ice 的 suggestion.yaml 内容
-#   - default.custom.yaml: 用户自定义补丁
+# 策略：将所有 rime-ice 文件 + 自定义配置打包到一个 derivation，
+# 整个 symlink 到 ~/.local/share/fcitx5/rime/，与 Arch 安装效果一致。
 { config, lib, pkgs, ... }:
 let
   cfg = config.modules-home-linux-desktop-fcitx5;
 
-  # 万象语法模型
   wanxiang-gram = pkgs.fetchurl {
     url = "https://github.com/amzxyz/RIME-LMDG/releases/download/LTS/wanxiang-lts-zh-hans.gram";
     hash = "sha256-kNI4X2Uzf4uMexuly+h03z8tkbRi1o+i+f6QxXqjvGY=";
   };
+
+  # 整合 rime-ice 全部文件 + 自定义配置到一个目录
+  rime-dir = pkgs.runCommand "rime-user-dir" { } ''
+    mkdir -p $out
+
+    # 1. 复制 rime-ice 全部数据文件
+    cp -r ${pkgs.rime-ice}/share/rime-data/* $out/
+
+    # 2. default.yaml 就是 rime_ice_suggestion（已在上一步复制）
+    #    但 rime 只认 default.yaml，所以创建它
+    cp $out/rime_ice_suggestion.yaml $out/default.yaml
+
+    # 3. 万象语法模型
+    cp ${wanxiang-gram} $out/
+
+    # 4. 自定义补丁
+    cat > $out/default.custom.yaml << 'YAML'
+    patch:
+      "schema_list/@after 0": __delete
+      alternative_select_labels: [ ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨, ⑩ ]
+      "menu/page_size": 9
+      "ascii_composer/switch_key/Shift_L": commit_code
+      "ascii_composer/switch_key/Shift_R": commit_code
+    YAML
+
+    cat > $out/rime_ice.custom.yaml << 'YAML'
+    patch:
+      grammar:
+        language: wanxiang-lts-zh-hans
+        collocation_max_length: 5
+        collocation_min_length: 2
+        collocation_penalty: -10
+        non_collocation_penalty: -17
+        weak_collocation_penalty: -24
+        rear_penalty: -18
+      translator/contextual_suggestions: false
+      translator/max_homophones: 7
+      translator/max_homographs: 7
+    YAML
+  '';
 in
 {
   options.modules-home-linux-desktop-fcitx5 = {
@@ -23,22 +57,19 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # ==================== Fcitx5 框架 ====================
-    # 参考 NixOS Wiki：fcitx5.addons 中加入 fcitx5-rime + rime-ice 数据
     i18n.inputMethod = {
       enabled = "fcitx5";
       fcitx5.waylandFrontend = true;
       fcitx5.addons = with pkgs; [
         (fcitx5-rime.override {
-          rimeDataPkgs = [ rime-data rime-ice ];
+          rimeDataPkgs = [ rime-ice ];  # 只用 rime-ice，不装 rime-data（无明月）
         })
         fcitx5-rime
         fcitx5-gtk
-        fcitx5-material-color  # 主题（来自 nixpkgs）
+        fcitx5-material-color
       ];
     };
 
-    # ==================== 环境变量 ====================
     home.sessionVariables = {
       GTK_IM_MODULE = "fcitx";
       QT_IM_MODULE = "fcitx";
@@ -46,43 +77,12 @@ in
       SDL_IM_MODULE = "fcitx";
     };
 
-    # ==================== Rime 数据 ====================
-    home.file = {
-      # 万象语法模型
-      ".local/share/fcitx5/rime/wanxiang-lts-zh-hans.gram".source = wanxiang-gram;
-
-      # 🌟 直接嵌入 rime-ice 的 suggestion.yaml 作为 default.yaml
-      ".local/share/fcitx5/rime/default.yaml".text =
-        builtins.readFile "${pkgs.rime-ice}/share/rime-data/rime_ice_suggestion.yaml";
-
-      # 用户自定义补丁
-      ".local/share/fcitx5/rime/default.custom.yaml".text = ''
-        patch:
-          "schema_list/@after 0": __delete
-          alternative_select_labels: [ ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨, ⑩ ]
-          "menu/page_size": 9
-          "ascii_composer/switch_key/Shift_L": commit_code
-          "ascii_composer/switch_key/Shift_R": commit_code
-      '';
-
-      # 万象语法模型配置
-      ".local/share/fcitx5/rime/rime_ice.custom.yaml".text = ''
-        patch:
-          grammar:
-            language: wanxiang-lts-zh-hans
-            collocation_max_length: 5
-            collocation_min_length: 2
-            collocation_penalty: -10
-            non_collocation_penalty: -17
-            weak_collocation_penalty: -24
-            rear_penalty: -18
-          translator/contextual_suggestions: false
-          translator/max_homophones: 7
-          translator/max_homographs: 7
-      '';
+    # 🌟 整个 rime 目录 symlink（所有 rime-ice 文件 + 自定义配置）
+    home.file.".local/share/fcitx5/rime" = {
+      source = rime-dir;
+      recursive = true;
     };
 
-    # ==================== Fcitx5 配置 ====================
     xdg.configFile = {
       "fcitx5/conf/classicui.conf".text = ''
         Theme=Material-Color-Pink
@@ -98,8 +98,6 @@ in
         0=Control+space
         [Hotkey/EnumerateGroupForwardKeys]
         0=Super+space
-        [Hotkey/EnumerateGroupBackwardKeys]
-        0=Shift+Super+space
         [Behavior]
         ActiveByDefault=False
         ShowInputMethodInformation=True
@@ -126,7 +124,6 @@ in
       '';
     };
 
-    # 清理 rime 自动生成的 installation.yaml
     home.activation.removeRimeInstallation = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       rm -f ${config.home.homeDirectory}/.local/share/fcitx5/rime/installation.yaml
     '';
