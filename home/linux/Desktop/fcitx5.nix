@@ -58,10 +58,12 @@ in
       ".local/share/fcitx5/rime/rime_ice.schema.yaml".source =
         "${pkgs.rime-ice}/share/rime-data/rime_ice.schema.yaml";
 
-      # 默认方案（雾凇 + 小鹤双拼）
+      # 雾凇拼音配置（小鹤双拼、候选词标签、中英文切换等）
       ".local/share/fcitx5/rime/default.custom.yaml".text = ''
         patch:
           __include: rime_ice_suggestion:/
+          "schema_list/@after 0": __delete
+          alternative_select_labels: [ ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨, ⑩ ]
           "menu/page_size": 9
           "ascii_composer/switch_key/Shift_L": commit_code
           "ascii_composer/switch_key/Shift_R": commit_code
