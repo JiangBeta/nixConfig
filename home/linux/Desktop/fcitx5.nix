@@ -16,7 +16,7 @@ let
   # 万象语法模型（不在 nixpkgs 中）
   wanxiang-gram = pkgs.fetchurl {
     url = "https://github.com/amzxyz/RIME-LMDG/releases/download/LTS/wanxiang-lts-zh-hans.gram";
-    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="; # ⚠️ 首次构建后替换
+    hash = "sha256-kNI4X2Uzf4uMexuly+h03z8tkbRi1o+i+f6QxXqjvGY=";
   };
 in
 {
