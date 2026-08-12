@@ -16,7 +16,7 @@ in
   # ============================================
   # AI Tokens
   # ============================================
-  age.secrets."ai-tokens" = {
+  age.secrets."ai-tokens" = lib.mkIf (builtins.pathExists ../../secrets/ai/tokens.json.age) {
     file = ../../secrets/ai/tokens.json.age;
     owner = user;
     group = "users";
@@ -26,7 +26,7 @@ in
   # ============================================
   # SSH 私钥
   # ============================================
-  age.secrets."ssh-key" = {
+  age.secrets."ssh-key" = lib.mkIf (builtins.pathExists ../../secrets/ssh/id_ed25519.age) {
     file = ../../secrets/ssh/id_ed25519.age;
     owner = user;
     group = "users";
@@ -36,7 +36,7 @@ in
   # ============================================
   # 用户登录密码（hashed）
   # ============================================
-  age.secrets."user-password" = {
+  age.secrets."user-password" = lib.mkIf (builtins.pathExists ../../secrets/creds/user-password.age) {
     file = ../../secrets/creds/user-password.age;
     owner = "root";
     group = "root";

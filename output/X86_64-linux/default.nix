@@ -67,8 +67,9 @@ inputs:
           extraSpecialArgs = {
             inherit (inputs) niri noctalia catppuccin;
             # agenix 解密路径（供 AI 模块注入 token、SSH 模块部署密钥）
-            aiTokensPath = config.age.secrets."ai-tokens".path;
-            sshKeyPath = config.age.secrets."ssh-key".path;
+            # ⚠️ 仅当对应 .age 文件存在时才有效
+            aiTokensPath = config.age.secrets."ai-tokens".path or null;
+            sshKeyPath = config.age.secrets."ssh-key".path or null;
           };
           users.${config.mySystem.user} = {
             imports = [ (import ../../home/linux) ];
