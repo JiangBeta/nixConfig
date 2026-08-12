@@ -1,0 +1,16 @@
+# .agenix.yaml — 主机 age 公钥注册
+#
+# 每台主机持有独立的 age 密钥对。在此注册公钥后，
+# 运行 `agenix -r` 会用所有注册的公钥重新加密所有 .age 文件。
+#
+# 获取主机公钥：
+#   age-keygen -y ~/.config/age/keys.txt       # 独立密钥
+#   ssh-to-age < /etc/ssh/ssh_host_ed25519_key  # SSH host key 派生
+#
+# ⚠️ 添加新主机后必须运行 `agenix -r` 重新加密所有 secret！
+keys:
+  # pro13: age1...
+  # macmini: age1...
+  # nuc8-d: age1...
+  # nuc8-s: age1...
+  # xiaobaonas: age1...

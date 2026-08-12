@@ -10,6 +10,6 @@
 {
   myHome = {
     userFullName = "Beta";
-    userEmail = "";  # ⚠️ 请替换为真实邮箱（Git commit 签名需要）
+    userEmail = "nishui8384@gmail.com";  # ⚠️ 请替换为真实邮箱（Git commit 签名需要）
   };
 }

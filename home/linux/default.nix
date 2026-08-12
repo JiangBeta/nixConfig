@@ -6,6 +6,7 @@
 {
   imports = [
     ../base
+    ../base/ai
     ./Desktop
   ];
 
@@ -24,6 +25,21 @@
   modules-home-linux-desktop-browsers.enable = true;
   modules-home-linux-desktop-gtk.enable = true;
   modules-home-linux-desktop-xdg.enable = true;
+
+  # ---- AI 工具 ----
+  modules-home-base-ai-nodejs.enable = true;
+
+  # 共享 MCP 服务器（所有 AI 工具共用同一份 servers 定义）
+  modules-home-base-ai-mcp = {
+    enable = true;
+    servers = {
+      "codebase-memory-mcp" = {
+        command = "/home/beta/.local/bin/codebase-memory-mcp";
+      };
+    };
+  };
+
+  modules-home-base-ai-claudeCode.enable = true;
 
   # Linux 专属用户级包
   home.packages = with pkgs; [

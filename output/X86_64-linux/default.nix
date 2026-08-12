@@ -11,7 +11,10 @@ inputs:
 
       # 2. 全局数据
       ../../vars
-
+    ]
+    # 条件导入 API token（gitignored，不存在时跳过）
+    ++ (if builtins.pathExists ../../vars/tokens.nix then [ ../../vars/tokens.nix ] else [ ])
+    ++ [
       # 3. 系统模块
       ../../modules/linux/base.nix
       ../../modules/linux/boot.nix
@@ -30,25 +33,42 @@ inputs:
         modules-nixos-desktop-noctalia.enable = true;
       }
 
-      # 5. Zen Browser
+      # 5. Zen Browser（包装 .desktop 注入 fcitx5 环境变量）
       ({ pkgs, ... }: {
         environment.systemPackages = [
-          inputs.zen-browser.packages.x86_64-linux.default
+          (pkgs.symlinkJoin {
+            name = "zen-browser";
+            paths = [ inputs.zen-browser.packages.x86_64-linux.default ];
+            postBuild = ''
+              rm -f $out/share/applications/*.desktop
+              for f in ${inputs.zen-browser.packages.x86_64-linux.default}/share/applications/*.desktop; do
+                base=$(basename "$f")
+                sed "s/^Exec=/Exec=env GTK_IM_MODULE=fcitx QT_IM_MODULE=fcitx XMODIFIERS=@im=fcitx /" "$f" > "$out/share/applications/$base"
+              done
+            '';
+          })
         ];
       })
 
       # 7. Disko
       inputs.disko.nixosModules.disko
 
-      # 8. Home Manager
+      # 8. agenix — Secret 解密
+      inputs.agenix.nixosModules.age
+      ../../common/secrets
+
+      # 9. Home Manager
       inputs.home-manager.nixosModules.home-manager
       ({ config, ... }: {
         home-manager = {
           useGlobalPkgs = true;
           useUserPackages = true;
-          # 将 flake inputs 传入 HM 子模块（gtk/niri/noctalia 需要）
+          # 将 flake inputs 传入 HM 子模块
           extraSpecialArgs = {
             inherit (inputs) niri noctalia catppuccin;
+            # agenix 解密路径（供 AI 模块注入 token、SSH 模块部署密钥）
+            aiTokensPath = config.age.secrets."ai-tokens".path;
+            sshKeyPath = config.age.secrets."ssh-key".path;
           };
           users.${config.mySystem.user} = {
             imports = [ (import ../../home/linux) ];
@@ -58,7 +78,7 @@ inputs:
         };
       })
 
-      # 7. 主机参数
+      # 10. 主机参数
       ../../hosts/pro13
     ];
   };

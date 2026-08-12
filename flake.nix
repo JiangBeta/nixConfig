@@ -38,8 +38,14 @@
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # agenix — Secret 管理（age 加密）
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs @ { self, nixpkgs, disko, home-manager, niri, noctalia, catppuccin, zen-browser, ... }:
+  outputs = inputs @ { self, nixpkgs, disko, home-manager, niri, noctalia, catppuccin, zen-browser, agenix, ... }:
     import ./output inputs;
 }
