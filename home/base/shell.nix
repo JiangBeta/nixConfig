@@ -43,18 +43,47 @@ in
 
       # 来自 dotfile/zshrc
       initExtra = ''
-        # PATH
+        # ---- PATH ----
         export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
-        # 语言
+        # ---- 语言 ----
         export LANG="zh_CN.UTF-8"
         export LC_ALL="zh_CN.UTF-8"
 
-        # 编辑器
+        # ---- 编辑器 ----
         export EDITOR="nvim"
         export VISUAL="nvim"
 
-        # Yazi（退出时 cd 到浏览目录）
+        # ---- zoxide 配置 ----
+        export _ZO_DATA_DIR="$HOME/.local/share/zoxide"
+        export _ZO_EXCLUDE_DIRS="$HOME/tmp:$HOME/Downloads/*:$HOME/.snapshots/*"
+        export _ZO_RESOLVE_SYMLINKS=1
+
+        # ---- FZF 配置 ----
+        export FZF_WALKER_DEPTH=5
+        export FZF_TMUX_HEIGHT="60%"
+        export FZF_DEFAULT_OPTS='--preview "cat {}" --preview-window right:50%'
+        export FZF_CTRL_R_OPTS="--scheme=history -i"
+        export FZF_CTRL_T_OPTS='--preview "[[ -d {} ]] && tree -C {} || highlight -0 ansi {} 2> /dev/null"'
+
+        # ---- zoxide + fzf 模糊搜索 (zx) ----
+        zx() {
+          local query="${*}"
+          local dir
+          local preview_cmd="ls -F -C --color=always {2..}"
+          local bind_opts="ctrl-z:ignore,btab:up,tab:down,enter:become:echo {2..}"
+          dir=$(zoxide query --list --score | \
+            fzf --filter="$query" --no-sort | \
+            fzf --prompt="zoxide > " --nth=2.. --ansi --height=60% \
+              --info=inline --border=rounded --layout=reverse \
+              --preview-window=down:40%:wrap \
+              --preview="$preview_cmd" \
+              --bind "$bind_opts" \
+              --cycle --keep-right --tabstop=1)
+          [[ -n "$dir" ]] && cd "$dir"
+        }
+
+        # ---- Yazi（退出时 cd 到浏览目录） ----
         function y() {
           local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
           command yazi "$@" --cwd-file="$tmp"
@@ -65,12 +94,7 @@ in
           fi
         }
 
-        # zoxide + fzf 模糊搜索
-        export _ZO_DATA_DIR="$HOME/.local/share/zoxide"
-        export _ZO_EXCLUDE_DIRS="$HOME/tmp:$HOME/Downloads/*"
-        export _ZO_RESOLVE_SYMLINKS=1
-
-        # fastfetch 启动（不在 VSCode/Nvim 中）
+        # ---- fastfetch 启动（不在 VSCode/Nvim 中） ----
         if [[ "$TERM_PROGRAM" != "vscode" && -z "$VSCODE_INJECTION" && -z "$NVIM" ]]; then
           fastfetch --pipe false
         fi
