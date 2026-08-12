@@ -50,18 +50,18 @@ in
       # 万象语法模型
       ".local/share/fcitx5/rime/wanxiang-lts-zh-hans.gram".source = wanxiang-gram;
 
-      # 雾凇拼音方案（从 nixpkgs rime-ice 直接 symlink）
-      ".local/share/fcitx5/rime/rime_ice_suggestion.yaml".source =
+      # 🌟 用 rime-ice 的 suggestion.yaml 直接作为 default.yaml
+      # 这会覆盖 rime-data 的 luna_pinyin 默认配置
+      ".local/share/fcitx5/rime/default.yaml".source =
         "${pkgs.rime-ice}/share/rime-data/rime_ice_suggestion.yaml";
       ".local/share/fcitx5/rime/rime_ice.dict.yaml".source =
         "${pkgs.rime-ice}/share/rime-data/rime_ice.dict.yaml";
       ".local/share/fcitx5/rime/rime_ice.schema.yaml".source =
         "${pkgs.rime-ice}/share/rime-data/rime_ice.schema.yaml";
 
-      # 雾凇拼音配置（小鹤双拼、候选词标签、中英文切换等）
+      # 在 rime-ice 基础上追加自定义
       ".local/share/fcitx5/rime/default.custom.yaml".text = ''
         patch:
-          __include: rime_ice_suggestion:/
           "schema_list/@after 0": __delete
           alternative_select_labels: [ ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨, ⑩ ]
           "menu/page_size": 9
