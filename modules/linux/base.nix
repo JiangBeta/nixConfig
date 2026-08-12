@@ -84,7 +84,7 @@
     enable = true;
     settings = {
       PermitRootLogin = "no";
-      PasswordAuthentication = false;
+      PasswordAuthentication = true;  # 等配好 SSH key 后改为 false
     };
   };
 }
