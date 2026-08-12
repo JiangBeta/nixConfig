@@ -10,7 +10,7 @@ Always reply in Chinese.
 
 **核心设计理念：DRY 优先**。跨平台通用逻辑上提到 `modules/base/`、`home/base/`；平台专属逻辑下沉到 `modules/linux/`（NixOS）、`modules/darwin/`（macOS）、`home/linux/`、`home/darwin/`。
 
-**⚠️ 当前为搭建初期**：`flake.nix` 为空、无 `flake.lock`、未初始化 git。`home/`、`modules/base/`、`modules/darwin/`、`secrets/`、`vars/`、`nix-installer/` 等目录仅为空占位。README 描述的是目标结构，实际落地仅完成 `common/options/`、`modules/linux/`、`hosts/pro13/`、`output/` 的骨架。
+**⚠️ 当前为搭建初期**：基础骨架已完成，桌面环境和部分模块待补齐，详见下方「当前状态」。
 
 ## 主机一览（README 目标）
 
@@ -33,7 +33,7 @@ nix flake check                           # 检查 flake 求值
 nix fmt                                   # 格式化（需先配置 formatter 才可用）
 ```
 
-> 由于 `flake.nix` 目前为空，上述构建命令在补齐 flake 入口之前不可用；`nix flake check` 可直接用来验证模块是否可求值。
+> `flake.nix` 已创建，含 nixpkgs/disko/home-manager/niri/noctalia/catppuccin/zen-browser/agenix inputs。构建前需在 Nix 环境中运行 `nix flake update` 生成 `flake.lock`。
 
 ## 架构：Custom Options 作为契约
 
@@ -54,35 +54,35 @@ nix fmt                                   # 格式化（需先配置 formatter �
 
 4. **`output/`** —— Flake outputs 分发层。按架构分目录，每个 `output/<system>/default.nix` 定义该架构下主机的 `nixosSystem`。**实际目录名是 `output/`（单数）**，README 中写的是 `outputs/`。
 
-## 当前状态 (2026-08-11)
+## 当前状态 (2026-08-12)
 
 ### 已完成
-- ✅ `flake.nix`：入口已创建（inputs: nixpkgs/unstable, disko, home-manager）
-- ✅ `common/options/*.nix`：语法错误全部修复，新增 `cpuMicrocode`、`firewall` option
-- ✅ `modules/linux/boot.nix`：linux-zen 内核 + CPU 微码消费
-- ✅ `modules/linux/btrfs.nix`：修复 lib 参数缺失并改名（原 `btrfs-snap.nix`）
-- ✅ `modules/linux/base.nix`：时区/Locale/Nix镜像/PipeWire/蓝牙/基础包
-- ✅ `modules/base/user.nix`：用户创建 + sudo
+- ✅ `flake.nix`：入口已创建（inputs: nixpkgs/unstable, disko, home-manager, niri, noctalia, catppuccin, zen-browser, agenix）
+- ✅ `common/options/*.nix`：user/system/hardware/ai 选项声明
+- ✅ `modules/linux/`：boot/btrfs/base/docker/disko-template
+- ✅ `modules/linux/desktop/`：ly/niri/noctalia
+- ✅ `modules/base/`：user/fonts
+- ✅ `home/base/`：shell/cli/git/tui/neovim
+- ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP 服务器) + claude_code (Claude Code 全配置)
+- ✅ `home/linux/Desktop/`：kitty/niri/noctalia/fcitx5/browsers/gtk/xdg
+- ✅ `home/linux/default.nix`：Linux HM 聚合入口（含 AI 模块启用）
 - ✅ `hosts/pro13/`：default/hardware/networking 全部填充
-- ✅ `output/`：default.nix 入口 + X86_64-linux 分发
+- ✅ `output/`：default.nix 入口 + X86_64-linux 分发（集成 agenix + HM）
 - ✅ `nix-installer/`：disko 独立配置 + 半自动安装脚本
-- ✅ `home/base/`：shell(Zsh+Starship+Sheldon+Atuin)、cli(eza/bat/fzf等)、git(Delta+LazyGit)、tui(Yazi+btop)、neovim
-- ✅ `home/linux/default.nix`：Linux HM 聚合入口
 - ✅ `vars/default.nix`：共享变量（用户名/邮箱）
 - ✅ `common/lib/default.nix`：scanPaths 辅助函数
-- ✅ `common/options/user.nix`：新增 `myHome.userFullName` / `myHome.userEmail`
-- ✅ `flake.nix`：新增 niri/noctalia/catppuccin inputs
-- ✅ `output/X86_64-linux/default.nix`：集成 `home-manager.nixosModules.home-manager`
+- ✅ `common/secrets/`：agenix secrets 管理体系（README + default.nix）
+- ✅ `secrets/`：加密 secret 目录结构（ai/ssh/creds/api）
+- ✅ `.agenix.yaml`：主机 age 公钥注册表
 
 ### 待完成
 - 🔲 `flake.lock`：需在 Nix 环境中运行 `nix flake update` 生成
 - 🔲 `hosts/pro13/hardware.nix`：需在 ISO live 环境用 `nixos-generate-config` 生成实际内容
-- 🔲 桌面环境（`home/linux/Desktop/`）：Niri + Noctalia + Kitty + Fcitx5 + Zen Browser（Phase 4b）
-- 🔲 `modules/linux/desktop/`：Ly/greetd、niri 系统服务、字体
+- 🔲 `secrets/*/*.age`：需用 agenix 加密各 secret（AI tokens, SSH key 等）
+- 🔲 `.agenix.yaml`：需填入各主机 age 公钥
 - 🔲 `common/` 下 `env.nix`、`overlays/`、`assets/`
-- 🔲 `modules/linux/docker.nix`
-- 🔲 `modules/darwin/`、`hosts/m4macmini/`、`home/darwin/`
-- 🔲 `secrets/`（agenix）
+- 🔲 `modules/darwin/`、`home/darwin/`、`hosts/m4macmini/`（macOS 支持）
+- 🔲 `home/base/ai/opencode/`、`home/base/ai/codex/`（其他 AI 工具）
 
 ## 规范约定
 
@@ -107,6 +107,27 @@ nix fmt                                   # 格式化（需先配置 formatter �
 ### 模块消费模式
 - 统一 `cfg = config.mySystem`，`hwCfg = cfg.hardware` 后按需引用
 - 条件配置用 `lib.mkIf`，条件模块用 `lib.optionalAttrs`
+
+### AI 工具模块（`home/base/ai/`）
+
+层次化共享架构，详见 `modules/base/ai/README.md`：
+
+| 文件 | 角色 | Option 前缀 |
+|------|------|-------------|
+| `nodejs.nix` | 🔧 共享：Node.js 22 运行时 | `modules-home-base-ai-nodejs` |
+| `mcp.nix` | 🔧 共享：MCP 服务器声明 | `modules-home-base-ai-mcp` |
+| `claude_code/default.nix` | 🎯 专属：Claude Code 全配置 | `modules-home-base-ai-claudeCode` |
+
+设计原则：Node.js 和 MCP 是所有 AI 工具的共享基础设施，各工具模块消费同一份 `mcp.servers` 生成各自格式的配置文件。
+
+### Secrets 管理（`common/secrets/` + `secrets/`）
+
+- 工具：agenix + age 加密
+- 加密的 `.age` 文件安全提交 git，解密到 `/run/agenix/`（tmpfs）
+- Secret 分类：`secrets/ai/` (AI tokens) | `secrets/ssh/` (SSH 私钥) | `secrets/creds/` (密码) | `secrets/api/` (API key)
+- 主机密钥注册：`.agenix.yaml`
+- 过渡期仍可用 `vars/tokens.nix`（gitignored），目标迁移到 agenix
+- 详细文档：`common/secrets/README.md`
 
 ## 数据与组件约定
 
