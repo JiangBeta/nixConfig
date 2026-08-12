@@ -28,7 +28,7 @@ let
     version = "1.0";
     src = pkgs.fetchzip {
       url = "https://github.com/lxgw/LxgwNeoZhiSong/archive/refs/heads/main.zip";
-      sha256 = "0000000000000000000000000000000000000000000000000000"; # ⚠️ 首次构建后替换
+      sha256 = "cWK8n1hkw6EKnXaprBqj8Ir896nZR5mt7+g4MWUgUI4=";
     };
     installPhase = ''
       mkdir -p $out/share/fonts/truetype
