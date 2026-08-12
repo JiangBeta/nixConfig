@@ -4,8 +4,8 @@
 #   - ~/.claude/settings.json  (API + hooks + 模型映射)
 #   - ~/.claude/.mcp.json       (MCP — 消费 modules-home-base-ai-mcp.servers)
 #   - ~/.claude/config.json
-#   - ~/.claude/skills/         (从 ./skills/ symlink)
-#   - ~/.claude/hooks/          (从 ./hooks/ symlink)
+#   - ~/.claude/skills/         (从 ../skills/ symlink，上移至 ai/ 共享层)
+#   - ~/.claude/hooks/          (从 ../hooks/ symlink，上移至 ai/ 共享层)
 #
 # Token 消费（两阶段）：
 #   Phase 1（当前）：osConfig.myHome.ai.tokens.* → vars/tokens.nix (NixOS option)
@@ -173,14 +173,14 @@ in
 
     skillsDir = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
-      default = ./skills;
-      description = "Skills 目录（symlink → ~/.claude/skills/）";
+      default = ../skills;
+      description = "Skills 目录（symlink → ~/.claude/skills/），上移至 ai/ 共享层";
     };
 
     hooksDir = lib.mkOption {
       type = lib.types.nullOr lib.types.path;
-      default = ./hooks;
-      description = "Hooks 脚本目录（symlink → ~/.claude/hooks/）";
+      default = ../hooks;
+      description = "Hooks 脚本目录（symlink → ~/.claude/hooks/），上移至 ai/ 共享层";
     };
 
     extraEnv = lib.mkOption {

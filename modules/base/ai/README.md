@@ -2,21 +2,55 @@
 
 ## 设计理念
 
-**分层共享，按工具生成。** Node.js 运行时和 MCP 服务器是协议/运行时层面的通用基础设施，所有 AI 编码工具共享；Skills 和 Hooks 按各工具的格式分别管理；各工具模块消费共享配置后，生成各自格式的专属配置文件。
+**单一真相源 + 分层共享，按工具生成。**
+
+所有 AI 编码工具共享同一份配置真相源（Node.js 运行时、MCP 服务器、供应商/token、skills、hooks、prompts）。每个工具模块只做「翻译」——把共享层数据转成自己的配置格式，不做数据定义。
 
 ```
-┌──────────────────────────────────────────────────┐
-│                 Node.js (nodejs.nix)              │  ← 运行时基座
-├──────────────────────────────────────────────────┤
-│              MCP 服务器 (mcp.nix)                  │  ← 协议层，统一声明
-├────────────────────┬──────────────────────────────┤
-│   Claude Code      │   OpenCode (将来)             │  ← 各工具消费同一份
-│   ~/.claude/.mcp   │   ~/.config/opencode/mcp      │    MCP，生成各自格式
-│   .json            │   .json                      │
-├────────────────────┼──────────────────────────────┤
-│   CC Skills/Hooks  │   OC Skills                  │  ← 工具专属文件
-└────────────────────┴──────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│                共享基础设施层（真相源）                    │
+│  nodejs.nix  ── Node.js 运行时基座                      │
+│  mcp.nix     ── MCP 服务器统一声明                       │
+│  providers.nix ── 供应商 + token 统一声明（将来）          │
+│  prompts.nix  ── CLAUDE.md/AGENTS.md 同步（将来）          │
+│  skills/     ── 跨工具共享 skills（SKILL.md + agents）   │
+│  hooks/      ── 跨工具共享 hooks 脚本                     │
+├──────────────────────┬───────────────────────────────────┤
+│   Claude Code        │   OpenCode / Codex（将来）        │
+│   ~/.claude/*.json   │   ~/.config/<tool>/*.json         │
+│   ← 只做格式翻译     │   ← 只做格式翻译                  │
+└──────────────────────┴───────────────────────────────────┘
 ```
+
+**核心原则**：
+1. **数据定义只写一次**（在共享层），工具模块不重复定义
+2. **工具模块只做翻译**（共享数据 → 工具专属格式）
+3. **声明式优先**：能进 Nix 的绝不交给命令式 GUI 工具管理
+
+---
+
+## 关键决策：CCSwitch 的取舍（2026-08-12）
+
+### 结论：不走 CCSwitch 管理 Nix 已覆盖的部分
+
+CCSwitch（`https://github.com/farion1231/cc-switch`）是 GUI 命令式工具，与 Nix 声明式哲学**根本冲突**：
+
+| 维度 | CCSwitch | Nix/HM |
+|------|----------|--------|
+| 数据存储 | SQLite（`~/.cc-switch/cc-switch.db`） | Nix store（immutable） |
+| 应用方式 | 直接写入目标工具 live 配置 | symlink 只读 |
+| 可复现性 | 依赖运行时状态 | 声明式可复现 |
+
+**冲突本质**：HM 管理的文件是只读 symlink，CCSwitch 无法写入；即使写入，下次 `nixos-rebuild switch` 会被覆盖。两者管理同一份文件会**永远打架**。
+
+### CCSwitch 仍有价值的地方
+
+Nix 无法声明式管理 SQLite 运行时状态，CCSwitch 的以下**运行时功能**不可替代：
+- 🔄 provider 热切换（不重建）
+- 📊 用量/成本追踪
+- 🗂 session 浏览/恢复
+
+如需这些，可把 CCSwitch 装进 `home.packages`，但让它管理**独立于 Nix 之外**的部分（本地 proxy、session 浏览），MCP/skills/token 继续由 Nix 声明式管理。
 
 ---
 
@@ -27,10 +61,20 @@ home/base/ai/
 ├── default.nix              ← 聚合：自动扫 .nix + 显式导入子目录模块
 ├── nodejs.nix               ← 🔧 共享：Node.js 22 运行时
 ├── mcp.nix                  ← 🔧 共享：MCP 服务器声明 (modules-home-base-ai-mcp)
+├── skills/                  ← 🔧 共享：跨工具 skills（从 claude_code/ 上移）
+│   ├── codebase-memory/
+│   ├── git-master/
+│   ├── grill-me/            ← 含 agents/openai.yaml（OpenCode/Codex 格式）
+│   ├── grill-with-docs/
+│   ├── grilling/
+│   ├── smart-search-cli/
+│   └── using-superpowers/
+├── hooks/                   ← 🔧 共享：跨工具 hooks 脚本（从 claude_code/ 上移）
+│   ├── cbm-code-discovery-gate
+│   ├── cbm-session-reminder
+│   └── cbm-subagent-reminder
 ├── claude_code/
-│   ├── default.nix          ← 🎯 Claude Code：消费 mcp + skills + hooks
-│   ├── skills/              ← Claude Code 格式 skills (SKILL.md + agents/*.yaml)
-│   └── hooks/               ← Claude Code hooks 脚本
+│   └── default.nix          ← 🎯 Claude Code：消费共享层，生成 settings.json
 ├── opencode/                ← 🎯 将来：OpenCode 模块
 └── codex/                   ← 🎯 将来：Codex 模块
 
@@ -85,12 +129,17 @@ mcp.nix → modules-home-base-ai-mcp.servers (统一声明)
   └── codex       → ~/.config/codex/mcp.json     (将来)
 ```
 
-### Skills 流
+### Skills / Hooks 流（上移后）
 
 ```
-claude_code/skills/ (repo 管理)
-  → home.file symlink → ~/.claude/skills/
-    → settings.json hooks → 触发 skill 加载
+home/base/ai/skills/ (repo 管理，跨工具共享)
+  → claude_code/default.nix 通过 skillsDir (默认 ../skills) symlink
+    → ~/.claude/skills/
+  → opencode（将来）消费同一份 skills/，生成 ~/.config/opencode/skills/
+
+home/base/ai/hooks/ (repo 管理，跨工具共享)
+  → claude_code/default.nix 通过 hooksDir (默认 ../hooks) symlink
+    → ~/.claude/hooks/
 ```
 
 ---
@@ -121,7 +170,6 @@ in
   options.modules-home-base-ai-opencode = {
     enable = lib.mkEnableOption "OpenCode";
     package = lib.mkOption { ... };
-    # OpenCode 专属选项...
   };
 
   config = lib.mkIf cfg.enable {
@@ -129,7 +177,8 @@ in
 
     home.packages = [ cfg.package ];
 
-    # 生成 OpenCode 格式的 MCP 配置
+    # 消费共享 skills（../skills）
+    # 消费共享 MCP，生成 OpenCode 格式
     home.file = {
       ".config/opencode/mcp.json".text =
         builtins.toJSON { servers = ...; };
@@ -164,11 +213,6 @@ modules-home-base-ai-mcp.servers = {
     # 将来可用 Nix 包：
     # command = "${pkgs.codebase-memory-mcp}/bin/codebase-memory-mcp";
   };
-  "another-mcp-server" = {
-    command = "/path/to/server";
-    args = [ "--port" "3000" ];
-    env = { DEBUG = "true"; };
-  };
 };
 ```
 
@@ -178,30 +222,32 @@ modules-home-base-ai-mcp.servers = {
 |------|------|-----------|-----------|
 | `codebase-memory-mcp` | 代码知识图谱 | `/Users/beta/.local/bin/codebase-memory-mcp` | `/home/beta/.local/bin/codebase-memory-mcp` |
 
+> ⚠️ 安装方式：官方脚本 `curl -fsSL .../install.sh | bash`，pro13 上建议 `--skip-config`（只装二进制，配置由 HM 管理）。
+> 待办：改用 Nix 声明式安装（`fetchurl` + SHA256）。
+
 ---
 
 ## Skills 管理策略
 
 ### 当前状态
 
-所有 7 个 skill 均为 Claude Code 格式（`SKILL.md` + 可选 `agents/*.yaml`），位于 `claude_code/skills/`：
+7 个 skill 已上移至 `home/base/ai/skills/`（跨工具共享）。部分 skill 含 `agents/openai.yaml`（OpenCode/Codex 格式 agent 配置）和 `references/`（多工具参考文档）。
 
-| Skill | 用途 |
-|-------|------|
-| `codebase-memory` | 代码知识图谱查询 |
-| `git-master` | Git 操作指导 |
-| `grill-me` | 方案压力测试（symlink → ~/.cc-switch） |
-| `grill-with-docs` | 带文档的压力测试 |
-| `grilling` | 压力测试（symlink → ~/.cc-switch） |
-| `smart-search-cli` | CLI 网页搜索 |
-| `using-superpowers` | 超级能力使用指引（symlink → ~/.cc-switch） |
+| Skill | 用途 | 跨工具标记 |
+|-------|------|-----------|
+| `codebase-memory` | 代码知识图谱查询 | Claude Code 专属 |
+| `git-master` | Git 操作指导 | 通用 |
+| `grill-me` | 方案压力测试 | 含 `agents/openai.yaml` |
+| `grill-with-docs` | 带文档的压力测试 | 含 `agents/openai.yaml` |
+| `grilling` | 压力测试 | 含 `agents/openai.yaml` |
+| `smart-search-cli` | CLI 网页搜索 | 含 `agents/openai.yaml` |
+| `using-superpowers` | 超级能力使用指引 | 含多工具 references |
 
 ### 后续共享策略
 
-当 OpenCode/Codex 也需要 skills 时：
-1. 通用 skill 内容（纯 Markdown 指令）提取到 `home/base/ai/skills.d/`
-2. 各工具模块 symlink 到各自的 skills 目录，加上工具专属的元数据文件
-3. 工具专属 skill 留在各工具的 `skills/` 目录下
+1. 通用 skill 内容（纯 Markdown 指令）已在 `ai/skills/` 共享层
+2. 各工具模块通过 symlink 消费同一份 skills，按需加工具专属元数据
+3. 工具完全专属的 skill 留在各工具的 `skills/` 目录下（如将来出现）
 
 ---
 
@@ -217,25 +263,9 @@ vars/tokens.nix → gitignored → 明文存储
 ### 迁移路径 → agenix
 
 1. 生成主机 age key：`ssh-keygen -t ed25519 -f ~/.ssh/ai_tokens_key`
-2. 用 agenix 加密 `vars/tokens.nix`：
-   ```nix
-   # secrets/tokens.nix.age (加密后的文件，可提交 git)
-   age.secrets.ai-tokens = {
-     file = ../../secrets/tokens.nix.age;
-     owner = "beta";
-   };
-   ```
+2. 用 agenix 加密 token
 3. 模块改为读取解密后的文件
 4. 移除 `--impure` 标志
-
-### 环境变量回退（CI / 临时使用）
-
-```nix
-# 当 vars/tokens.nix 不存在时，可 fallback 到环境变量
-ANTHROPIC_AUTH_TOKEN = 
-  if token != "" then token
-  else builtins.getEnv "ANTHROPIC_AUTH_TOKEN";
-```
 
 ---
 
@@ -244,7 +274,7 @@ ANTHROPIC_AUTH_TOKEN =
 ### pro13 (NixOS x86_64)
 
 ```nix
-# home/linux/default.nix 或 hosts/pro13/default.nix
+# home/linux/default.nix
 modules-home-base-ai-nodejs.enable = true;
 modules-home-base-ai-mcp = {
   enable = true;
@@ -256,7 +286,6 @@ modules-home-base-ai-claudeCode.enable = true;
 ### macmini (macOS aarch64, 将来)
 
 ```nix
-# home/darwin/default.nix (将来)
 modules-home-base-ai-nodejs.enable = true;
 modules-home-base-ai-mcp = {
   enable = true;
@@ -281,19 +310,12 @@ Nix 模块生成的 `~/.claude/settings.json` 结构：
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "deepseek-v4-flash",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "deepseek-v4-flash[1M]",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "deepseek-v4-flash[1M]",
-    "ANTHROPIC_DEFAULT_FABLE_MODEL_NAME": "deepseek-v4-flash",
     "ENABLE_TOOL_SEARCH": "true"
   },
   "model": "sonnet",
   "hooks": { ... }
 }
 ```
-
-### 模型映射说明
-
-- `*_MODEL` — 带上下文窗口后缀 (`[1M]`)，传给 API
-- `*_MODEL_NAME` — 不带后缀，用于显示
-- Haiku 模型不支持 1M 上下文，不加后缀
 
 ---
 
@@ -302,14 +324,11 @@ Nix 模块生成的 `~/.claude/settings.json` 结构：
 ```
 nodejs.nix         ← 无依赖
 mcp.nix            ← 无依赖（可选依赖 nodejs）
-claude_code.nix    ← nodejs (auto-enable) + mcp (读 servers) + osConfig (读 token)
-opencode.nix       ← nodejs (auto-enable) + mcp (读 servers) + osConfig (读 token)
+skills/            ← 无依赖（静态文件）
+hooks/             ← 无依赖（静态文件）
+claude_code.nix    ← nodejs (auto-enable) + mcp (读 servers) + skills/hooks + osConfig (读 token)
+opencode.nix       ← nodejs (auto-enable) + mcp (读 servers) + skills + osConfig (读 token)
 ```
-
-启用 `modules-home-base-ai-claudeCode.enable = true` 时：
-- 自动启用 `modules-home-base-ai-nodejs`
-- 读取 `modules-home-base-ai-mcp.servers`（如果 mcp 模块未启用则回退到 `{}`）
-- 通过 `osConfig.myHome.ai` 读取 API token
 
 ---
 
@@ -320,3 +339,6 @@ opencode.nix       ← nodejs (auto-enable) + mcp (读 servers) + osConfig (读 
 | 2026-08-12 | 初始设计：nodejs + mcp + claude_code 三层架构 |
 | | 从 macOS `~/.claude/` 备份 skills/hooks 到 repo |
 | | 创建 `vars/tokens.nix`（gitignored）+ `vars/tokens.nix.template` |
+| 2026-08-12 | **上移 skills/hooks 到 `ai/` 共享层**（从 `claude_code/` 上移） |
+| | 决策：不用 CCSwitch 管理 Nix 已覆盖的部分，走 Nix 声明式 |
+| | 确立「单一真相源 + 工具模块只做翻译」原则 |
