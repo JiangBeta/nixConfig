@@ -58,9 +58,12 @@ in
       ".local/share/fcitx5/rime/rime_ice.schema.yaml".source =
         "${pkgs.rime-ice}/share/rime-data/rime_ice.schema.yaml";
 
-      # 默认方案（小鹤双拼 + 雾凇）
+      # 默认方案（雾凇拼音 + 小鹤双拼）
       ".local/share/fcitx5/rime/default.custom.yaml".text = ''
         patch:
+          schema_list:
+            - schema: double_pinyin_flypy
+            - schema: rime_ice
           __include: rime_ice_suggestion:/
           "menu/page_size": 9
           "ascii_composer/switch_key/Shift_L": commit_code
