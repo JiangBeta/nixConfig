@@ -2,6 +2,12 @@
 {
   description = "multi-host NixOS / nix-darwin / home-manager configuration";
 
+  # 二进制缓存（避免本地编译大包）
+  nixConfig = {
+    extra-substituters = [ "https://noctalia.cachix.org" ];
+    extra-trusted-public-keys = [ "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4=" ];
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -23,7 +29,7 @@
 
     # Noctalia Shell — 状态栏/启动器/锁屏
     noctalia = {
-      url = "github:noctalia-dev/noctalia-shell";
+      url = "github:noctalia-dev/noctalia/cachix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
