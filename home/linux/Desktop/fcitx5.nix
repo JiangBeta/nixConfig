@@ -45,16 +45,13 @@ in
       SDL_IM_MODULE = "fcitx";
     };
 
-    # ==================== Rime 数据 ====================
+    # ==================== Rime 数据与配置 ====================
     home.file = {
       # 万象语法模型
       ".local/share/fcitx5/rime/wanxiang-lts-zh-hans.gram".source = wanxiang-gram;
-    };
 
-    # ==================== Rime 配置 ====================
-    xdg.configFile = {
-      # 默认方案（小鹤双拼 + 雾凇）
-      "fcitx5/rime/default.custom.yaml".text = ''
+      # 默认方案（雾凇拼音）
+      ".local/share/fcitx5/rime/default.custom.yaml".text = ''
         patch:
           __include: rime_ice_suggestion:/
           "menu/page_size": 9
@@ -63,7 +60,7 @@ in
       '';
 
       # 万象语法模型配置
-      "fcitx5/rime/rime_ice.custom.yaml".text = ''
+      ".local/share/fcitx5/rime/rime_ice.custom.yaml".text = ''
         patch:
           grammar:
             language: wanxiang-lts-zh-hans
@@ -77,7 +74,10 @@ in
           translator/max_homophones: 7
           translator/max_homographs: 7
       '';
+    };
 
+    # ==================== Fcitx5 配置 ====================
+    xdg.configFile = {
       # 外观配置
       "fcitx5/conf/classicui.conf".text = ''
         Theme=macos12-dark
@@ -87,7 +87,6 @@ in
         TrayFont="OPPO Sans 4.0 14"
       '';
 
-      # Fcitx5 主配置
       "fcitx5/config".text = ''
         [Hotkey]
         EnumerateWithTriggerKeys=True
