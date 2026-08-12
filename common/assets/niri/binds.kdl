@@ -1,0 +1,86 @@
+binds {
+
+    // 应用启动与管理
+    Ctrl+Alt+Delete  hotkey-overlay-title="退出 NIRI 桌面"   { quit; }
+    Mod+Slash        hotkey-overlay-title="热键提示"   { show-hotkey-overlay; }
+    Alt+F4           hotkey-overlay-title="关闭窗口"   { close-window; }
+    Mod+Q            hotkey-overlay-title="关闭窗口"   { close-window; }
+    Mod+Return       hotkey-overlay-title="Kitty 终端" { spawn "kitty"; }
+    Mod+Space        hotkey-overlay-title="应用启动器" { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+N            hotkey-overlay-title="文件管理器" { spawn "nautilus"; }
+    Mod+O            hotkey-overlay-title="Obsidian"   { spawn "~/.config/niri/script/obsidian.sh"; }
+    Mod+E            hotkey-overlay-title="VSCode"     { spawn "code"; }
+    Mod+V            hotkey-overlay-title="剪贴板历史" { spawn "copyq" "show"; }
+    Mod+B            hotkey-overlay-title="浏览器"     { spawn "microsoft-edge-stable"; }
+    Mod+W            hotkey-overlay-title="Office"     { spawn "~/.config/niri/script/wps.sh"; }
+    Mod+T            hotkey-overlay-title="Typora"     { spawn "~/.config/niri/script/typora.sh"; }
+    Mod+F            hotkey-overlay-title="全屏窗口"   { fullscreen-window; }
+    Mod+A            hotkey-overlay-title="悬浮切换"   { toggle-window-floating; }
+    Mod+M            hotkey-overlay-title="记事本"     { spawn "~/.config/niri/script/notepadqq.sh"; }
+    Mod+P            hotkey-overlay-title="微信"       { spawn "~/.config/niri/script/wechat.sh"; }
+
+    // 系统与会话控制
+    Super+L          hotkey-overlay-title="锁定屏幕"  { spawn "pikabar-lock"; }
+    Mod+Alt+L        hotkey-overlay-title="休眠"      {  spawn "sh" "-c" "sleep 0.1 && systemctl suspend"; }
+    Mod+Ctrl+Delete   hotkey-overlay-title="关机"      {  spawn "systemctl" "poweroff"; }
+
+    // 焦点切换
+    Mod+Left         hotkey-overlay-title="左移焦点" { focus-column-left; }
+    Mod+Down         hotkey-overlay-title="右移焦点" { focus-window-down; }
+    Mod+Up           hotkey-overlay-title="上移焦点" { focus-window-up; }
+    Mod+Right        hotkey-overlay-title="下移焦点" { focus-column-right; }
+
+    // 窗口管理
+    Mod+Minus        hotkey-overlay-title="横向缩小窗口" { set-column-width "-10%";}
+    Mod+Equal        hotkey-overlay-title="横向放大窗口" { set-column-width "+10%";}
+    Mod+Shift+Minus  hotkey-overlay-title="纵向缩小窗口" { set-window-height "-10%"; }
+    Mod+Shift+Equal  hotkey-overlay-title="纵向放大窗口" { set-window-height "+10%"; }
+
+    Mod+Shift+Up     hotkey-overlay-title="上移窗口" { move-window-to-workspace-up; }
+    Mod+Shift+Down   hotkey-overlay-title="下移窗口" { move-window-to-workspace-down; }
+    Mod+Shift+Left   hotkey-overlay-title="左移窗口" { move-column-left; }
+    Mod+Shift+Right  hotkey-overlay-title="右移窗口" { move-column-right; }
+
+    // 工作区管理
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+Ctrl+1 { move-column-to-workspace 1; }
+    Mod+Ctrl+2 { move-column-to-workspace 2; }
+    Mod+Ctrl+3 { move-column-to-workspace 3; }
+    Mod+Ctrl+4 { move-column-to-workspace 4; }
+    Mod+Ctrl+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+6 { move-column-to-workspace 6; }
+    Mod+Ctrl+7 { move-column-to-workspace 7; }
+    Mod+Ctrl+8 { move-column-to-workspace 8; }
+    Mod+Ctrl+9 { move-column-to-workspace 9; }
+
+    // 屏幕亮度
+    XF86MonBrightnessUp   hotkey-overlay-title="增加亮度" allow-when-locked=true { spawn-sh "noctalia msg brightness-up"; }
+    XF86MonBrightnessDown hotkey-overlay-title="减少亮度" allow-when-locked=true { spawn-sh "noctalia msg brightness-down"; }
+
+    // 声音控制
+    XF86AudioRaiseVolume  hotkey-overlay-title="增加音量" allow-when-locked=true { spawn-sh "noctalia msg volume-up"; }
+    XF86AudioLowerVolume  hotkey-overlay-title="减少音量" allow-when-locked=true { spawn-sh "noctalia msg volume-down"; }
+    XF86AudioMute         hotkey-overlay-title="声音开关" allow-when-locked=true { spawn-sh "noctalia msg volume-mute"; }
+    XF86AudioMicMute      hotkey-overlay-title="麦克开关" allow-when-locked=true { spawn-sh "noctalia msg mic-mute"; }
+
+    // 其他 XF86 键
+    XF86Refresh           hotkey-overlay-title="刷新"     allow-when-locked=true { spawn-sh "noctalia msg mic-mute"; }
+    XF86TouchpadToggle    hotkey-overlay-title="触控开关" allow-when-locked=true { spawn-sh "noctalia msg mic-mute"; }
+    XF86RFKill            hotkey-overlay-title="飞行模式" allow-when-locked=true { spawn-sh "noctalia msg wifi-toggle"; }
+    //XF86XK_Display        hotkey-overlay-title="外屏切换" allow-when-locked=true { spawn-sh "noctalia msg mic-mute"; }
+    //XF86XK_Suspend        hotkey-overlay-title="锁屏挂起" allow-when-locked=true { spawn-sh "noctalia msg mic-mute"; }
+    //XF86XK_Tools          hotkey-overlay-title="系统设置" allow-when-locked=true { spawn-sh "noctalia msg settings-toggle"; }
+}
+
+// 笔记本合盖锁屏
+switch-events {
+    lid-close { spawn "noctalia" "msg" "session" "lock-and-suspend"; }
+}

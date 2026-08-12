@@ -1,0 +1,24 @@
+// 输入管理
+
+input {
+    keyboard {
+        xkb {
+            layout "us"     // 键盘布局
+        }
+        repeat-delay 300    // 重复延时，毫秒
+        repeat-rate 30      // 重复速率，次/秒
+    }
+
+    touchpad {
+        tap                 // 轻触点击
+        dwt                 // 打字时禁用
+        drag-lock           // 拖动时短暂抬起手指不会放下拖动的项目
+        natural-scroll      // 自然滚动（与 macOS 一致）
+        scroll-factor 0.5   // 滚动速度
+    }
+
+    mouse {
+        accel-profile "flat"  // 指针加速，flat为禁用
+    }
+    focus-follows-mouse max-scroll-amount="0%"  //索引两次切换到同一个工作区将会切换回上一个工作区
+}

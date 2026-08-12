@@ -1,0 +1,12 @@
+output "eDP-1" {         // 内置显示器
+    mode "2560x1600@60"  // 分辨率&刷新率
+    position x=0 y=0     // 主屏幕（位置）
+    transform "normal"   // 旋转
+    scale 1.5           // 缩放：1.5倍
+}
+
+output "DP-2" {          // 便携显示器
+    mode "3840x2160@60"  // 分辨率&刷新率
+    position x=0 y=0     // 主屏幕（位置）
+    scale 2              // 缩放：1.25倍
+}

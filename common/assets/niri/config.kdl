@@ -1,0 +1,6 @@
+include "output.kdl"        // 显示器设置
+include "miscellaneous.kdl" // 杂项：环境变量、启动运行等
+include "input.kdl"         // 输入设置：键盘、鼠标、触摸板
+include "layout.kdl"        // 布局&层规则
+include "windows-rule.kdl"  // 窗口规则
+include "binds.kdl"         // 快捷键

@@ -2,7 +2,7 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.modules-home-linux-desktop-noctalia;
-  dotfile = ../../../../dotfile/config/noctalia;
+  dotfile = ../../../common/assets/noctalia;
 in
 {
   options.modules-home-linux-desktop-noctalia = {

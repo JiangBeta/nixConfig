@@ -4,7 +4,7 @@
 { config, lib, ... }:
 let
   cfg = config.modules-home-linux-desktop-niri;
-  dotfile = ../../../../dotfile/config/niri;
+  dotfile = ../../../common/assets/niri;
 in
 {
   options.modules-home-linux-desktop-niri = {
