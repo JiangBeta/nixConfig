@@ -121,7 +121,7 @@ in
         format = ''
           [](red)$os$username[](bg:peach fg:red)$directory[](bg:yellow fg:peach)$git_branch$git_status[](fg:yellow bg:green)$c$rust$golang$nodejs$python[](fg:green bg:sapphire)$nix_shell[ ](fg:sapphire)$line_break$character'';
 
-        right_format = "$time$cmd_duration";
+        right_format = ''$time$cmd_duration'';
 
         palette = "catppuccin_mocha";
 
