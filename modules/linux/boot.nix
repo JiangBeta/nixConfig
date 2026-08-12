@@ -17,6 +17,7 @@ in
     systemd-boot = {
       enable = true;
       configurationLimit = 10;
+      consoleMode = "0";  # 80x25 模式 — HiDPI 下字体更大
     };
   } else {
     # Legacy BIOS 模式：GRUB

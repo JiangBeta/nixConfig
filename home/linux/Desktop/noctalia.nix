@@ -1,7 +1,8 @@
-# home/linux/Desktop/noctalia.nix — Noctalia Shell（状态栏/启动器/锁屏）
+# home/linux/Desktop/noctalia.nix — Noctalia Shell
 { config, lib, pkgs, ... }:
 let
   cfg = config.modules-home-linux-desktop-noctalia;
+  dotfile = ../../../../dotfile/config/noctalia;
 in
 {
   options.modules-home-linux-desktop-noctalia = {
@@ -10,13 +11,19 @@ in
 
   config = lib.mkIf cfg.enable {
     home.packages = with pkgs; [
-      brightnessctl  # 亮度控制
-      cliphist       # 剪贴板历史
+      brightnessctl
+      cliphist
     ];
 
     home.sessionVariables = {
       QT_QPA_PLATFORM = "wayland;xcb";
       QT_QPA_PLATFORMTHEME = "qt6ct";
+    };
+
+    # Noctalia 配置（来自 dotfile）
+    xdg.configFile = {
+      "noctalia/obsidian.toml".text = builtins.readFile (dotfile + "/obsidian.toml");
+      "noctalia/Obisidian/obsidian.css".text = builtins.readFile (dotfile + "/Obisidian/obsidian.css");
     };
   };
 }
