@@ -79,6 +79,10 @@
     dosfstools
   ];
 
+  # ==================== FHS 兼容 ====================
+  # 让硬编码 /usr/bin 等 FHS 路径的程序（如 meatshell SSH 客户端）能找到系统工具
+  services.envfs.enable = true;
+
   # Bash 补全
   programs.bash.completion.enable = true;
 
