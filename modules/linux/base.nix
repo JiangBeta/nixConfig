@@ -70,6 +70,10 @@
     # 文件系统工具
     btrfs-progs
     dosfstools
+
+    # Fcitx5 GTK 模块 — 系统级 GTK 应用（如 Zen Browser）的输入法支持
+    fcitx5-gtk
+    fcitx5-gtk4
   ];
 
   # Bash 补全
