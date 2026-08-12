@@ -68,7 +68,7 @@ in
 
         # ---- zoxide + fzf 模糊搜索 (zx) ----
         zx() {
-          local query="${*}"
+          local query="''${*}"
           local dir
           local preview_cmd="ls -F -C --color=always {2..}"
           local bind_opts="ctrl-z:ignore,btab:up,tab:down,enter:become:echo {2..}"
