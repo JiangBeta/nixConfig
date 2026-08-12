@@ -50,7 +50,15 @@ in
       # 万象语法模型
       ".local/share/fcitx5/rime/wanxiang-lts-zh-hans.gram".source = wanxiang-gram;
 
-      # 默认方案（雾凇拼音）
+      # 雾凇拼音方案（从 nixpkgs rime-ice 直接 symlink）
+      ".local/share/fcitx5/rime/rime_ice_suggestion.yaml".source =
+        "${pkgs.rime-ice}/share/rime-data/rime_ice_suggestion.yaml";
+      ".local/share/fcitx5/rime/rime_ice.dict.yaml".source =
+        "${pkgs.rime-ice}/share/rime-data/rime_ice.dict.yaml";
+      ".local/share/fcitx5/rime/rime_ice.schema.yaml".source =
+        "${pkgs.rime-ice}/share/rime-data/rime_ice.schema.yaml";
+
+      # 默认方案（小鹤双拼 + 雾凇）
       ".local/share/fcitx5/rime/default.custom.yaml".text = ''
         patch:
           __include: rime_ice_suggestion:/
