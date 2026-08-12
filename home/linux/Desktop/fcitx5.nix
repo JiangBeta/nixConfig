@@ -6,6 +6,13 @@
 let
   cfg = config.modules-home-linux-desktop-fcitx5;
 
+  fcitx5-theme = pkgs.fetchFromGitHub {
+    owner = "witt-bit";
+    repo = "fcitx5-theme-macos12";
+    rev = "master";
+    hash = "sha256-H0X3+/mJ8KH73cZhv3ilNz77CBviQma4D2cKQ/iNiVM=";
+  };
+
   wanxiang-gram = pkgs.fetchurl {
     url = "https://github.com/amzxyz/RIME-LMDG/releases/download/LTS/wanxiang-lts-zh-hans.gram";
     hash = "sha256-kNI4X2Uzf4uMexuly+h03z8tkbRi1o+i+f6QxXqjvGY=";
@@ -28,8 +35,7 @@ let
     # 4. 自定义补丁
     cat > $out/default.custom.yaml << 'YAML'
     patch:
-      "schema_list/@after 0": __delete
-      alternative_select_labels: [ ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨, ⑩ ]
+      "menu/alternative_select_labels": [ ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨, ⑩ ]
       "menu/page_size": 9
       "ascii_composer/switch_key/Shift_L": commit_code
       "ascii_composer/switch_key/Shift_R": commit_code
@@ -62,11 +68,11 @@ in
       fcitx5.waylandFrontend = true;
       fcitx5.addons = with pkgs; [
         (fcitx5-rime.override {
-          rimeDataPkgs = [ rime-ice ];  # 只用 rime-ice，不装 rime-data（无明月）
+          rimeDataPkgs = [ rime-ice ];
         })
+        fcitx5-gtk
         fcitx5-rime
         fcitx5-gtk
-        fcitx5-material-color
       ];
     };
 
@@ -83,9 +89,14 @@ in
       recursive = true;
     };
 
+    home.file.".local/share/fcitx5/themes/macos12-dark" = {
+      source = "${fcitx5-theme}/macos12-dark";
+      recursive = true;
+    };
+
     xdg.configFile = {
       "fcitx5/conf/classicui.conf".text = ''
-        Theme=Material-Color-Pink
+        Theme=macos12-dark
         Font="霞鹜文楷等宽 屏幕阅读版 14"
         MenuFont="OPPO Sans 4.0 14"
         TrayFont="OPPO Sans 4.0 14"
