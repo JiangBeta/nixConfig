@@ -175,7 +175,7 @@ in
 
         cmd_duration = {
           show_milliseconds = true;
-          format = " in $duration ";
+          format = "took $duration ";
           min_time_to_notify = 45000;
         };
 
