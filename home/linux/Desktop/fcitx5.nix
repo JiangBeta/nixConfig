@@ -127,26 +127,6 @@ in
     home.file.".local/share/fcitx5/themes/macos12-dark".source =
       "${fcitx5-theme}/macos12-dark";
 
-    # ==================== GTK 输入法设置 ====================
-    home.file.".gtkrc-2.0".text = ''
-      gtk-im-module="fcitx"
-    '';
-
-    xdg.configFile = {
-      "gtk-3.0/settings.ini".text = ''
-        [Settings]
-        gtk-im-module=fcitx
-      '';
-      "gtk-4.0/settings.ini".text = ''
-        [Settings]
-        gtk-im-module=fcitx
-      '';
-    };
-
-    # ==================== XWayland 环境 ====================
-    home.file.".config/environment.d/ime.conf".text = ''
-      XMODIFIERS=@im=fcitx
-      QT_IM_MODULES="wayland;fcitx"
-    '';
+    # GTK IM + 环境变量 — 由 home.sessionVariables 和 gtk.enable 处理
   };
 }
