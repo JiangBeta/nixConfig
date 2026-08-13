@@ -55,6 +55,10 @@
     # networking tools 网络工具
     curl
     aria2
+    mtr          # 路由追踪
+    dnsutils     # dig / nslookup
+    nmap         # 端口扫描
+    tcpdump      # 抓包
 
     # misc 杂项
     cowsay
@@ -66,6 +70,9 @@
     gawk
     zstd
     gnupg
+    jq           # JSON 处理
+    gnugrep      # grep
+    rsync        # 文件同步
     git
     vim
     tldr
@@ -82,6 +89,7 @@
     ethtool
     pciutils
     usbutils
+    openssl      # SSL/TLS 加密工具
     btrfs-progs
     dosfstools
   ];

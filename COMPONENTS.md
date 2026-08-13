@@ -64,10 +64,10 @@
 | 类别 | 工具 | nix-server | nix-desktop |
 |------|------|:---:|:---:|
 | archives 压缩归档 | zip / xz / unzip / p7zip | ✅ | ✅ |
-| networking tools 网络工具 | curl / aria2 | ✅ | ✅ |
-| misc 杂项 | cowsay / file / which / tree / gnused / gnutar / gawk / zstd / gnupg / git / vim / tldr / bash-completion / chezmoi / just | ✅ | ✅ |
+| networking tools 网络工具 | curl / aria2 / mtr / dnsutils / nmap / tcpdump | ✅ | ✅ |
+| misc 杂项 | cowsay / file / which / tree / gnused / gnutar / gawk / zstd / gnupg / jq / gnugrep / rsync / git / vim / tldr / bash-completion / chezmoi / just | ✅ | ✅ |
 | system call monitoring 系统调用监控 | lsof | ✅ | ✅ |
-| system tools 系统工具 | sysstat / lm_sensors / ethtool / pciutils / usbutils / btrfs-progs / dosfstools | ✅ | ✅ |
+| system tools 系统工具 | sysstat / lm_sensors / ethtool / pciutils / usbutils / openssl / btrfs-progs / dosfstools | ✅ | ✅ |
 
 ## CLI 替代工具（home/base/cli.nix）
 
