@@ -32,7 +32,14 @@ in
     # bat — cat 替代
     programs.bat = {
       enable = true;
-      config.pager = "less -FR";
+      config = {
+        pager = "less -FR";
+        theme = "TwoDark";
+        map-syntax = [
+          "*.conf:INI"
+          ".ignore:Git Ignore"
+        ];
+      };
     };
 
     # fzf — 模糊搜索
