@@ -28,14 +28,15 @@ nixConfig/
 │   │       ├── default.nix            # 聚合入口
 │   │       └── claude_code.nix        # 系统级 Node.js
 │   └── linux/                    # NixOS 专属
-│       ├── base.nix                # 时区 / Locale / Nix 镜像 / PipeWire / 蓝牙
+│       ├── base.nix                # 时区 / Locale / Nix 镜像 / 电源 / 蓝牙
 │       ├── boot.nix                # 引导 + linux-zen 内核 + CPU 微码
 │       ├── btrfs.nix               # Btrfs autoScrub + Snapper 快照
 │       ├── disko-template.nix      # Disko GPT 分区模板
 │       ├── docker.nix              # Docker 支持
-│       └── desktop/                # 桌面环境系统服务
+│       └── desktop/                # 桌面环境系统服务（server 不需要）
+│           ├── audio.nix             # PipeWire + WirePlumber + SOF 固件
 │           ├── ly.nix                # Ly 显示管理器
-│           ├── niri.nix              # Niri Wayland 合成器
+│           ├── niri.nix              # Niri Wayland 合成器 + swayidle 空闲管理
 │           └── noctalia.nix          # Noctalia Shell
 │
 ├── home/                        # Home Manager 用户配置

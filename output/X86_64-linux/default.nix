@@ -26,6 +26,7 @@ let
       ../../modules/base/user.nix
 
       # 4. 桌面系统模块
+      ../../modules/linux/desktop/audio.nix
       ../../modules/linux/desktop/ly.nix
       ../../modules/linux/desktop/niri.nix
       ../../modules/linux/desktop/noctalia.nix

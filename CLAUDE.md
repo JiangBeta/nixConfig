@@ -60,7 +60,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `flake.lock`：已通过 `nix flake update` 生成
 - ✅ `common/options/*.nix`：user/system/hardware/ai 选项声明
 - ✅ `modules/linux/`：boot/btrfs/base/docker/disko-template
-- ✅ `modules/linux/desktop/`：ly/niri/noctalia
+- ✅ `modules/linux/desktop/`：audio/ly/niri/noctalia
 - ✅ `modules/base/`：user/fonts
 - ✅ `home/base/`：shell/cli(+tmux)/git/tui/neovim(LazyVim 作为默认编辑器)
 - ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP) + skills/hooks (共享) + claude_code (Claude Code 全配置)

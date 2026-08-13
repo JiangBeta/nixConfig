@@ -37,22 +37,6 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  # ==================== 音频：PipeWire + WirePlumber ====================
-  # 服务映射（随 services.pipewire 自动启用，并以 user 服务默认启动）：
-  #   enable       → pipewire.service + wireplumber.service（wireplumber 随 pipewire 拉起）
-  #   pulse.enable → pipewire-pulse.service（PulseAudio 兼容）
-  #   alsa.enable  → pipewire-alsa（ALSA 集成）
-  #   jack.enable  → pipewire-jack（JACK 集成）
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    jack.enable = true;
-  };
-
-  # Intel SOF / ALSA 固件与 UCM 配置（NUC8 等 Intel 音频需要）见下方「基础系统包」。
-
   # ==================== 电源管理：power-profiles-daemon ====================
   # 工具由服务自动安装；默认 profile 为 balanced（平衡），随系统服务启动。
   services.power-profiles-daemon.enable = true;
@@ -91,11 +75,6 @@
     # 文件系统工具
     btrfs-progs
     dosfstools
-
-    # 音频固件 / UCM（Intel SOF，NUC8 等 Intel 音频需要）
-    sof-firmware
-    alsa-ucm-conf
-    alsa-firmware
   ];
 
   # ==================== FHS 兼容 ====================
