@@ -1,8 +1,10 @@
 # output/x86_64-linux/default.nix — NixOS 主机构建（含 Home Manager + 桌面）
 inputs:
 
-{
-  pro13 = inputs.nixpkgs.lib.nixosSystem {
+let
+  # 每台 x86_64 桌面主机的公共模块列表，仅最后一步主机参数（hosts/<host>）不同。
+  # DRY：pro13 / nuc8-d 复用同一套系统 + 桌面 + HM 模块，主机差异收敛到 hosts/ 目录。
+  mkHost = host: inputs.nixpkgs.lib.nixosSystem {
     system = "x86_64-linux";
     specialArgs = { inherit inputs; };
     modules = [
@@ -70,7 +72,11 @@ inputs:
       })
 
       # 10. 主机参数
-      ../../hosts/pro13
+      ../../hosts/${host}
     ];
   };
+in
+{
+  pro13 = mkHost "pro13";
+  nuc8-d = mkHost "nuc8-d";
 }

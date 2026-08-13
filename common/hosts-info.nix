@@ -13,5 +13,11 @@
       architecture = "x86_64-linux";
       mainDisk = "/dev/nvme0n1";
     };
+    nuc8-d = {
+      ip = "192.168.1.12"; # ⚠️ 待按实际网络分配
+      sshPort = 22;
+      architecture = "x86_64-linux";
+      mainDisk = "/dev/nvme0n1";
+    };
   };
 }

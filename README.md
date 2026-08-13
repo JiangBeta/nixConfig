@@ -95,7 +95,7 @@ nixConfig/
 | 主机 | 系统 | 架构 | 角色 | 状态 |
 |------|------|------|------|------|
 | pro13 | NixOS | x86_64 | 桌面 PC | ✅ 已配置 |
-| nuc8-d | NixOS | x86_64 | 桌面 PC | 🔲 计划中 |
+| nuc8-d | NixOS | x86_64 | 桌面 PC | ✅ 已配置 |
 | nuc8-s | NixOS | x86_64 | 服务器 | 🔲 计划中 |
 | appgateway | NixOS VM | x86_64 | 网关 | 🔲 计划中 |
 | macmini | macOS (nix-darwin) | aarch64 | AI 服务器 | 🔲 计划中 |
