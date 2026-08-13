@@ -5,7 +5,7 @@
 #   - dotfile/config/anyconf/starship.toml（Catppuccin Mocha 配色）
 #   - dotfile/config/sheldon/plugins.toml（插件列表）
 #   - 旧 home/base/shell.nix（mkEnableOption 模式）
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 let
   cfg = config.modules-home-base-shell;
 in
@@ -15,6 +15,14 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # sheldon 的 plugins.lock 是状态文件（不在 HM 声明式管理内）。当
+    # plugins.toml 内容变化时 lock 会过期，导致 `sheldon source` 仍按旧
+    # 插件列表/模板渲染（例如丢失 `-p`、重复加载已删插件）。故在每次
+    # switch 写入配置后自动重新 lock 一次，保证与 plugins.toml 同步。
+    home.activation.relockSheldon = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      run ${pkgs.sheldon}/bin/sheldon lock
+    '';
+
     # ==================== Zsh ====================
     programs.zsh = {
       enable = true;
@@ -22,7 +30,9 @@ in
 
       syntaxHighlighting = {
         enable = true;
-        highlighters = [ "main" "brackets" "pattern" "cursor" ];
+        # "main" 由 home-manager 自动包含（见 modules/programs/zsh/default.nix:586），
+        # 再显式列出会产生重复的 main 高亮器。
+        highlighters = [ "brackets" "pattern" "cursor" ];
       };
 
       autosuggestion = {
@@ -232,17 +242,17 @@ in
       shell = "zsh"
 
       [templates]
-      defer = "{% for file in files %}zsh-defer source \"{{ file }}\"\n{% endfor %}"
+      # `-p` 关闭 reset-prompt：zsh-defer 默认带 `p` 选项时，若 `$+RPS1 == 0`
+      # 会执行 `RPS1=`，而 starship 只写 RPROMPT 不写 RPS1（zsh 对两者
+      # 的 set 状态独立记录），导致 right_format（RPROMPT）被清空。
+      defer = "{% for file in files %}zsh-defer -p source \"{{ file }}\"\n{% endfor %}"
 
       [plugins]
       [plugins.zsh-defer]
       github = "romkatv/zsh-defer"
 
-      [plugins.zsh-autosuggestions]
-      github = "zsh-users/zsh-autosuggestions"
-
-      [plugins.zsh-syntax-highlighting]
-      github = "zsh-users/zsh-syntax-highlighting"
+      # zsh-autosuggestions / zsh-syntax-highlighting 已由 programs.zsh 的
+      # autosuggestion / syntaxHighlighting 选项加载，此处不再重复 source。
 
       [plugins.zsh-completions]
       github = "zsh-users/zsh-completions"

@@ -19,6 +19,10 @@ in
         name = "Adwaita";
         package = null;
       };
+      gtk3.extraConfig = {
+        # Xwayland 的 GTK 应用使用 fcitx（勿设 GTK_IM_MODULE 环境变量）
+        "gtk-im-module" = "fcitx";
+      };
     };
   };
 }

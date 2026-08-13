@@ -3,6 +3,7 @@ environment {
     LANGUAGE "zh_CN.UTF-8"
     LD_PRELOAD ""
     QT_IM_MODULE "fcitx"
+    QT_IM_MODULES "wayland;fcitx"
     XMODIFIERS "@im=fcitx"
     SDL_IM_MODULE "fcitx"
     INPUT_METHOD "fcitx"
@@ -36,7 +37,7 @@ environment {
 
 spawn-at-startup "noctalia"
 spawn-at-startup "~/.config/niri/script/tailscale.sh"
-spawn-at-startup "fcitx5"
+spawn-at-startup "fcitx5" "--enable=waylandim"
 // spawn-sh-at startup
 
 prefer-no-csd          // 应用程序省略它们的客户端装饰

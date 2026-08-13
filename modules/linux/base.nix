@@ -60,7 +60,10 @@
   # 仅负责注册 IM 模块路径，用户端配置（rime、theme 等）由 HM fcitx5.nix 处理
   i18n.inputMethod = {
     enabled = "fcitx5";
-    fcitx5.addons = with pkgs; [ fcitx5-gtk ];
+    fcitx5 = {
+      waylandFrontend = true; # 走 text-input-v3（waylandim），不强制 GTK/QT_IM_MODULE 环境变量
+      addons = with pkgs; [ fcitx5-gtk ];
+    };
   };
 
   # ==================== 基础系统包 ====================

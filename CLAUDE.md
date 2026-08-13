@@ -26,9 +26,8 @@ Always reply in Chinese.
 
 ```bash
 nix flake update                          # 更新依赖锁定
-nixos-rebuild switch --flake .#pro13      # 构建并切换 NixOS 主机
+nixos-rebuild switch --flake .#pro13      # 构建并切换 NixOS 主机（Home Manager 已由 NixOS 模块集成，一并应用）
 darwin-rebuild switch --flake .#macmini   # 构建并切换 nix-darwin 主机
-home-manager switch --flake .#beta@pro13  # 仅切换 Home Manager
 nix flake check                           # 检查 flake 求值
 nix fmt                                   # 格式化（需先配置 formatter 才可用）
 ```
@@ -54,10 +53,11 @@ nix fmt                                   # 格式化（需先配置 formatter �
 
 4. **`output/`** —— Flake outputs 分发层。按架构分目录，每个 `output/<system>/default.nix` 定义该架构下主机的 `nixosSystem`。**实际目录名是 `output/`（单数）**，README 中写的是 `outputs/`。
 
-## 当前状态 (2026-08-12)
+## 当前状态 (2026-08-13)
 
 ### 已完成
 - ✅ `flake.nix`：入口已创建（inputs: nixpkgs/unstable, disko, home-manager, niri, noctalia, catppuccin, zen-browser, agenix）
+- ✅ `flake.lock`：已通过 `nix flake update` 生成
 - ✅ `common/options/*.nix`：user/system/hardware/ai 选项声明
 - ✅ `modules/linux/`：boot/btrfs/base/docker/disko-template
 - ✅ `modules/linux/desktop/`：ly/niri/noctalia
@@ -66,21 +66,20 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP 服务器) + claude_code (Claude Code 全配置)
 - ✅ `home/linux/Desktop/`：kitty/niri/noctalia/fcitx5/browsers/gtk/xdg
 - ✅ `home/linux/default.nix`：Linux HM 聚合入口（含 AI 模块启用）
-- ✅ `hosts/pro13/`：default/hardware/networking 全部填充
+- ✅ `hosts/pro13/`：default/hardware/networking 全部填充（hardware.nix 已由 `nixos-generate-config` 生成）
 - ✅ `output/`：default.nix 入口 + X86_64-linux 分发（集成 agenix + HM）
 - ✅ `nix-installer/`：disko 独立配置 + 半自动安装脚本
 - ✅ `vars/default.nix`：共享变量（用户名/邮箱）
 - ✅ `common/lib/default.nix`：scanPaths 辅助函数
+- ✅ `common/assets/`：niri 等桌面资产
 - ✅ `common/secrets/`：agenix secrets 管理体系（README + default.nix）
 - ✅ `secrets/`：加密 secret 目录结构（ai/ssh/creds/api）
-- ✅ `.agenix.yaml`：主机 age 公钥注册表
+- ✅ `.agenix.yaml`：主机 age 公钥注册表（结构已建）
 
 ### 待完成
-- 🔲 `flake.lock`：需在 Nix 环境中运行 `nix flake update` 生成
-- 🔲 `hosts/pro13/hardware.nix`：需在 ISO live 环境用 `nixos-generate-config` 生成实际内容
 - 🔲 `secrets/*/*.age`：需用 agenix 加密各 secret（AI tokens, SSH key 等）
-- 🔲 `.agenix.yaml`：需填入各主机 age 公钥
-- 🔲 `common/` 下 `env.nix`、`overlays/`、`assets/`
+- 🔲 `.agenix.yaml`：需填入各主机 age 公钥（当前仅为注释占位）
+- 🔲 `common/env.nix`、`common/overlays/`
 - 🔲 `modules/darwin/`、`home/darwin/`、`hosts/m4macmini/`（macOS 支持）
 - 🔲 `home/base/ai/opencode/`、`home/base/ai/codex/`（其他 AI 工具）
 
@@ -128,6 +127,21 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - 主机密钥注册：`.agenix.yaml`
 - 过渡期仍可用 `vars/tokens.nix`（gitignored），目标迁移到 agenix
 - 详细文档：`common/secrets/README.md`
+
+## Fcitx5 输入法
+
+**核心**：Niri（Wayland）下启用 fcitx5 的 waylandim 前端（`text-input-v3`），由 fcitx5 服务端渲染候选框。**切勿设置 `GTK_IM_MODULE` 环境变量**，否则 GTK/Gecko 应用（如 Zen Browser）退回 D-Bus 经典前端，候选框主题失效。
+
+### 配置分层
+- `home/base/fcitx5.nix`（跨平台）：Rime 雾凇拼音（仅小鹤双拼 `double_pinyin_flypy`）+ macos12-dark 主题 + `classicui.conf`（候选字/预编辑字体 = `霞鹜文楷等宽 屏幕阅读版`（LXGW WenKai Mono Screen），带圈候选编号 ①-⑨）。
+- `home/linux/Desktop/fcitx5.nix`（Linux 专属）：`i18n.inputMethod`（waylandFrontend + rime/gtk addons）+ session 环境变量。
+- `modules/linux/base.nix`（系统级）：`i18n.inputMethod`（waylandFrontend + `fcitx5-gtk`）注册 GTK2/3 IM 模块。
+- `common/assets/niri/miscellaneous.kdl`：`spawn-at-startup "fcitx5" "--enable=waylandim"` 启用 waylandim。
+
+### Qt 与 GTK 应用的不同配置
+- **GTK**：不设 `GTK_IM_MODULE`；Xwayland 的 GTK3 应用用 `gtk-3.0/settings.ini` 的 `gtk-im-module=fcitx`；原生 Wayland 的 GTK4 应用自动走 `text-input-v3`。
+- **Qt**：`QT_IM_MODULE=fcitx`（Qt5/Xwayland）+ `QT_IM_MODULES=wayland;fcitx`（Qt6 优先 wayland 协议）。
+- **其他 Xwayland**：`XMODIFIERS=@im=fcitx`。
 
 ## 数据与组件约定
 

@@ -28,17 +28,22 @@ let
     # 1. 复制 rime-ice 全部数据文件
     cp -r ${pkgs.rime-ice}/share/rime-data/* $out/
 
-    # 2. default.yaml 就是 rime_ice_suggestion（已在上一步复制）
-    #    但 rime 只认 default.yaml，所以创建它
-    cp $out/rime_ice_suggestion.yaml $out/default.yaml
+    # 2. 在 rime_ice_suggestion.yaml 中注释掉除小鹤双拼外的所有方案
+    sed -i '/flypy/!s/^  - schema:/  # - schema:/' $out/rime_ice_suggestion.yaml
 
-    # 3. 万象语法模型
+    # 3. default.yaml 采用 rime-ice 标准方式：__include 引入 rime_ice_suggestion
+    cat > $out/default.yaml << 'YAML'
+    __include: rime_ice_suggestion:/
+    YAML
+
+    # 4. 万象语法模型
     cp ${wanxiang-gram} $out/
 
-    # 4. 自定义补丁
+    # 5. 自定义补丁（方案过滤已在 rime_ice_suggestion.yaml 中注释，此处不再覆盖 schema_list）
     cat > $out/default.custom.yaml << 'YAML'
     patch:
-      "menu/alternative_select_labels": [ ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨, ⑩ ]
+      # 候选词编号用带圈数字（alternative_select_labels 是 rime 的候选项标签选项）
+      "menu/alternative_select_labels": [ ①, ②, ③, ④, ⑤, ⑥, ⑦, ⑧, ⑨ ]
       "menu/page_size": 9
       "ascii_composer/switch_key/Shift_L": commit_code
       "ascii_composer/switch_key/Shift_R": commit_code
@@ -81,7 +86,7 @@ in
       "fcitx5/conf/classicui.conf".text = ''
         Theme=macos12-dark
         Font="霞鹜文楷等宽 屏幕阅读版 14"
-        MenuFont="OPPO Sans 4.0 14"
+        MenuFont="霞鹜文楷等宽 屏幕阅读版 14"
         TrayFont="OPPO Sans 4.0 14"
       '';
 

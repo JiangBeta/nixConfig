@@ -16,6 +16,7 @@
   modules-home-base-git.enable = true;
   modules-home-base-tui.enable = true;
   modules-home-base-neovim.enable = true;
+  modules-home-base-fcitx5.enable = true;
 
   # 启用桌面 GUI 模块
   modules-home-linux-desktop-kitty.enable = true;

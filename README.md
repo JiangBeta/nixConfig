@@ -46,6 +46,7 @@ nixConfig/
 │   │   ├── git.nix                # Git + Delta + LazyGit + GitHub CLI
 │   │   ├── tui.nix                # Yazi / Superfile
 │   │   ├── neovim.nix             # Neovim 编辑器
+│   │   ├── fcitx5.nix             # Fcitx5 通用配置（Rime 雾凇拼音 + macos12-dark 主题）
 │   │   └── ai/                    # AI 编码工具
 │   │       ├── default.nix          # 聚合入口（自动导入 .nix + ./claude_code）
 │   │       ├── nodejs.nix           # 🔧 共享：Node.js 22（所有 AI 工具运行时基座）
@@ -61,7 +62,7 @@ nixConfig/
 │           ├── niri.nix             # Niri 窗口管理器
 │           ├── noctalia.nix         # Noctalia Shell（状态栏/启动器/锁屏）
 │           ├── kitty.nix            # Kitty 终端（One Dark 配色）
-│           ├── fcitx5.nix           # Fcitx5 + Rime 雾凇拼音 + macos12-dark 主题
+│           ├── fcitx5.nix           # Fcitx5 Linux 专属（IM 前端注册 + 环境变量）
 │           ├── browsers.nix         # Zen Browser
 │           ├── gtk.nix              # GTK 主题（Adwaita-dark）
 │           └── xdg.nix              # XDG 目录 + MIME 关联
@@ -130,11 +131,8 @@ vars/tokens.nix    ← 💰 共享：所有 AI API token 统一定义（gitignor
 # 更新依赖
 nix flake update
 
-# 构建并切换 NixOS 配置
-nixos-rebuild switch --flake .#pro13
-
-# 仅切换 Home Manager 配置
-home-manager switch --flake .#beta@pro13
+# 构建并切换 NixOS 配置（Home Manager 已由 NixOS 模块集成，一并应用）
+sudo nixos-rebuild switch --flake .#pro13
 
 # 检查 flake 求值
 nix flake check
@@ -175,6 +173,25 @@ nix fmt
 | 文件管理 | Yazi / Superfile | 系统信息 | fastfetch |
 | 命令历史 | Atuin | 环境管理 | Direnv |
 | GitHub CLI | gh | 代码高亮 | highlight |
+
+## Fcitx5 输入法
+
+> 背景：在 Niri（Wayland）下，若设置 `GTK_IM_MODULE=fcitx`，GTK/Gecko 应用（如 Zen Browser）会走 fcitx5 的 D-Bus 经典前端，候选框渲染异常（主题失效）。正确做法是启用 fcitx5 的 Wayland 输入法前端 `waylandim`（`text-input-v3` 协议），由 fcitx5 服务端统一渲染候选框。
+
+### 系统配置分层
+
+| 层 | 文件 | 职责 |
+|----|------|------|
+| 跨平台 | `home/base/fcitx5.nix` | Rime 雾凇拼音（仅小鹤双拼）+ macos12-dark 主题 + `fcitx5/config`/`profile`/`classicui.conf`（带圈候选编号 ①-⑨） |
+| Linux IM 注册 | `home/linux/Desktop/fcitx5.nix` | `i18n.inputMethod`（`waylandFrontend` + rime/gtk addons）+ session 环境变量 |
+| 系统级 | `modules/linux/base.nix` | `i18n.inputMethod`（`waylandFrontend` + `fcitx5-gtk`）注册 GTK2/3 IM 模块 |
+| 启动 | `common/assets/niri/miscellaneous.kdl` | `spawn-at-startup "fcitx5" "--enable=waylandim"` 启用 waylandim 前端 |
+
+### Qt 与 GTK 应用的不同配置
+
+- **GTK 应用**：**不设 `GTK_IM_MODULE` 环境变量**（Arch Wiki 明确警告，否则退回 D-Bus 经典前端）。Xwayland 的 GTK3 应用改用 `gtk-3.0/settings.ini` 的 `gtk-im-module=fcitx`（见 `home/linux/Desktop/gtk.nix`）；原生 Wayland 的 GTK4 应用自动走 `text-input-v3`。
+- **Qt 应用**：保留 `QT_IM_MODULE=fcitx`（Qt5/Xwayland 用 fcitx 插件），另设 `QT_IM_MODULES=wayland;fcitx`（Qt6 优先走 wayland 文本输入协议，回退 fcitx）。
+- **其他 Xwayland 应用**：`XMODIFIERS=@im=fcitx`。
 
 ## 规范约定
 

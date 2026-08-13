@@ -36,6 +36,21 @@ let
       find . \( -name "*.ttf" -o -name "*.otf" \) -exec cp {} $out/share/fonts/truetype/ \;
     '';
   };
+
+  # LXGW WenKai Mono Screen — 霞鹜文楷等宽 屏幕阅读版（fcitx5 候选字/预编辑字体）
+  # nixpkgs 的 lxgw-wenkai-screen 只含非等宽版，这里单独 fetch 等宽屏幕版
+  lxgw-wenkai-mono-screen = pkgs.stdenvNoCC.mkDerivation {
+    pname = "lxgw-wenkai-mono-screen";
+    version = "1.522";
+    src = pkgs.fetchurl {
+      url = "https://github.com/lxgw/LxgwWenKai-Screen/releases/download/v1.522/LXGWWenKaiMonoScreen.ttf";
+      sha256 = "dYvw5/zt3q5CX6P1t5KqPoBCiFa5830hNV4OQpUTXp0=";
+    };
+    dontUnpack = true;
+    installPhase = ''
+      install -Dm644 "$src" "$out/share/fonts/truetype/LXGWWenKaiMonoScreen.ttf"
+    '';
+  };
 in
 {
   fonts.packages = with pkgs; [
@@ -47,6 +62,7 @@ in
     (maple-mono."NF-CN")
     lxgw-neozhisong
     oppo-sans
+    lxgw-wenkai-mono-screen
   ];
 
   fonts.fontconfig = {

@@ -33,20 +33,10 @@ inputs:
         modules-nixos-desktop-noctalia.enable = true;
       }
 
-      # 5. Zen Browser（包装 .desktop 注入 fcitx5 环境变量）
+      # 5. Zen Browser（Wayland 原生 text-input-v3 / waylandim 前端，勿注入 GTK_IM_MODULE）
       ({ pkgs, ... }: {
         environment.systemPackages = [
-          (pkgs.symlinkJoin {
-            name = "zen-browser";
-            paths = [ inputs.zen-browser.packages.x86_64-linux.default ];
-            postBuild = ''
-              rm -f $out/share/applications/*.desktop
-              for f in ${inputs.zen-browser.packages.x86_64-linux.default}/share/applications/*.desktop; do
-                base=$(basename "$f")
-                sed "s/^Exec=/Exec=env GTK_IM_MODULE=fcitx QT_IM_MODULE=fcitx XMODIFIERS=@im=fcitx /" "$f" > "$out/share/applications/$base"
-              done
-            '';
-          })
+          inputs.zen-browser.packages.x86_64-linux.default
         ];
       })
 
