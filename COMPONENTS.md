@@ -41,8 +41,10 @@
 | 终端 | Kitty | `kitty` |
 | 输入法 | Fcitx5 + Rime + 雾凇拼音小鹤双拼 | `fcitx5`, `fcitx5-rime`, `rime-ice` |
 | 浏览器 | Zen Browser | `zen-browser` |
-| 声音 | PipeWire | `pipewire`, `wireplumber` |
+| 声音 | PipeWire + SOF/ALSA 固件 | `pipewire`, `wireplumber`, `sof-firmware`, `alsa-ucm-conf` |
 | 蓝牙 | bluez + blueman | `bluez`, `blueman` |
+| 电源管理 | power-profiles-daemon（balanced） | `power-profiles-daemon` |
+| 空闲/休眠 | swayidle（10 分钟关屏+锁屏，20 分钟挂起） | `swayidle` |
 | XDG Portal | xdg-desktop-portal-gtk/gnome | `xdg-desktop-portal` |
 | GPU | Mesa + Vulkan（Intel/AMD 自动） | 内核内置 |
 | 窗口截图/录屏 | Niri 内置 + grim/slurp | `grim`, `slurp` |

@@ -37,6 +37,7 @@ environment {
 
 spawn-at-startup "noctalia"
 spawn-at-startup "~/.config/niri/script/tailscale.sh"
+spawn-at-startup "~/.config/niri/script/idle.sh"
 spawn-at-startup "fcitx5" "--enable=waylandim"
 // spawn-sh-at startup
 

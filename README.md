@@ -161,7 +161,9 @@ nix fmt
 | **GTK 主题** | Adwaita-dark |
 | **内核** | linux-zen |
 | **文件系统** | Btrfs + Disko + Snapper（快照） |
-| **音频** | PipeWire + WirePlumber |
+| **音频** | PipeWire + WirePlumber（SOF/ALSA 固件） |
+| **电源管理** | power-profiles-daemon（balanced） |
+| **空闲/休眠** | swayidle（10 分钟关屏+锁屏，20 分钟挂起） |
 | **蓝牙** | bluez |
 | **网络** | NetworkManager + nftables |
 

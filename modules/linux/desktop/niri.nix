@@ -37,13 +37,14 @@ in
       config.common.default = [ "gnome" "gtk" ];
     };
 
-    # 屏幕截图工具
+    # 屏幕截图 + 空闲管理工具
     environment.systemPackages = with pkgs; [
       grim      # 截图
       slurp     # 区域选择
       satty     # 截图编辑/标注
       wl-clipboard  # Wayland 剪贴板
       cliphist  # 剪贴板历史
+      swayidle  # 空闲管理（关屏/锁屏/挂起）
     ];
   };
 }

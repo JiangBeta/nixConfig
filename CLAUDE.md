@@ -150,4 +150,5 @@ nix fmt                                   # 格式化（需先配置 formatter �
 
 - `common/hosts-info.nix`：静态主机元数据映射表（IP、SSH 端口、架构、系统盘）。
 - 桌面栈：Niri + Noctalia Shell + Ly + Kitty + Fcitx5/Rime；CLI：Zsh + Starship + Sheldon + Atuin；磁盘：btrfs + disko + Snapper；内核：linux-zen。
+- 音频：PipeWire + WirePlumber（sof-firmware / alsa-ucm-conf / alsa-firmware）；电源：power-profiles-daemon（balanced）+ swayidle 空闲管理（10 分钟关屏+锁屏，20 分钟挂起）。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。
