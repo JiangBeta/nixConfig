@@ -60,7 +60,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `flake.lock`：已通过 `nix flake update` 生成
 - ✅ `common/options/*.nix`：user/system/hardware/ai 选项声明
 - ✅ `modules/linux/`：boot/btrfs/base/docker/disko-template
-- ✅ `modules/linux/desktop/`：audio/ly/niri/noctalia
+- ✅ `modules/linux/desktop/`：audio/bluetooth/fcitx5/ly/niri/noctalia
 - ✅ `modules/base/`：user/fonts
 - ✅ `home/base/`：shell/cli(+tmux)/git/tui/neovim(LazyVim 作为默认编辑器)
 - ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP) + skills/hooks (共享) + claude_code (Claude Code 全配置)
@@ -138,7 +138,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 ### 配置分层
 - `home/base/fcitx5.nix`（跨平台）：Rime 雾凇拼音（仅小鹤双拼 `double_pinyin_flypy`）+ macos12-dark 主题 + `classicui.conf`（候选字/预编辑字体 = `霞鹜文楷等宽 屏幕阅读版`（LXGW WenKai Mono Screen），带圈候选编号 ①-⑨）。
 - `home/linux/Desktop/fcitx5.nix`（Linux 专属）：`i18n.inputMethod`（waylandFrontend + rime/gtk addons）+ session 环境变量。
-- `modules/linux/base.nix`（系统级）：`i18n.inputMethod`（waylandFrontend + `fcitx5-gtk`）注册 GTK2/3 IM 模块。
+- `modules/linux/desktop/fcitx5.nix`（系统级）：`i18n.inputMethod`（waylandFrontend + `fcitx5-gtk`）注册 GTK2/3 IM 模块。
 - `common/assets/niri/miscellaneous.kdl`：`spawn-at-startup "fcitx5" "--enable=waylandim"` 启用 waylandim。
 
 ### Qt 与 GTK 应用的不同配置

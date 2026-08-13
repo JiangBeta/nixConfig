@@ -41,25 +41,8 @@
   # 工具由服务自动安装；默认 profile 为 balanced（平衡），随系统服务启动。
   services.power-profiles-daemon.enable = true;
 
-  # ==================== 蓝牙 ====================
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = true;
-  };
-  services.blueman.enable = true;
-
   # ==================== 固件 ====================
   hardware.enableAllFirmware = true;
-
-  # ==================== Fcitx5 系统级 — GTK/Qt IM 模块注册 ====================
-  # 仅负责注册 IM 模块路径，用户端配置（rime、theme 等）由 HM fcitx5.nix 处理
-  i18n.inputMethod = {
-    enabled = "fcitx5";
-    fcitx5 = {
-      waylandFrontend = true; # 走 text-input-v3（waylandim），不强制 GTK/QT_IM_MODULE 环境变量
-      addons = with pkgs; [ fcitx5-gtk ];
-    };
-  };
 
   # ==================== 基础系统包 ====================
   environment.systemPackages = with pkgs; [

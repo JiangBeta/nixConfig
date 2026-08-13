@@ -28,13 +28,15 @@ nixConfig/
 │   │       ├── default.nix            # 聚合入口
 │   │       └── claude_code.nix        # 系统级 Node.js
 │   └── linux/                    # NixOS 专属
-│       ├── base.nix                # 时区 / Locale / Nix 镜像 / 电源 / 蓝牙
+│       ├── base.nix                # 时区 / Locale / Nix 镜像 / 电源
 │       ├── boot.nix                # 引导 + linux-zen 内核 + CPU 微码
 │       ├── btrfs.nix               # Btrfs autoScrub + Snapper 快照
 │       ├── disko-template.nix      # Disko GPT 分区模板
 │       ├── docker.nix              # Docker 支持
 │       └── desktop/                # 桌面环境系统服务（server 不需要）
 │           ├── audio.nix             # PipeWire + WirePlumber + SOF 固件
+│           ├── bluetooth.nix         # bluez + blueman
+│           ├── fcitx5.nix            # Fcitx5 系统级 IM 模块注册
 │           ├── ly.nix                # Ly 显示管理器
 │           ├── niri.nix              # Niri Wayland 合成器 + swayidle 空闲管理
 │           └── noctalia.nix          # Noctalia Shell
@@ -192,7 +194,7 @@ nix fmt
 |----|------|------|
 | 跨平台 | `home/base/fcitx5.nix` | Rime 雾凇拼音（仅小鹤双拼）+ macos12-dark 主题 + `fcitx5/config`/`profile`/`classicui.conf`（带圈候选编号 ①-⑨） |
 | Linux IM 注册 | `home/linux/Desktop/fcitx5.nix` | `i18n.inputMethod`（`waylandFrontend` + rime/gtk addons）+ session 环境变量 |
-| 系统级 | `modules/linux/base.nix` | `i18n.inputMethod`（`waylandFrontend` + `fcitx5-gtk`）注册 GTK2/3 IM 模块 |
+| 系统级 | `modules/linux/desktop/fcitx5.nix` | `i18n.inputMethod`（`waylandFrontend` + `fcitx5-gtk`）注册 GTK2/3 IM 模块 |
 | 启动 | `common/assets/niri/miscellaneous.kdl` | `spawn-at-startup "fcitx5" "--enable=waylandim"` 启用 waylandim 前端 |
 
 ### Qt 与 GTK 应用的不同配置

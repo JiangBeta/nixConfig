@@ -27,6 +27,8 @@ let
 
       # 4. 桌面系统模块
       ../../modules/linux/desktop/audio.nix
+      ../../modules/linux/desktop/bluetooth.nix
+      ../../modules/linux/desktop/fcitx5.nix
       ../../modules/linux/desktop/ly.nix
       ../../modules/linux/desktop/niri.nix
       ../../modules/linux/desktop/noctalia.nix
