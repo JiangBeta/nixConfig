@@ -42,19 +42,21 @@ nixConfig/
 │   ├── base/                     # 跨平台用户模块
 │   │   ├── default.nix            # 自动扫描导入 + home.stateVersion = 26.05
 │   │   ├── shell.nix              # Zsh + Starship + Sheldon + Atuin + Direnv
-│   │   ├── cli.nix                # eza / bat / fzf / ripgrep / fd / zoxide / btop 等
+│   │   ├── cli.nix                # eza / bat / fzf / ripgrep / fd / zoxide / tmux / btop 等
 │   │   ├── git.nix                # Git + Delta + LazyGit + GitHub CLI
 │   │   ├── tui.nix                # Yazi / Superfile
-│   │   ├── neovim.nix             # Neovim 编辑器
+│   │   ├── neovim.nix             # Neovim + LazyVim 编辑器
 │   │   ├── fcitx5.nix             # Fcitx5 通用配置（Rime 雾凇拼音 + macos12-dark 主题）
 │   │   └── ai/                    # AI 编码工具
 │   │       ├── default.nix          # 聚合入口（自动导入 .nix + ./claude_code）
 │   │       ├── nodejs.nix           # 🔧 共享：Node.js 22（所有 AI 工具运行时基座）
 │   │       ├── mcp.nix              # 🔧 共享：MCP 服务器声明（各工具消费）
+│   │       ├── skills.nix           # 🔧 共享：Skills 目录声明
+│   │       ├── hooks.nix            # 🔧 共享：Hooks 脚本目录声明
+│   │       ├── skills/              # 7 个 skill（codebase-memory / git-master 等）
+│   │       ├── hooks/               # 3 个 hook（cbm-code-discovery-gate 等）
 │   │       └── claude_code/         # 🎯 Claude Code 专属
-│   │           ├── default.nix        # 安装 + settings.json + .mcp.json
-│   │           ├── skills/            # 7 个 skill（codebase-memory / git-master 等）
-│   │           └── hooks/             # 3 个 hook（cbm-code-discovery-gate 等）
+│   │           └── default.nix        # 安装 + settings.json + .mcp.json（消费共享层）
 │   └── linux/                    # Linux 专属用户模块
 │       ├── default.nix            # 入口：imports + enable 开关
 │       └── Desktop/               # 桌面环境
@@ -118,7 +120,9 @@ common/options/  →  hosts/pro13/   →  modules/ + home/
 home/base/ai/
 ├── nodejs.nix     ← 🔧 共享：Node.js 运行时（所有 AI 工具基座）
 ├── mcp.nix        ← 🔧 共享：MCP 服务器统一定义（各工具按格式消费）
-├── claude_code/   ← 🎯 专属：Claude Code CLI + settings + skills + hooks
+├── skills.nix     ← 🔧 共享：Skills 目录统一定义
+├── hooks.nix      ← 🔧 共享：Hooks 脚本目录统一定义
+├── claude_code/   ← 🎯 专属：Claude Code CLI + settings（消费共享层）
 ├── opencode/      ← 🔲 将来
 └── codex/         ← 🔲 将来
 
@@ -150,7 +154,7 @@ nix fmt
 | **DM** | Ly（显示管理器） |
 | **终端** | Kitty（One Dark 配色 + Maple Mono 字体） |
 | **命令行** | Zsh + Starship + Sheldon + Atuin + Direnv |
-| **编辑器** | Neovim |
+| **编辑器** | Neovim + LazyVim |
 | **输入法** | Fcitx5 + Rime + rime-ice（雾凇拼音）+ macos12-dark 主题 |
 | **字体** | 霞鹜文楷等宽 / Maple Mono NF / OPPO Sans 4.0 |
 | **浏览器** | Zen Browser |
@@ -173,6 +177,7 @@ nix fmt
 | 文件管理 | Yazi / Superfile | 系统信息 | fastfetch |
 | 命令历史 | Atuin | 环境管理 | Direnv |
 | GitHub CLI | gh | 代码高亮 | highlight |
+| 终端复用 | tmux | 编辑器 | LazyVim (Neovim) |
 
 ## Fcitx5 输入法
 

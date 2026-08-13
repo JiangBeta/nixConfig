@@ -18,6 +18,7 @@
     diskDevice = "/dev/nvme0n1"; # NUC8 M.2 NVMe（如用 2.5" SATA 盘改为 /dev/sda）
     bootMode = "uefi";
     cpuMicrocode = "intel";
+    kernel = "zen";              # install.sh 会按选择改写（zen / lts）
     firewall = "nftables";
 
     hardware = {

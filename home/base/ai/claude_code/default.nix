@@ -4,8 +4,8 @@
 #   - ~/.claude/settings.json  (API + hooks + 模型映射)
 #   - ~/.claude/.mcp.json       (MCP — 消费 modules-home-base-ai-mcp.servers)
 #   - ~/.claude/config.json
-#   - ~/.claude/skills/         (从 ../skills/ symlink，上移至 ai/ 共享层)
-#   - ~/.claude/hooks/          (从 ../hooks/ symlink，上移至 ai/ 共享层)
+#   - ~/.claude/skills/         (消费 modules-home-base-ai-skills.dir，共享层)
+#   - ~/.claude/hooks/          (消费 modules-home-base-ai-hooks.dir，共享层)
 #
 # Token 消费（两阶段）：
 #   Phase 1（当前）：osConfig.myHome.ai.tokens.* → vars/tokens.nix (NixOS option)
@@ -19,6 +19,9 @@
 let
   cfg = config.modules-home-base-ai-claudeCode;
   mcpServers = config.modules-home-base-ai-mcp.servers or { };
+  # 消费共享 skills / hooks（与 mcp 同层，由 skills.nix / hooks.nix 声明）
+  skillsDir = config.modules-home-base-ai-skills.dir or null;
+  hooksDir = config.modules-home-base-ai-hooks.dir or null;
   aiCfg = osConfig.myHome.ai or { };
 
   # ---- 根据 provider 确定 API 配置 ----
@@ -171,18 +174,6 @@ in
       description = "Claude Code hooks 配置";
     };
 
-    skillsDir = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = ../skills;
-      description = "Skills 目录（symlink → ~/.claude/skills/），上移至 ai/ 共享层";
-    };
-
-    hooksDir = lib.mkOption {
-      type = lib.types.nullOr lib.types.path;
-      default = ../hooks;
-      description = "Hooks 脚本目录（symlink → ~/.claude/hooks/），上移至 ai/ 共享层";
-    };
-
     extraEnv = lib.mkOption {
       type = lib.types.attrsOf lib.types.str;
       default = { };
@@ -237,25 +228,25 @@ in
       }
       { ".claude/config.json".text = builtins.toJSON { primaryApiKey = "any"; }; }
 
-      (lib.mkIf (cfg.skillsDir != null) (
+      (lib.mkIf (skillsDir != null) (
         builtins.listToAttrs (
           lib.mapAttrsToList (name: _:
             lib.nameValuePair ".claude/skills/${name}" {
-              source = cfg.skillsDir + "/${name}";
+              source = skillsDir + "/${name}";
               recursive = true;
             }
-          ) (lib.filterAttrs (_: type: type == "directory") (builtins.readDir cfg.skillsDir))
+          ) (lib.filterAttrs (_: type: type == "directory") (builtins.readDir skillsDir))
         )
       ))
 
-      (lib.mkIf (cfg.hooksDir != null) (
+      (lib.mkIf (hooksDir != null) (
         builtins.listToAttrs (
           lib.mapAttrsToList (name: _:
             lib.nameValuePair ".claude/hooks/${name}" {
-              source = cfg.hooksDir + "/${name}";
+              source = hooksDir + "/${name}";
               executable = true;
             }
-          ) (lib.filterAttrs (_: type: type == "regular") (builtins.readDir cfg.hooksDir))
+          ) (lib.filterAttrs (_: type: type == "regular") (builtins.readDir hooksDir))
         )
       ))
     ];

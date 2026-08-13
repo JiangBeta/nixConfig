@@ -11,6 +11,8 @@
 │                共享基础设施层（真相源）                    │
 │  nodejs.nix  ── Node.js 运行时基座                      │
 │  mcp.nix     ── MCP 服务器统一声明                       │
+│  skills.nix  ── Skills 目录统一声明                      │
+│  hooks.nix   ── Hooks 脚本目录统一声明                   │
 │  providers.nix ── 供应商 + token 统一声明（将来）          │
 │  prompts.nix  ── CLAUDE.md/AGENTS.md 同步（将来）          │
 │  skills/     ── 跨工具共享 skills（SKILL.md + agents）   │
@@ -61,7 +63,9 @@ home/base/ai/
 ├── default.nix              ← 聚合：自动扫 .nix + 显式导入子目录模块
 ├── nodejs.nix               ← 🔧 共享：Node.js 22 运行时
 ├── mcp.nix                  ← 🔧 共享：MCP 服务器声明 (modules-home-base-ai-mcp)
-├── skills/                  ← 🔧 共享：跨工具 skills（从 claude_code/ 上移）
+├── skills.nix               ← 🔧 共享：Skills 模块声明 (modules-home-base-ai-skills)
+├── hooks.nix                ← 🔧 共享：Hooks 模块声明 (modules-home-base-ai-hooks)
+├── skills/                  ← 🔧 共享：跨工具 skills 内容（SKILL.md）
 │   ├── codebase-memory/
 │   ├── git-master/
 │   ├── grill-me/            ← 含 agents/openai.yaml（OpenCode/Codex 格式）
@@ -69,7 +73,7 @@ home/base/ai/
 │   ├── grilling/
 │   ├── smart-search-cli/
 │   └── using-superpowers/
-├── hooks/                   ← 🔧 共享：跨工具 hooks 脚本（从 claude_code/ 上移）
+├── hooks/                   ← 🔧 共享：跨工具 hooks 脚本内容
 │   ├── cbm-code-discovery-gate
 │   ├── cbm-session-reminder
 │   └── cbm-subagent-reminder
@@ -101,6 +105,8 @@ vars/
 |----------|----------|
 | `home/base/ai/nodejs.nix` | `modules-home-base-ai-nodejs` |
 | `home/base/ai/mcp.nix` | `modules-home-base-ai-mcp` |
+| `home/base/ai/skills.nix` | `modules-home-base-ai-skills` |
+| `home/base/ai/hooks.nix` | `modules-home-base-ai-hooks` |
 | `home/base/ai/claude_code/default.nix` | `modules-home-base-ai-claudeCode` |
 | `modules/base/ai/claude_code.nix` | `modules-base-ai-claudeCode` |
 
@@ -132,14 +138,12 @@ mcp.nix → modules-home-base-ai-mcp.servers (统一声明)
 ### Skills / Hooks 流（上移后）
 
 ```
-home/base/ai/skills/ (repo 管理，跨工具共享)
-  → claude_code/default.nix 通过 skillsDir (默认 ../skills) symlink
-    → ~/.claude/skills/
+home/base/ai/skills.nix → modules-home-base-ai-skills.dir (默认 ./skills)
+  → claude_code/default.nix 读取 .dir symlink → ~/.claude/skills/
   → opencode（将来）消费同一份 skills/，生成 ~/.config/opencode/skills/
 
-home/base/ai/hooks/ (repo 管理，跨工具共享)
-  → claude_code/default.nix 通过 hooksDir (默认 ../hooks) symlink
-    → ~/.claude/hooks/
+home/base/ai/hooks.nix → modules-home-base-ai-hooks.dir (默认 ./hooks)
+  → claude_code/default.nix 读取 .dir symlink → ~/.claude/hooks/
 ```
 
 ---
@@ -342,3 +346,5 @@ opencode.nix       ← nodejs (auto-enable) + mcp (读 servers) + skills + osCon
 | 2026-08-12 | **上移 skills/hooks 到 `ai/` 共享层**（从 `claude_code/` 上移） |
 | | 决策：不用 CCSwitch 管理 Nix 已覆盖的部分，走 Nix 声明式 |
 | | 确立「单一真相源 + 工具模块只做翻译」原则 |
+| 2026-08-13 | **提取 `skills.nix` / `hooks.nix` 共享模块**（对齐 `mcp.nix` 声明式模式） |
+| | claude_code 改为消费 `modules-home-base-ai-skills.dir` / `-hooks.dir`，不再自带 `skillsDir`/`hooksDir` 选项 |

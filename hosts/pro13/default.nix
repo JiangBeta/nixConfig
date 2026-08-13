@@ -18,6 +18,7 @@
     diskDevice = "/dev/nvme0n1";
     bootMode = "uefi";
     cpuMicrocode = "amd";
+    kernel = "zen";              # install.sh 会按选择改写（zen / lts）
     firewall = "nftables";
 
     hardware = {

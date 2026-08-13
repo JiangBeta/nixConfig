@@ -10,7 +10,7 @@ let
 in
 {
   options.modules-home-base-cli = {
-    enable = lib.mkEnableOption "CLI 替代工具（eza, bat, fd, ripgrep, fzf, zoxide, tldr, fastfetch, dust, duf, doggo, aria2）";
+    enable = lib.mkEnableOption "CLI 替代工具（eza, bat, fd, ripgrep, fzf, zoxide, tldr, fastfetch, dust, duf, doggo, aria2, tmux）";
   };
 
   config = lib.mkIf cfg.enable {
@@ -75,5 +75,25 @@ in
 
     # fd — find 替代
     programs.fd.enable = true;
+
+    # tmux — 终端复用器
+    programs.tmux = {
+      enable = true;
+      shortcut = "a";            # prefix 键 Ctrl-a（替代默认 Ctrl-b）
+      baseIndex = 1;             # 窗口/面板编号从 1 开始
+      escapeTime = 0;            # 消除 Esc 延迟（vi 模式响应）
+      keyMode = "vi";            # vi 风格 copy-mode
+      terminal = "screen-256color";
+      historyLimit = 50000;
+      mouse = true;
+      clock24 = true;
+
+      extraConfig = ''
+        set -g pane-base-index 1
+        set -g renumber-windows on
+        bind -r | split-window -h -c "#{pane_current_path}"
+        bind -r - split-window -v -c "#{pane_current_path}"
+      '';
+    };
   };
 }

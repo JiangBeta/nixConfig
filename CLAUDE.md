@@ -62,11 +62,12 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `modules/linux/`：boot/btrfs/base/docker/disko-template
 - ✅ `modules/linux/desktop/`：ly/niri/noctalia
 - ✅ `modules/base/`：user/fonts
-- ✅ `home/base/`：shell/cli/git/tui/neovim
-- ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP 服务器) + claude_code (Claude Code 全配置)
+- ✅ `home/base/`：shell/cli(+tmux)/git/tui/neovim(LazyVim 作为默认编辑器)
+- ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP) + skills/hooks (共享) + claude_code (Claude Code 全配置)
 - ✅ `home/linux/Desktop/`：kitty/niri/noctalia/fcitx5/browsers/gtk/xdg
 - ✅ `home/linux/default.nix`：Linux HM 聚合入口（含 AI 模块启用）
 - ✅ `hosts/pro13/`：default/hardware/networking 全部填充（hardware.nix 已由 `nixos-generate-config` 生成）
+- ✅ `hosts/nuc8-d/`：default/hardware/networking（Intel NUC8 桌面，复用 pro13 桌面栈）
 - ✅ `output/`：default.nix 入口 + X86_64-linux 分发（集成 agenix + HM）
 - ✅ `nix-installer/`：disko 独立配置 + 半自动安装脚本
 - ✅ `vars/default.nix`：共享变量（用户名/邮箱）
@@ -115,9 +116,11 @@ nix fmt                                   # 格式化（需先配置 formatter �
 |------|------|-------------|
 | `nodejs.nix` | 🔧 共享：Node.js 22 运行时 | `modules-home-base-ai-nodejs` |
 | `mcp.nix` | 🔧 共享：MCP 服务器声明 | `modules-home-base-ai-mcp` |
+| `skills.nix` | 🔧 共享：Skills 目录（SKILL.md） | `modules-home-base-ai-skills` |
+| `hooks.nix` | 🔧 共享：Hooks 脚本目录 | `modules-home-base-ai-hooks` |
 | `claude_code/default.nix` | 🎯 专属：Claude Code 全配置 | `modules-home-base-ai-claudeCode` |
 
-设计原则：Node.js 和 MCP 是所有 AI 工具的共享基础设施，各工具模块消费同一份 `mcp.servers` 生成各自格式的配置文件。
+设计原则：Node.js、MCP、Skills、Hooks 是所有 AI 工具的共享基础设施，各工具模块消费同一份 `mcp.servers` / `skills.dir` / `hooks.dir` 生成各自格式的配置文件。
 
 ### Secrets 管理（`common/secrets/` + `secrets/`）
 

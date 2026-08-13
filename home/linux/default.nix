@@ -40,6 +40,10 @@
     };
   };
 
+  # 共享 Skills / Hooks（所有 AI 工具共用，由 claude_code 等工具模块消费）
+  modules-home-base-ai-skills.enable = true;
+  modules-home-base-ai-hooks.enable = true;
+
   modules-home-base-ai-claudeCode.enable = true;
 
   # Linux 专属用户级包

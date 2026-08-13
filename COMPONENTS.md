@@ -52,7 +52,8 @@
 | 组件 | 说明 | base | darwin | nix-server | nix-desktop |
 |------|------|:---:|:---:|:---:|:---:|
 | Shell | Zsh + Starship + Sheldon + Atuin | ✅ | ✅ | ✅ | ✅ |
-| 编辑器 | vim | ✅ | ✅ | ✅ | ✅ |
+| 终端复用 | tmux | ✅ | ✅ | ✅ | ✅ |
+| 编辑器 | vim / nvim(LazyVim) | ✅ | ✅ | ✅ | ✅ |
 | 系统信息 | fastfetch | ✅ | ✅ | ✅ | ✅ |
 | 进程监视 | btop-cn | ✅ | ✅ | ✅ | ✅ |
 | 包/归档 | zip/unzip/p7zip | ✅ | ✅ | ✅ | ✅ |
