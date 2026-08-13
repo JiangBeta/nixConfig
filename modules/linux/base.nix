@@ -44,10 +44,28 @@
   # ==================== 固件 ====================
   hardware.enableAllFirmware = true;
 
-  # ==================== 基础系统包 ====================
+  # ==================== 系统 CLI 工具（按类别分组） ====================
   environment.systemPackages = with pkgs; [
-    # 基础工具
+    # archives 压缩归档
+    zip
+    xz
+    unzip
+    p7zip
+
+    # networking tools 网络工具
     curl
+    aria2
+
+    # misc 杂项
+    cowsay
+    file
+    which
+    tree
+    gnused
+    gnutar
+    gawk
+    zstd
+    gnupg
     git
     vim
     tldr
@@ -55,7 +73,15 @@
     chezmoi
     just
 
-    # 文件系统工具
+    # system call monitoring 系统调用监控
+    lsof
+
+    # system tools 系统工具
+    sysstat
+    lm_sensors
+    ethtool
+    pciutils
+    usbutils
     btrfs-progs
     dosfstools
   ];

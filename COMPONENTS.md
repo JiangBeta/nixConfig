@@ -51,18 +51,23 @@
 
 ## CLI 核心工具
 
+### 跨平台（home/base，含 macOS）
 | 组件 | 说明 | base | darwin | nix-server | nix-desktop |
 |------|------|:---:|:---:|:---:|:---:|
 | Shell | Zsh + Starship + Sheldon + Atuin | ✅ | ✅ | ✅ | ✅ |
 | 终端复用 | tmux | ✅ | ✅ | ✅ | ✅ |
-| 编辑器 | vim / nvim(LazyVim) | ✅ | ✅ | ✅ | ✅ |
+| 编辑器 | nvim (LazyVim) | ✅ | ✅ | ✅ | ✅ |
 | 系统信息 | fastfetch | ✅ | ✅ | ✅ | ✅ |
-| 进程监视 | btop-cn | ✅ | ✅ | ✅ | ✅ |
-| 包/归档 | zip/unzip/p7zip | ✅ | ✅ | ✅ | ✅ |
-| 网络诊断 | mtr/dnsutils/nmap/tcpdump | ✅ | ✅ | ✅ | ✅ |
-| 文本处理 | jq/gnugrep/gawk/gnused | ✅ | ✅ | ✅ | ✅ |
-| 文件操作 | rsync/file/which | ✅ | ✅ | ✅ | ✅ |
-| 安全 | openssh/openssl | ✅ | ✅ | ✅ | ✅ |
+| 进程监视 | btop | ✅ | ✅ | ✅ | ✅ |
+
+### 系统 CLI（modules/linux/base.nix，Linux 专属，按类别分组）
+| 类别 | 工具 | nix-server | nix-desktop |
+|------|------|:---:|:---:|
+| archives 压缩归档 | zip / xz / unzip / p7zip | ✅ | ✅ |
+| networking tools 网络工具 | curl / aria2 | ✅ | ✅ |
+| misc 杂项 | cowsay / file / which / tree / gnused / gnutar / gawk / zstd / gnupg / git / vim / tldr / bash-completion / chezmoi / just | ✅ | ✅ |
+| system call monitoring 系统调用监控 | lsof | ✅ | ✅ |
+| system tools 系统工具 | sysstat / lm_sensors / ethtool / pciutils / usbutils / btrfs-progs / dosfstools | ✅ | ✅ |
 
 ## CLI 替代工具（home/base/cli.nix）
 

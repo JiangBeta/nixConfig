@@ -10,7 +10,7 @@ let
 in
 {
   options.modules-home-base-cli = {
-    enable = lib.mkEnableOption "CLI 替代工具（eza, bat, fd, ripgrep, fzf, zoxide, tldr, fastfetch, dust, duf, doggo, aria2, tmux）";
+    enable = lib.mkEnableOption "CLI 替代工具（eza, bat, fd, ripgrep, fzf, zoxide, tldr, fastfetch, dust, duf, doggo, tmux）";
   };
 
   config = lib.mkIf cfg.enable {
@@ -19,7 +19,6 @@ in
       dust        # du 替代
       duf         # df 替代
       doggo       # dig 替代
-      aria2       # 多协议下载
     ];
 
     # eza — ls 替代
