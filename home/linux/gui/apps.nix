@@ -64,28 +64,16 @@ let
     };
   };
 
-  # ===== navop：一体化工作台（.AppImage 实为静态 ELF，无需 patchelf） =====
-  navop = pkgs.stdenvNoCC.mkDerivation {
+  # ===== navop：一体化工作台（type-2 AppImage，解包 + autoPatchelf） =====
+  # .AppImage 实为 type-2 AppImage（魔数 AI\x02），运行时是动态链接 FHS 可执行文件，
+  # 直接复制会在 NixOS 上被 stub-ld 拦截（"cannot run dynamically linked executable"）。
+  # 用 appimageTools.wrapType2 解包 squashfs 并 autoPatchelf。
+  navop = pkgs.appimageTools.wrapType2 {
     pname = "navop";
     version = "0.10.7";
     src = pkgs.fetchurl {
       url = "https://github.com/feigeCode/navop/releases/download/v0.10.7/navop_0.10.7_amd64.AppImage";
       hash = "sha256-hVm8LOOLfbzwZBC97eh947NNui8+QU1PWIaKItJOuCw=";
-    };
-    dontUnpack = true;
-
-    installPhase = ''
-      runHook preInstall
-      install -Dm755 $src $out/bin/navop
-      runHook postInstall
-    '';
-
-    meta = with lib; {
-      description = "All-in-one workspace for databases, SSH, terminals, RDP, monitoring, AI";
-      homepage = "https://github.com/feigeCode/navop";
-      license = licenses.unfree; # 未声明开源协议，仅二进制分发
-      platforms = [ "x86_64-linux" ];
-      mainProgram = "navop";
     };
   };
 in
