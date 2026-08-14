@@ -32,7 +32,6 @@
   modules-home-linux-gui-xdg.enable = true;
   modules-home-linux-gui-apps.enable = true;
   modules-home-linux-gui-flatpak-compat.enable = true;
-  modules-home-linux-gui-wallpaper.enable = true;
 
   # ---- AI 工具 ----
   modules-home-base-ai-nodejs.enable = true;

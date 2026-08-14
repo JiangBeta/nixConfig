@@ -28,7 +28,7 @@ in
       "niri/windows-rule.kdl".text = builtins.readFile (dotfile + "/windows-rule.kdl");
     };
 
-    # Niri 启动脚本（wechat/wps/obsidian/typora/notepadqq/tailscale/idle）
+    # Niri 启动脚本（wechat/wps/obsidian/typora/notepadqq/tailscale）
     home.file = {
       ".config/niri/script/notepadqq.sh" = {
         source = dotfile + "/script/notepadqq.sh";
@@ -52,10 +52,6 @@ in
       };
       ".config/niri/script/tailscale.sh" = {
         source = dotfile + "/script/tailscale.sh";
-        executable = true;
-      };
-      ".config/niri/script/idle.sh" = {
-        source = dotfile + "/script/idle.sh";
         executable = true;
       };
     };
