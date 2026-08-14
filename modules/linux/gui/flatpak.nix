@@ -84,6 +84,9 @@ in
         #    注意：仅对 Xwayland 的 flatpak 应用设；原生 Wayland 应用仍走 text-input-v3 不设
         flatpak override --system --env=GTK_IM_MODULE=fcitx com.tencent.WeChat
         flatpak override --system --env=GTK_IM_MODULE=fcitx com.wps.Office
+
+        # 7. 清除历史遗留的 scale 覆盖（早期设过 GDK_SCALE=1.5 等，现统一用 Xft.dpi 缩放）
+        ${lib.concatMapStringsSep "\n" (app: "flatpak override --system --unset-env=GDK_SCALE --unset-env=GDK_DPI_SCALE --unset-env=QT_SCALE_FACTOR ${app}") refs}
       '';
     };
   };
