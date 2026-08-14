@@ -41,6 +41,9 @@
 | 终端 | Kitty | `kitty` |
 | 输入法 | Fcitx5 + Rime + 雾凇拼音小鹤双拼 | `fcitx5`, `fcitx5-rime`, `rime-ice` |
 | 浏览器 | Zen Browser | `zen-browser` |
+| Markdown 编辑器 | Typora（跨平台） | `typora` |
+| 编辑器（汉化） | ZedG（Zed 汉化版） | 预编译 tar.gz（autoPatchelf） |
+| 数据库/SSH 工作台 | Navop | 预编译 AppImage（静态 ELF） |
 | 声音 | PipeWire + SOF/ALSA 固件 | `pipewire`, `wireplumber`, `sof-firmware`, `alsa-ucm-conf` |
 | 蓝牙 | bluez + blueman | `bluez`, `blueman` |
 | 电源管理 | power-profiles-daemon（balanced） | `power-profiles-daemon` |
@@ -48,6 +51,24 @@
 | XDG Portal | xdg-desktop-portal-gtk/gnome | `xdg-desktop-portal` |
 | GPU | Mesa + Vulkan（Intel/AMD 自动） | 内核内置 |
 | 窗口截图/录屏 | Niri 内置 + grim/slurp | `grim`, `slurp` |
+
+## Flatpak 应用（modules/linux/desktop/flatpak.nix）
+
+系统级 Flatpak，声明式安装（Flathub 稳定版，USTC 镜像加速）：
+
+| 类型 | 应用 | Flatpak ID |
+|------|------|-----------|
+| 通讯 | 微信 / 电报 / Discord | `com.tencent.WeChat` / `org.telegram.desktop` / `com.discordapp.Discord` |
+| 笔记/办公 | Obsidian / WPS / Foliate | `md.obsidian.Obsidian` / `com.wps.Office` / `com.github.johnfactotum.Foliate` |
+| 浏览器 | Microsoft Edge | `com.microsoft.Edge` |
+| 权限管理 | Flatseal | `com.github.tchx84.Flatseal` |
+| 应用商店 | Bazaar | `io.github.kolunmi.Bazaar` |
+| 应用管理 | Warehouse | `io.github.flattool.Warehouse` |
+| AppImage 管理 | Gear Lever | `it.mijorus.gearlever` |
+
+- **镜像**：Flathub remote → `https://mirrors.ustc.edu.cn/flathub`（缓存，未命中回源）。
+- **兼容**：Electron 应用强制 `ELECTRON_OZONE_PLATFORM_HINT=auto`（Wayland）；Obsidian 追加 `--enable-wayland-ime`（fcitx5 输入法，见 `home/linux/Desktop/flatpak-compat.nix`）。
+- **权限**：文件访问由 Flatseal 按需授权（占位，待后续配置）。
 
 ## CLI 核心工具
 

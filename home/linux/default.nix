@@ -19,6 +19,7 @@
   modules-home-base-kitty.enable = true;
   modules-home-base-browsers.enable = true;
   modules-home-base-fcitx5.enable = true;
+  modules-home-base-typora.enable = true;
 
   # 启用桌面 GUI 模块
   modules-home-linux-desktop-niri.enable = true;
@@ -26,6 +27,8 @@
   modules-home-linux-desktop-fcitx5.enable = true;
   modules-home-linux-desktop-gtk.enable = true;
   modules-home-linux-desktop-xdg.enable = true;
+  modules-home-linux-desktop-apps.enable = true;
+  modules-home-linux-desktop-flatpak-compat.enable = true;
 
   # ---- AI 工具 ----
   modules-home-base-ai-nodejs.enable = true;

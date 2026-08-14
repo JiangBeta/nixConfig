@@ -60,11 +60,11 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `flake.lock`：已通过 `nix flake update` 生成
 - ✅ `common/options/*.nix`：user/system/hardware/ai 选项声明
 - ✅ `modules/linux/`：boot/btrfs/base/docker/disko-template
-- ✅ `modules/linux/desktop/`：audio/bluetooth/fcitx5/ly/niri/noctalia
+- ✅ `modules/linux/desktop/`：audio/bluetooth/fcitx5/flatpak/ly/niri/noctalia
 - ✅ `modules/base/`：user/fonts
-- ✅ `home/base/`：shell/cli(+tmux)/git/tui/neovim(LazyVim 作为默认编辑器)/kitty/browsers
+- ✅ `home/base/`：shell/cli(+tmux)/git/tui/neovim(LazyVim 作为默认编辑器)/kitty/browsers/typora
 - ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP) + skills/hooks (共享) + claude_code (Claude Code 全配置)
-- ✅ `home/linux/Desktop/`：niri/noctalia/fcitx5/gtk/xdg
+- ✅ `home/linux/Desktop/`：niri/noctalia/fcitx5/gtk/xdg/apps/flatpak-compat
 - ✅ `home/linux/default.nix`：Linux HM 聚合入口（含 AI 模块启用）
 - ✅ `hosts/pro13/`：default/hardware/networking 全部填充（hardware.nix 已由 `nixos-generate-config` 生成）
 - ✅ `hosts/nuc8-d/`：default/hardware/networking（Intel NUC8 桌面，复用 pro13 桌面栈）
@@ -150,5 +150,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 
 - `common/hosts-info.nix`：静态主机元数据映射表（IP、SSH 端口、架构、系统盘）。
 - 桌面栈：Niri + Noctalia Shell + Ly + Kitty + Fcitx5/Rime；CLI：Zsh + Starship + Sheldon + Atuin；磁盘：btrfs + disko + Snapper；内核：linux-zen。
+- Flatpak：系统级声明式安装 Flathub 应用（微信/Telegram/Discord/Obsidian/Foliate/WPS/Edge + Flatseal/Bazaar/Warehouse/Gear Lever），USTC 镜像加速，Electron 应用强制 Wayland ozone（`modules/linux/desktop/flatpak.nix`）。
+- 桌面应用：Typora（跨平台，`home/base/typora.nix`）；ZedG 汉化编辑器 + Navop 工作台（预编译二进制，`home/linux/Desktop/apps.nix`）。
 - 音频：PipeWire + WirePlumber（sof-firmware / alsa-ucm-conf / alsa-firmware）；电源：power-profiles-daemon（balanced）+ swayidle 空闲管理（10 分钟关屏+锁屏，20 分钟挂起）。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。

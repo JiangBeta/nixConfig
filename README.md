@@ -37,6 +37,7 @@ nixConfig/
 │           ├── audio.nix             # PipeWire + WirePlumber + SOF 固件
 │           ├── bluetooth.nix         # bluez + blueman
 │           ├── fcitx5.nix            # Fcitx5 系统级 IM 模块注册
+│           ├── flatpak.nix           # Flatpak 应用（Flathub + USTC 镜像）
 │           ├── ly.nix                # Ly 显示管理器
 │           ├── niri.nix              # Niri Wayland 合成器 + swayidle 空闲管理
 │           └── noctalia.nix          # Noctalia Shell
@@ -52,6 +53,7 @@ nixConfig/
 │   │   ├── fcitx5.nix             # Fcitx5 通用配置（Rime 雾凇拼音 + macos12-dark 主题）
 │   │   ├── kitty.nix              # Kitty 终端（One Dark 配色 + Maple Mono 字体，跨平台）
 │   │   ├── browsers.nix           # Zen Browser（跨平台）
+│   │   ├── typora.nix             # Typora Markdown 编辑器（跨平台）
 │   │   └── ai/                    # AI 编码工具
 │   │       ├── default.nix          # 聚合入口（自动导入 .nix + ./claude_code）
 │   │       ├── nodejs.nix           # 🔧 共享：Node.js 22（所有 AI 工具运行时基座）
@@ -69,6 +71,8 @@ nixConfig/
 │           ├── niri.nix             # Niri 窗口管理器
 │           ├── noctalia.nix         # Noctalia Shell（状态栏/启动器/锁屏）
 │           ├── fcitx5.nix           # Fcitx5 Linux 专属（IM 前端注册 + 环境变量）
+│           ├── apps.nix             # zedg / navop 桌面应用（预编译二进制）
+│           ├── flatpak-compat.nix   # Flatpak Wayland/Fcitx5 兼容 + 权限占位
 │           ├── gtk.nix              # GTK 主题（Adwaita-dark）
 │           └── xdg.nix              # XDG 目录 + MIME 关联
 │
@@ -161,6 +165,10 @@ nix fmt
 | **输入法** | Fcitx5 + Rime + rime-ice（雾凇拼音）+ macos12-dark 主题 |
 | **字体** | 霞鹜文楷等宽 / Maple Mono NF / OPPO Sans 4.0 |
 | **浏览器** | Zen Browser |
+| **Markdown 编辑器** | Typora |
+| **编辑器（汉化）** | ZedG（Zed 汉化版，预编译二进制） |
+| **数据库/SSH 工作台** | Navop（预编译 AppImage） |
+| **Flatpak 应用** | 微信/Telegram/Discord/Obsidian/Foliate/WPS/Edge（见下节） |
 | **GTK 主题** | Adwaita-dark |
 | **内核** | linux-zen |
 | **文件系统** | Btrfs + Disko + Snapper（快照） |
@@ -202,6 +210,21 @@ nix fmt
 - **GTK 应用**：**不设 `GTK_IM_MODULE` 环境变量**（Arch Wiki 明确警告，否则退回 D-Bus 经典前端）。Xwayland 的 GTK3 应用改用 `gtk-3.0/settings.ini` 的 `gtk-im-module=fcitx`（见 `home/linux/Desktop/gtk.nix`）；原生 Wayland 的 GTK4 应用自动走 `text-input-v3`。
 - **Qt 应用**：保留 `QT_IM_MODULE=fcitx`（Qt5/Xwayland 用 fcitx 插件），另设 `QT_IM_MODULES=wayland;fcitx`（Qt6 优先走 wayland 文本输入协议，回退 fcitx）。
 - **其他 Xwayland 应用**：`XMODIFIERS=@im=fcitx`。
+
+## Flatpak 应用
+
+系统级 `modules/linux/desktop/flatpak.nix` 启用 Flatpak，并通过 systemd oneshot 声明式安装以下应用（Flathub 稳定版，USTC 镜像加速）：
+
+| 类型 | 应用 | Flatpak ID |
+|------|------|-----------|
+| 通讯 | 微信 / 电报 / Discord | `com.tencent.WeChat` / `org.telegram.desktop` / `com.discordapp.Discord` |
+| 笔记/办公 | Obsidian / WPS / Foliate | `md.obsidian.Obsidian` / `com.wps.Office` / `com.github.johnfactotum.Foliate` |
+| 浏览器 | Microsoft Edge | `com.microsoft.Edge` |
+| 管理工具 | Flatseal / Bazaar / Warehouse / Gear Lever | 见模块文件 |
+
+- **镜像**：Flathub remote 指向 USTC 缓存（`https://mirrors.ustc.edu.cn/flathub`，未命中时 302 回源）。
+- **Wayland/Fcitx5 兼容**：Electron 应用强制 `ELECTRON_OZONE_PLATFORM_HINT=auto` 走 Wayland；Obsidian 追加 `--enable-wayland-ime --wayland-text-input-version=3`（`home/linux/Desktop/flatpak-compat.nix`）使 fcitx5 输入法生效。
+- **文件访问权限**：由 Flatseal 按需授权，模块内留占位，待后续配置。
 
 ## 规范约定
 

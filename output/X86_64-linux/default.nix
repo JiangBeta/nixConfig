@@ -29,6 +29,7 @@ let
       ../../modules/linux/desktop/audio.nix
       ../../modules/linux/desktop/bluetooth.nix
       ../../modules/linux/desktop/fcitx5.nix
+      ../../modules/linux/desktop/flatpak.nix
       ../../modules/linux/desktop/ly.nix
       ../../modules/linux/desktop/niri.nix
       ../../modules/linux/desktop/noctalia.nix
