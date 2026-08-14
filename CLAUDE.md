@@ -79,6 +79,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `.agenix.yaml`：主机 age 公钥注册表（结构已建）
 
 ### 待完成
+- 🔲 fcitx5 候选框在 Xwayland 应用（微信/WPS）下偏小：候选框是 Wayland 层，Niri 下不随 1.25x 缩放，Xft.dpi/GDK_SCALE 均不影响它；`ForceWaylandDPI` 会导致候选框消失，暂未解决
 - 🔲 `secrets/*/*.age`：需用 agenix 加密各 secret（AI tokens, SSH key 等）
 - 🔲 `.agenix.yaml`：需填入各主机 age 公钥（当前仅为注释占位）
 - 🔲 `common/env.nix`、`common/overlays/`
@@ -164,7 +165,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 
 - `common/hosts-info.nix`：静态主机元数据映射表（IP、SSH 端口、架构、系统盘）。
 - 桌面栈：Niri + Noctalia Shell + Ly + Kitty + Fcitx5/Rime；CLI：Zsh + Starship + Sheldon + Atuin；磁盘：btrfs + disko + Snapper；内核：linux-zen。
-- Flatpak：系统级声明式安装 Flathub 应用（微信/Telegram/Discord/Obsidian/Foliate/WPS/Edge + Flatseal/Bazaar/Warehouse/Gear Lever），USTC 镜像加速，DPI 统一用 `Xft.dpi=120` 缩放（`common/assets/niri/script/dpi.sh`）+ Electron ozone/沙盒兼容（`modules/linux/gui/flatpak.nix`）。
+- Flatpak：系统级声明式安装 Flathub 应用（微信/Telegram/Discord/Obsidian/Foliate/WPS/Edge + Flatseal/Bazaar/Warehouse/Gear Lever），USTC 镜像加速，注入 `GDK_SCALE/GDK_DPI_SCALE/QT_SCALE_FACTOR=1.25` 缩放 + Electron ozone/沙盒兼容（`modules/linux/gui/flatpak.nix`）。
 - 桌面应用：Typora（跨平台，`home/base/gui/typora.nix`）；ZedG 汉化编辑器 + Navop 工作台（预编译二进制，`home/linux/gui/apps.nix`）。
 - X11 兼容：xwayland-satellite（Niri 的 Xwayland 桥接，微信/WPS 等 X11-only 应用依赖）。
 - 音频：PipeWire + WirePlumber（sof-firmware / alsa-ucm-conf / alsa-firmware）；电源：power-profiles-daemon（balanced）。空闲/锁屏/挂起与壁纸由 Noctalia Shell 控制。

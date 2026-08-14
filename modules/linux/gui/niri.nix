@@ -46,7 +46,6 @@ in
       cliphist  # 剪贴板历史
       xwayland            # Xwayland X 服务器（xwayland-satellite 依赖）
       xwayland-satellite  # Niri 的 Xwayland 桥接（提供 X11 支持）
-      xorg.xrdb           # 设置 Xwayland DPI（Xft.dpi）
     ];
   };
 }
