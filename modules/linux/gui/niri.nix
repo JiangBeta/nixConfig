@@ -45,7 +45,8 @@ in
       wl-clipboard  # Wayland 剪贴板
       cliphist  # 剪贴板历史
       swayidle  # 空闲管理（关屏/锁屏/挂起）
-      xwayland  # Xwayland（X11-only 应用如 Flatpak 微信/WPS 需要）
+      xwayland            # Xwayland X 服务器（xwayland-satellite 依赖）
+      xwayland-satellite  # Niri 的 Xwayland 桥接（提供 X11 支持）
     ];
   };
 }

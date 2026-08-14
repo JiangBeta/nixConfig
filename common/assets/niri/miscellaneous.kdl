@@ -35,6 +35,7 @@ environment {
     //nv __EGL_VENDOR_LIBRARY_FILENAMES "/usr/share/glvnd/egl_vendor.d/10_nvidia.json"
 }
 
+spawn-at-startup "xwayland-satellite"
 spawn-at-startup "noctalia"
 spawn-at-startup "~/.config/niri/script/tailscale.sh"
 spawn-at-startup "~/.config/niri/script/idle.sh"
