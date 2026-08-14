@@ -61,7 +61,7 @@ in
       initial_window_height 36c                 # 新窗口高度（字符行 x 列）
 
       hide_window_decorations no                # 窗口装饰（titlebar-only 在 macOS 上仅显示标题栏按钮）
-      macos_titlebar_color background           # macOS 标题栏颜色跟随主题
+      macos_titlebar_color system              # macOS 标题栏颜色跟随主题
 
       # ===== 标签栏 =====
       tab_bar_edge bottom                             # 标签栏位置：top | bottom
