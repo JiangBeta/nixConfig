@@ -66,14 +66,44 @@ let
 
   # ===== navop：一体化工作台（type-2 AppImage，解包 + autoPatchelf） =====
   # .AppImage 实为 type-2 AppImage（魔数 AI\x02），运行时是动态链接 FHS 可执行文件，
-  # 直接复制会在 NixOS 上被 stub-ld 拦截（"cannot run dynamically linked executable"）。
-  # 用 appimageTools.wrapType2 解包 squashfs 并 autoPatchelf。
-  navop = pkgs.appimageTools.wrapType2 {
+  # 直接复制会被 stub-ld 拦截。wrapType2 的 bwrap FHS 包装虽能跑，但生成的 .desktop
+  # 指向解包后的原始二进制（仍 FHS）导致启动器打不开。这里改用 extractType2 解包 +
+  # autoPatchelf 打成原生二进制，webkit/gtk 等依赖由 nixpkgs 提供。
+  navop = pkgs.stdenv.mkDerivation {
     pname = "navop";
     version = "0.10.7";
-    src = pkgs.fetchurl {
-      url = "https://github.com/feigeCode/navop/releases/download/v0.10.7/navop_0.10.7_amd64.AppImage";
-      hash = "sha256-hVm8LOOLfbzwZBC97eh947NNui8+QU1PWIaKItJOuCw=";
+    src = pkgs.appimageTools.extractType2 {
+      pname = "navop";
+      version = "0.10.7";
+      src = pkgs.fetchurl {
+        url = "https://github.com/feigeCode/navop/releases/download/v0.10.7/navop_0.10.7_amd64.AppImage";
+        hash = "sha256-hVm8LOOLfbzwZBC97eh947NNui8+QU1PWIaKItJOuCw=";
+      };
+    };
+    nativeBuildInputs = [ pkgs.autoPatchelfHook ];
+    buildInputs = with pkgs; [
+      libxkbcommon
+      freetype
+      systemdLibs
+      libxcb
+      webkitgtk_4_1
+      gtk3
+      zlib
+      libsoup_3
+      glib
+      stdenv.cc.cc.lib
+    ];
+    installPhase = ''
+      runHook preInstall
+      install -Dm755 usr/bin/navop $out/bin/navop
+      runHook postInstall
+    '';
+    meta = with lib; {
+      description = "All-in-one workspace for databases, SSH, terminals, RDP, monitoring, AI";
+      homepage = "https://github.com/feigeCode/navop";
+      license = licenses.unfree;
+      platforms = [ "x86_64-linux" ];
+      mainProgram = "navop";
     };
   };
 in

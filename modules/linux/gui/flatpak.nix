@@ -36,6 +36,7 @@ let
     "com.discordapp.Discord"
     "md.obsidian.Obsidian"
     "com.microsoft.Edge"
+    "com.tencent.WeChat"
   ];
 in
 {
@@ -69,8 +70,15 @@ in
           fi
         done
 
-        # 3. Wayland 兼容：Electron/Chromium 应用强制 ozone=auto（启用 text-input-v3 输入法前端）
+        # 3. 配置语言（含中文），拉取 locale 扩展，避免 setlocale 警告
+        flatpak config --system --set languages 'en;zh'
+        flatpak update --system --noninteractive
+
+        # 4. Wayland 兼容：Electron/Chromium 应用强制 ozone=auto（启用 text-input-v3 输入法前端）
         ${lib.concatMapStringsSep "\n" (app: "flatpak override --system --env=ELECTRON_OZONE_PLATFORM_HINT=auto ${app}") electronApps}
+
+        # 5. 微信 Chromium 沙盒：ptrace 被 flatpak bubblewrap 阻止，禁用 Electron 沙盒
+        flatpak override --system --env=ELECTRON_DISABLE_SANDBOX=1 com.tencent.WeChat
       '';
     };
   };
