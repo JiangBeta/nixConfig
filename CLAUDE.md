@@ -59,7 +59,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `flake.nix`：入口已创建（inputs: nixpkgs/unstable, disko, home-manager, niri, noctalia, catppuccin, zen-browser, agenix）
 - ✅ `flake.lock`：已通过 `nix flake update` 生成
 - ✅ `common/options/*.nix`：user/system/hardware/ai 选项声明
-- ✅ `modules/base/core/`：user/fonts（跨平台系统）
+- ✅ `modules/base/`：core(user/fonts) + ai(claude_code，系统级 Node.js 已启用)
 - ✅ `modules/linux/core/`：base/boot/btrfs/disko-template（所有 Linux 主机）
 - ✅ `modules/linux/gui/`：audio/bluetooth/fcitx5/flatpak/ly/niri/noctalia（桌面）
 - ✅ `modules/linux/server/`：docker（占位，待服务器落地）
@@ -72,7 +72,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `output/`：default.nix 入口 + X86_64-linux 分发（集成 agenix + HM）
 - ✅ `nix-installer/`：disko 独立配置 + 半自动安装脚本
 - ✅ `vars/default.nix`：共享变量（用户名/邮箱）
-- ✅ `common/lib/default.nix`：scanPaths 辅助函数
+- ✅ `common/lib/default.nix`：scanPaths 辅助函数（被各类别 default.nix 复用）
 - ✅ `common/assets/`：niri 等桌面资产
 - ✅ `common/secrets/`：agenix secrets 管理体系（README + default.nix）
 - ✅ `secrets/`：加密 secret 目录结构（ai/ssh/creds/api）
@@ -94,7 +94,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - 平台：`base`（跨平台）、`linux`、`darwin`
 - 类别：`core`（基础环境）、`tui`（终端应用）、`gui`（图形应用）、`ai`（AI 工具）、`server`（服务器）
 
-规则：`base` 永远 = 跨平台（macOS + Linux 共用）；`core` 永远 = 平台内通用（该平台所有机器都要）。`gui` 仅桌面主机导入、`server` 仅服务器主机导入。每个类别目录的 `default.nix` 用 `builtins.readDir` 自动收集同目录 `.nix` 子模块。完整目录树见 `README.md`。
+规则：`base` 永远 = 跨平台（macOS + Linux 共用）；`core` 永远 = 平台内通用（该平台所有机器都要）。`gui` 仅桌面主机导入、`server` 仅服务器主机导入。每个类别目录的 `default.nix` 用 `common/lib` 的 `scanPaths` 自动收集同目录 `.nix` 子模块。完整目录树见 `README.md`。
 
 ### Option 命名体系
 - 系统级：`mySystem.bootMode`、`mySystem.firewall`、`mySystem.user`

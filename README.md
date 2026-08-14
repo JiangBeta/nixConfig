@@ -255,7 +255,7 @@ nix fmt
 
 - `base` 永远 = 跨平台（macOS + Linux 共用）；`core` 永远 = 平台内通用（该平台所有机器都要）。
 - `gui` 仅桌面主机导入，`server` 仅服务器主机导入，`core`/`tui` 所有主机可用。
-- 每个类别目录的 `default.nix` 用 `builtins.readDir` 自动收集同目录 `.nix` 子模块。
+- 每个类别目录的 `default.nix` 用 `common/lib` 的 `scanPaths` 自动收集同目录 `.nix` 子模块（`custom = import ../../../common/lib { inherit lib; }; imports = custom.scanPaths ./.;`）。
 
 ### Option 命名：`modules-<层>-<平台>-<类别>-<名>`
 

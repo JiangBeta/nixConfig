@@ -18,8 +18,12 @@ let
     ++ (if builtins.pathExists ../../vars/tokens.nix then [ ../../vars/tokens.nix ] else [ ])
     ++ [
       # 3. 系统模块（跨平台 base + Linux core）
-      ../../modules/base/core
+      ../../modules/base
       ../../modules/linux/core
+      {
+        # 系统级 AI 支持（Node.js 供 MCP 服务器等使用）
+        modules-base-ai-claudeCode.enable = true;
+      }
 
       # 4. 桌面系统模块（Linux gui）
       ../../modules/linux/gui
