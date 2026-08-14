@@ -62,9 +62,9 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `modules/linux/`：boot/btrfs/base/docker/disko-template
 - ✅ `modules/linux/desktop/`：audio/bluetooth/fcitx5/ly/niri/noctalia
 - ✅ `modules/base/`：user/fonts
-- ✅ `home/base/`：shell/cli(+tmux)/git/tui/neovim(LazyVim 作为默认编辑器)
+- ✅ `home/base/`：shell/cli(+tmux)/git/tui/neovim(LazyVim 作为默认编辑器)/kitty/browsers
 - ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP) + skills/hooks (共享) + claude_code (Claude Code 全配置)
-- ✅ `home/linux/Desktop/`：kitty/niri/noctalia/fcitx5/browsers/gtk/xdg
+- ✅ `home/linux/Desktop/`：niri/noctalia/fcitx5/gtk/xdg
 - ✅ `home/linux/default.nix`：Linux HM 聚合入口（含 AI 模块启用）
 - ✅ `hosts/pro13/`：default/hardware/networking 全部填充（hardware.nix 已由 `nixos-generate-config` 生成）
 - ✅ `hosts/nuc8-d/`：default/hardware/networking（Intel NUC8 桌面，复用 pro13 桌面栈）

@@ -16,14 +16,14 @@
   modules-home-base-git.enable = true;
   modules-home-base-tui.enable = true;
   modules-home-base-neovim.enable = true;
+  modules-home-base-kitty.enable = true;
+  modules-home-base-browsers.enable = true;
   modules-home-base-fcitx5.enable = true;
 
   # 启用桌面 GUI 模块
-  modules-home-linux-desktop-kitty.enable = true;
   modules-home-linux-desktop-niri.enable = true;
   modules-home-linux-desktop-noctalia.enable = true;
   modules-home-linux-desktop-fcitx5.enable = true;
-  modules-home-linux-desktop-browsers.enable = true;
   modules-home-linux-desktop-gtk.enable = true;
   modules-home-linux-desktop-xdg.enable = true;
 

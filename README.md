@@ -50,6 +50,8 @@ nixConfig/
 │   │   ├── tui.nix                # Yazi / Superfile
 │   │   ├── neovim.nix             # Neovim + LazyVim 编辑器
 │   │   ├── fcitx5.nix             # Fcitx5 通用配置（Rime 雾凇拼音 + macos12-dark 主题）
+│   │   ├── kitty.nix              # Kitty 终端（One Dark 配色 + Maple Mono 字体，跨平台）
+│   │   ├── browsers.nix           # Zen Browser（跨平台）
 │   │   └── ai/                    # AI 编码工具
 │   │       ├── default.nix          # 聚合入口（自动导入 .nix + ./claude_code）
 │   │       ├── nodejs.nix           # 🔧 共享：Node.js 22（所有 AI 工具运行时基座）
@@ -66,9 +68,7 @@ nixConfig/
 │           ├── default.nix          # 聚合
 │           ├── niri.nix             # Niri 窗口管理器
 │           ├── noctalia.nix         # Noctalia Shell（状态栏/启动器/锁屏）
-│           ├── kitty.nix            # Kitty 终端（One Dark 配色）
 │           ├── fcitx5.nix           # Fcitx5 Linux 专属（IM 前端注册 + 环境变量）
-│           ├── browsers.nix         # Zen Browser
 │           ├── gtk.nix              # GTK 主题（Adwaita-dark）
 │           └── xdg.nix              # XDG 目录 + MIME 关联
 │
