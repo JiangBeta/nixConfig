@@ -1,34 +1,37 @@
 # home/linux/default.nix — Linux Home Manager 入口
 #
-# 导入跨平台 home/base/ + Linux 桌面 GUI 模块。
+# 导入跨平台 home/base/（含 core/tui/gui/ai）+ Linux 专属 home/linux/gui/。
 # 被 output/X86_64-linux 通过 home-manager.users.<name> 引用。
 { pkgs, ... }:
 {
   imports = [
     ../base
-    ../base/ai
-    ./Desktop
+    ./gui
   ];
 
-  # 启用 base 模块
-  modules-home-base-shell.enable = true;
-  modules-home-base-cli.enable = true;
-  modules-home-base-git.enable = true;
-  modules-home-base-tui.enable = true;
-  modules-home-base-neovim.enable = true;
-  modules-home-base-kitty.enable = true;
-  modules-home-base-browsers.enable = true;
-  modules-home-base-fcitx5.enable = true;
-  modules-home-base-typora.enable = true;
+  # ---- base 基础环境 ----
+  modules-home-base-core-shell.enable = true;
+  modules-home-base-core-git.enable = true;
+  modules-home-base-core-cli.enable = true;
 
-  # 启用桌面 GUI 模块
-  modules-home-linux-desktop-niri.enable = true;
-  modules-home-linux-desktop-noctalia.enable = true;
-  modules-home-linux-desktop-fcitx5.enable = true;
-  modules-home-linux-desktop-gtk.enable = true;
-  modules-home-linux-desktop-xdg.enable = true;
-  modules-home-linux-desktop-apps.enable = true;
-  modules-home-linux-desktop-flatpak-compat.enable = true;
+  # ---- base TUI 终端应用 ----
+  modules-home-base-tui-neovim.enable = true;
+  modules-home-base-tui-apps.enable = true;
+
+  # ---- base GUI 图形应用 ----
+  modules-home-base-gui-kitty.enable = true;
+  modules-home-base-gui-browsers.enable = true;
+  modules-home-base-gui-typora.enable = true;
+  modules-home-base-gui-fcitx5.enable = true;
+
+  # ---- Linux GUI 桌面 ----
+  modules-home-linux-gui-niri.enable = true;
+  modules-home-linux-gui-noctalia.enable = true;
+  modules-home-linux-gui-fcitx5.enable = true;
+  modules-home-linux-gui-gtk.enable = true;
+  modules-home-linux-gui-xdg.enable = true;
+  modules-home-linux-gui-apps.enable = true;
+  modules-home-linux-gui-flatpak-compat.enable = true;
 
   # ---- AI 工具 ----
   modules-home-base-ai-nodejs.enable = true;

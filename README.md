@@ -22,59 +22,74 @@ nixConfig/
 │
 ├── modules/                     # 系统级模块（NixOS / nix-darwin）
 │   ├── base/                     # 跨平台系统模块
-│   │   ├── user.nix                # 用户创建 + sudo（消费 mySystem.user）
-│   │   ├── fonts.nix               # 系统字体
+│   │   ├── core/                   # 跨平台系统核心
+│   │   │   ├── default.nix           # 聚合入口（自动收集）
+│   │   │   ├── user.nix              # 用户创建 + sudo（消费 mySystem.user）
+│   │   │   └── fonts.nix             # 系统字体
 │   │   └── ai/                     # AI 工具系统级支持
 │   │       ├── default.nix            # 聚合入口
 │   │       └── claude_code.nix        # 系统级 Node.js
-│   └── linux/                    # NixOS 专属
-│       ├── base.nix                # 时区 / Locale / Nix 镜像 / 电源
-│       ├── boot.nix                # 引导 + linux-zen 内核 + CPU 微码
-│       ├── btrfs.nix               # Btrfs autoScrub + Snapper 快照
-│       ├── disko-template.nix      # Disko GPT 分区模板
-│       ├── docker.nix              # Docker 支持
-│       └── desktop/                # 桌面环境系统服务（server 不需要）
-│           ├── audio.nix             # PipeWire + WirePlumber + SOF 固件
-│           ├── bluetooth.nix         # bluez + blueman
-│           ├── fcitx5.nix            # Fcitx5 系统级 IM 模块注册
-│           ├── flatpak.nix           # Flatpak 应用（Flathub + USTC 镜像）
-│           ├── ly.nix                # Ly 显示管理器
-│           ├── niri.nix              # Niri Wayland 合成器 + swayidle 空闲管理
-│           └── noctalia.nix          # Noctalia Shell
+│   ├── linux/                    # NixOS 专属
+│   │   ├── core/                   # Linux 核心（所有主机：桌面 + 服务器）
+│   │   │   ├── default.nix           # 聚合入口（自动收集）
+│   │   │   ├── base.nix              # 时区 / Locale / Nix 镜像 / 电源 / FHS / SSH / CLI
+│   │   │   ├── boot.nix              # 引导 + linux-zen 内核 + CPU 微码
+│   │   │   ├── btrfs.nix             # Btrfs autoScrub + Snapper 快照
+│   │   │   └── disko-template.nix    # Disko GPT 分区模板
+│   │   ├── gui/                    # 桌面系统服务（仅桌面主机）
+│   │   │   ├── default.nix           # 聚合入口（自动收集）
+│   │   │   ├── audio.nix             # PipeWire + WirePlumber + SOF 固件
+│   │   │   ├── bluetooth.nix         # bluez + blueman
+│   │   │   ├── fcitx5.nix            # Fcitx5 系统级 IM 模块注册
+│   │   │   ├── flatpak.nix           # Flatpak 应用（Flathub + USTC 镜像）
+│   │   │   ├── ly.nix                # Ly 显示管理器
+│   │   │   ├── niri.nix              # Niri Wayland 合成器 + swayidle 空闲管理
+│   │   │   └── noctalia.nix          # Noctalia Shell
+│   │   └── server/                  # 服务器系统（仅服务器主机，待实现）
+│   │       ├── default.nix           # 聚合入口（自动收集）
+│   │       └── docker.nix            # Docker 支持（TODO）
+│   └── darwin/                    # macOS 专属（待实现）
 │
 ├── home/                        # Home Manager 用户配置
 │   ├── base/                     # 跨平台用户模块
-│   │   ├── default.nix            # 自动扫描导入 + home.stateVersion = 26.05
-│   │   ├── shell.nix              # Zsh + Starship + Sheldon + Atuin + Direnv
-│   │   ├── cli.nix                # eza / bat / fzf / ripgrep / fd / zoxide / tmux / btop 等
-│   │   ├── git.nix                # Git + Delta + LazyGit + GitHub CLI
-│   │   ├── tui.nix                # Yazi / Superfile
-│   │   ├── neovim.nix             # Neovim + LazyVim 编辑器
-│   │   ├── fcitx5.nix             # Fcitx5 通用配置（Rime 雾凇拼音 + macos12-dark 主题）
-│   │   ├── kitty.nix              # Kitty 终端（One Dark 配色 + Maple Mono 字体，跨平台）
-│   │   ├── browsers.nix           # Zen Browser（跨平台）
-│   │   ├── typora.nix             # Typora Markdown 编辑器（跨平台）
-│   │   └── ai/                    # AI 编码工具
-│   │       ├── default.nix          # 聚合入口（自动导入 .nix + ./claude_code）
-│   │       ├── nodejs.nix           # 🔧 共享：Node.js 22（所有 AI 工具运行时基座）
-│   │       ├── mcp.nix              # 🔧 共享：MCP 服务器声明（各工具消费）
-│   │       ├── skills.nix           # 🔧 共享：Skills 目录声明
-│   │       ├── hooks.nix            # 🔧 共享：Hooks 脚本目录声明
-│   │       ├── skills/              # 7 个 skill（codebase-memory / git-master 等）
-│   │       ├── hooks/               # 3 个 hook（cbm-code-discovery-gate 等）
-│   │       └── claude_code/         # 🎯 Claude Code 专属
-│   │           └── default.nix        # 安装 + settings.json + .mcp.json（消费共享层）
-│   └── linux/                    # Linux 专属用户模块
-│       ├── default.nix            # 入口：imports + enable 开关
-│       └── Desktop/               # 桌面环境
-│           ├── default.nix          # 聚合
-│           ├── niri.nix             # Niri 窗口管理器
-│           ├── noctalia.nix         # Noctalia Shell（状态栏/启动器/锁屏）
-│           ├── fcitx5.nix           # Fcitx5 Linux 专属（IM 前端注册 + 环境变量）
-│           ├── apps.nix             # zedg / navop 桌面应用（预编译二进制）
-│           ├── flatpak-compat.nix   # Flatpak Wayland/Fcitx5 兼容 + 权限占位
-│           ├── gtk.nix              # GTK 主题（Adwaita-dark）
-│           └── xdg.nix              # XDG 目录 + MIME 关联
+│   │   ├── default.nix            # 聚合入口（core/tui/gui/ai）+ stateVersion
+│   │   ├── core/                   # 基础环境（所有系统）
+│   │   │   ├── default.nix           # 聚合入口（自动收集）
+│   │   │   ├── shell.nix             # Zsh + Starship + Sheldon + Atuin + Direnv
+│   │   │   ├── git.nix               # Git + Delta + LazyGit + GitHub CLI
+│   │   │   └── cli.nix               # eza / bat / fzf / ripgrep / fd / zoxide / tmux 等
+│   │   ├── tui/                    # 终端/TUI 应用
+│   │   │   ├── default.nix           # 聚合入口（自动收集）
+│   │   │   ├── neovim.nix            # Neovim + LazyVim 编辑器
+│   │   │   └── apps.nix              # Yazi / btop / Superfile
+│   │   ├── gui/                    # 图形界面应用
+│   │   │   ├── default.nix           # 聚合入口（自动收集）
+│   │   │   ├── kitty.nix             # Kitty 终端（One Dark 配色 + Maple Mono 字体）
+│   │   │   ├── browsers.nix          # Zen Browser
+│   │   │   ├── typora.nix            # Typora Markdown 编辑器
+│   │   │   └── fcitx5.nix            # Fcitx5 通用配置（Rime + macos12-dark 主题）
+│   │   └── ai/                     # AI 编码工具
+│   │       ├── default.nix           # 聚合入口（自动导入 .nix + ./claude_code）
+│   │       ├── nodejs.nix            # 🔧 共享：Node.js 22（所有 AI 工具运行时基座）
+│   │       ├── mcp.nix               # 🔧 共享：MCP 服务器声明（各工具消费）
+│   │       ├── skills.nix            # 🔧 共享：Skills 目录声明
+│   │       ├── hooks.nix             # 🔧 共享：Hooks 脚本目录声明
+│   │       ├── skills/               # 7 个 skill（codebase-memory / git-master 等）
+│   │       ├── hooks/                # 3 个 hook（cbm-code-discovery-gate 等）
+│   │       └── claude_code/          # 🎯 Claude Code 专属
+│   │           └── default.nix         # 安装 + settings.json + .mcp.json（消费共享层）
+│   ├── linux/                    # Linux 专属用户模块
+│   │   ├── default.nix            # 入口：imports + enable 开关
+│   │   └── gui/                    # 桌面环境
+│   │       ├── default.nix           # 聚合入口（自动收集）
+│   │       ├── niri.nix              # Niri 窗口管理器
+│   │       ├── noctalia.nix          # Noctalia Shell（状态栏/启动器/锁屏）
+│   │       ├── fcitx5.nix            # Fcitx5 Linux 专属（IM 前端注册 + 环境变量）
+│   │       ├── gtk.nix               # GTK 主题（Adwaita-dark）
+│   │       ├── xdg.nix               # XDG 目录 + MIME 关联
+│   │       ├── apps.nix              # zedg / navop 桌面应用（预编译二进制）
+│   │       └── flatpak-compat.nix    # Flatpak Wayland/Fcitx5 兼容 + 权限占位
+│   └── darwin/                    # macOS 专属（待实现）
 │
 ├── hosts/                       # 主机实例（只做参数赋值）
 │   └── pro13/                    # 桌面 PC（x86_64 NixOS）
@@ -200,20 +215,20 @@ nix fmt
 
 | 层 | 文件 | 职责 |
 |----|------|------|
-| 跨平台 | `home/base/fcitx5.nix` | Rime 雾凇拼音（仅小鹤双拼）+ macos12-dark 主题 + `fcitx5/config`/`profile`/`classicui.conf`（带圈候选编号 ①-⑨） |
-| Linux IM 注册 | `home/linux/Desktop/fcitx5.nix` | `i18n.inputMethod`（`waylandFrontend` + rime/gtk addons）+ session 环境变量 |
-| 系统级 | `modules/linux/desktop/fcitx5.nix` | `i18n.inputMethod`（`waylandFrontend` + `fcitx5-gtk`）注册 GTK2/3 IM 模块 |
+| 跨平台 | `home/base/gui/fcitx5.nix` | Rime 雾凇拼音（仅小鹤双拼）+ macos12-dark 主题 + `fcitx5/config`/`profile`/`classicui.conf`（带圈候选编号 ①-⑨） |
+| Linux IM 注册 | `home/linux/gui/fcitx5.nix` | `i18n.inputMethod`（`waylandFrontend` + rime/gtk addons）+ session 环境变量 |
+| 系统级 | `modules/linux/gui/fcitx5.nix` | `i18n.inputMethod`（`waylandFrontend` + `fcitx5-gtk`）注册 GTK2/3 IM 模块 |
 | 启动 | `common/assets/niri/miscellaneous.kdl` | `spawn-at-startup "fcitx5" "--enable=waylandim"` 启用 waylandim 前端 |
 
 ### Qt 与 GTK 应用的不同配置
 
-- **GTK 应用**：**不设 `GTK_IM_MODULE` 环境变量**（Arch Wiki 明确警告，否则退回 D-Bus 经典前端）。Xwayland 的 GTK3 应用改用 `gtk-3.0/settings.ini` 的 `gtk-im-module=fcitx`（见 `home/linux/Desktop/gtk.nix`）；原生 Wayland 的 GTK4 应用自动走 `text-input-v3`。
+- **GTK 应用**：**不设 `GTK_IM_MODULE` 环境变量**（Arch Wiki 明确警告，否则退回 D-Bus 经典前端）。Xwayland 的 GTK3 应用改用 `gtk-3.0/settings.ini` 的 `gtk-im-module=fcitx`（见 `home/linux/gui/gtk.nix`）；原生 Wayland 的 GTK4 应用自动走 `text-input-v3`。
 - **Qt 应用**：保留 `QT_IM_MODULE=fcitx`（Qt5/Xwayland 用 fcitx 插件），另设 `QT_IM_MODULES=wayland;fcitx`（Qt6 优先走 wayland 文本输入协议，回退 fcitx）。
 - **其他 Xwayland 应用**：`XMODIFIERS=@im=fcitx`。
 
 ## Flatpak 应用
 
-系统级 `modules/linux/desktop/flatpak.nix` 启用 Flatpak，并通过 systemd oneshot 声明式安装以下应用（Flathub 稳定版，USTC 镜像加速）：
+系统级 `modules/linux/gui/flatpak.nix` 启用 Flatpak，并通过 systemd oneshot 声明式安装以下应用（Flathub 稳定版，USTC 镜像加速）：
 
 | 类型 | 应用 | Flatpak ID |
 |------|------|-----------|
@@ -223,13 +238,39 @@ nix fmt
 | 管理工具 | Flatseal / Bazaar / Warehouse / Gear Lever | 见模块文件 |
 
 - **镜像**：Flathub remote 指向 USTC 缓存（`https://mirrors.ustc.edu.cn/flathub`，未命中时 302 回源）。
-- **Wayland/Fcitx5 兼容**：Electron 应用强制 `ELECTRON_OZONE_PLATFORM_HINT=auto` 走 Wayland；Obsidian 追加 `--enable-wayland-ime --wayland-text-input-version=3`（`home/linux/Desktop/flatpak-compat.nix`）使 fcitx5 输入法生效。
+- **Wayland/Fcitx5 兼容**：Electron 应用强制 `ELECTRON_OZONE_PLATFORM_HINT=auto` 走 Wayland；Obsidian 追加 `--enable-wayland-ime --wayland-text-input-version=3`（`home/linux/gui/flatpak-compat.nix`）使 fcitx5 输入法生效。
 - **文件访问权限**：由 Flatseal 按需授权，模块内留占位，待后续配置。
+
+## 命名规范
+
+### 目录：平台 × 类别
+
+`<层>/<平台>/<类别>/`：
+
+| 维度 | 取值 | 含义 |
+|------|------|------|
+| 层 | `home/` / `modules/` | 用户级 HM / 系统级 |
+| 平台 | `base` / `linux` / `darwin` | 跨平台 / Linux / macOS |
+| 类别 | `core` / `tui` / `gui` / `ai` / `server` | 基础环境 / 终端应用 / 图形应用 / AI 工具 / 服务器 |
+
+- `base` 永远 = 跨平台（macOS + Linux 共用）；`core` 永远 = 平台内通用（该平台所有机器都要）。
+- `gui` 仅桌面主机导入，`server` 仅服务器主机导入，`core`/`tui` 所有主机可用。
+- 每个类别目录的 `default.nix` 用 `builtins.readDir` 自动收集同目录 `.nix` 子模块。
+
+### Option 命名：`modules-<层>-<平台>-<类别>-<名>`
+
+- HM 模块：`modules-home-<平台>-<类别>-<名>`，如 `modules-home-base-core-shell`、`modules-home-linux-gui-niri`
+- 系统模块：`modules-nixos-<类别>-<名>`，如 `modules-nixos-gui-niri`（NixOS 即 Linux，省略平台）
+- 全局契约：`mySystem.*`（系统级）/ `myHome.*`（用户级）
+
+### 文件头注释约定
+
+每个 `.nix` 模块首行：`# <路径> — <一句话说明>`，如 `# home/base/core/shell.nix — Zsh + Starship + Sheldon + Atuin + Direnv`。
 
 ## 规范约定
 
 - **目录名**：`output/`（单数）、hostname 一律小写（`pro13`）
-- **Option 命名**：系统级 `mySystem.*`、硬件级 `mySystem.hardware.*`、用户级 `myHome.*`、模块级 `modules-<path>-<name>.enable`
+- **Option 命名**：模块级 `modules-<层>-<平台>-<类别>-<名>`（详见「命名规范」）
 - **模块消费模式**：`cfg = config.{mySystem|modules-*}`, `lib.mkIf cfg.enable { ... }`
 - **cpuMicrocode**：`"intel"` / `"amd"` / `"none"`（ARM）
 - **firewall**：`"nftables"` / `"none"`

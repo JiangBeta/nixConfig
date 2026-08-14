@@ -59,12 +59,13 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `flake.nix`：入口已创建（inputs: nixpkgs/unstable, disko, home-manager, niri, noctalia, catppuccin, zen-browser, agenix）
 - ✅ `flake.lock`：已通过 `nix flake update` 生成
 - ✅ `common/options/*.nix`：user/system/hardware/ai 选项声明
-- ✅ `modules/linux/`：boot/btrfs/base/docker/disko-template
-- ✅ `modules/linux/desktop/`：audio/bluetooth/fcitx5/flatpak/ly/niri/noctalia
-- ✅ `modules/base/`：user/fonts
-- ✅ `home/base/`：shell/cli(+tmux)/git/tui/neovim(LazyVim 作为默认编辑器)/kitty/browsers/typora
+- ✅ `modules/base/core/`：user/fonts（跨平台系统）
+- ✅ `modules/linux/core/`：base/boot/btrfs/disko-template（所有 Linux 主机）
+- ✅ `modules/linux/gui/`：audio/bluetooth/fcitx5/flatpak/ly/niri/noctalia（桌面）
+- ✅ `modules/linux/server/`：docker（占位，待服务器落地）
+- ✅ `home/base/`：core(shell/git/cli)/tui(neovim/apps)/gui(kitty/browsers/typora/fcitx5)
 - ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP) + skills/hooks (共享) + claude_code (Claude Code 全配置)
-- ✅ `home/linux/Desktop/`：niri/noctalia/fcitx5/gtk/xdg/apps/flatpak-compat
+- ✅ `home/linux/gui/`：niri/noctalia/fcitx5/gtk/xdg/apps/flatpak-compat
 - ✅ `home/linux/default.nix`：Linux HM 聚合入口（含 AI 模块启用）
 - ✅ `hosts/pro13/`：default/hardware/networking 全部填充（hardware.nix 已由 `nixos-generate-config` 生成）
 - ✅ `hosts/nuc8-d/`：default/hardware/networking（Intel NUC8 桌面，复用 pro13 桌面栈）
@@ -86,10 +87,23 @@ nix fmt                                   # 格式化（需先配置 formatter �
 
 ## 规范约定
 
+### 目录分类：平台 × 类别
+
+`<层>/<平台>/<类别>/`：
+- 层：`home/`（用户级 HM）、`modules/`（系统级）
+- 平台：`base`（跨平台）、`linux`、`darwin`
+- 类别：`core`（基础环境）、`tui`（终端应用）、`gui`（图形应用）、`ai`（AI 工具）、`server`（服务器）
+
+规则：`base` 永远 = 跨平台（macOS + Linux 共用）；`core` 永远 = 平台内通用（该平台所有机器都要）。`gui` 仅桌面主机导入、`server` 仅服务器主机导入。每个类别目录的 `default.nix` 用 `builtins.readDir` 自动收集同目录 `.nix` 子模块。完整目录树见 `README.md`。
+
 ### Option 命名体系
 - 系统级：`mySystem.bootMode`、`mySystem.firewall`、`mySystem.user`
 - 硬件级：`mySystem.diskDevice`、`mySystem.cpuMicrocode`、`mySystem.hardware.swap.*`、`mySystem.hardware.btrfs.*`
 - 用户级：`myHome.dirs.enableXDG`、`myHome.dirs.projectsDir`
+- 模块级：`modules-<层>-<平台>-<类别>-<名>`
+  - HM：`modules-home-<平台>-<类别>-<名>`，如 `modules-home-base-core-shell`、`modules-home-linux-gui-niri`
+  - 系统：`modules-nixos-<类别>-<名>`，如 `modules-nixos-gui-niri`（NixOS 即 Linux，省略平台）
+- 文件头注释：首行 `# <路径> — <一句话说明>`，如 `# home/base/core/shell.nix — Zsh + Starship + Sheldon + Atuin + Direnv`
 
 ### cpuMicrocode 取值
 - `"intel"` / `"amd"` / `"none"`（ARM CPU 无独立微码包，用 `"none"`）
@@ -102,7 +116,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 ### 文件/目录命名
 - `output/`（单数，非 `outputs/`）
 - hostname 与目录名一律小写（`pro13`、`m4macmini`）
-- Linux 模块：`modules/linux/btrfs.nix`（非 `btrfs-snap.nix`）
+- Linux 模块：`modules/linux/core/btrfs.nix`（非 `btrfs-snap.nix`）
 
 ### 模块消费模式
 - 统一 `cfg = config.mySystem`，`hwCfg = cfg.hardware` 后按需引用
@@ -136,9 +150,9 @@ nix fmt                                   # 格式化（需先配置 formatter �
 **核心**：Niri（Wayland）下启用 fcitx5 的 waylandim 前端（`text-input-v3`），由 fcitx5 服务端渲染候选框。**切勿设置 `GTK_IM_MODULE` 环境变量**，否则 GTK/Gecko 应用（如 Zen Browser）退回 D-Bus 经典前端，候选框主题失效。
 
 ### 配置分层
-- `home/base/fcitx5.nix`（跨平台）：Rime 雾凇拼音（仅小鹤双拼 `double_pinyin_flypy`）+ macos12-dark 主题 + `classicui.conf`（候选字/预编辑字体 = `霞鹜文楷等宽 屏幕阅读版`（LXGW WenKai Mono Screen），带圈候选编号 ①-⑨）。
-- `home/linux/Desktop/fcitx5.nix`（Linux 专属）：`i18n.inputMethod`（waylandFrontend + rime/gtk addons）+ session 环境变量。
-- `modules/linux/desktop/fcitx5.nix`（系统级）：`i18n.inputMethod`（waylandFrontend + `fcitx5-gtk`）注册 GTK2/3 IM 模块。
+- `home/base/gui/fcitx5.nix`（跨平台）：Rime 雾凇拼音（仅小鹤双拼 `double_pinyin_flypy`）+ macos12-dark 主题 + `classicui.conf`（候选字/预编辑字体 = `霞鹜文楷等宽 屏幕阅读版`（LXGW WenKai Mono Screen），带圈候选编号 ①-⑨）。
+- `home/linux/gui/fcitx5.nix`（Linux 专属）：`i18n.inputMethod`（waylandFrontend + rime/gtk addons）+ session 环境变量。
+- `modules/linux/gui/fcitx5.nix`（系统级）：`i18n.inputMethod`（waylandFrontend + `fcitx5-gtk`）注册 GTK2/3 IM 模块。
 - `common/assets/niri/miscellaneous.kdl`：`spawn-at-startup "fcitx5" "--enable=waylandim"` 启用 waylandim。
 
 ### Qt 与 GTK 应用的不同配置
@@ -150,7 +164,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 
 - `common/hosts-info.nix`：静态主机元数据映射表（IP、SSH 端口、架构、系统盘）。
 - 桌面栈：Niri + Noctalia Shell + Ly + Kitty + Fcitx5/Rime；CLI：Zsh + Starship + Sheldon + Atuin；磁盘：btrfs + disko + Snapper；内核：linux-zen。
-- Flatpak：系统级声明式安装 Flathub 应用（微信/Telegram/Discord/Obsidian/Foliate/WPS/Edge + Flatseal/Bazaar/Warehouse/Gear Lever），USTC 镜像加速，Electron 应用强制 Wayland ozone（`modules/linux/desktop/flatpak.nix`）。
-- 桌面应用：Typora（跨平台，`home/base/typora.nix`）；ZedG 汉化编辑器 + Navop 工作台（预编译二进制，`home/linux/Desktop/apps.nix`）。
+- Flatpak：系统级声明式安装 Flathub 应用（微信/Telegram/Discord/Obsidian/Foliate/WPS/Edge + Flatseal/Bazaar/Warehouse/Gear Lever），USTC 镜像加速，Electron 应用强制 Wayland ozone（`modules/linux/gui/flatpak.nix`）。
+- 桌面应用：Typora（跨平台，`home/base/gui/typora.nix`）；ZedG 汉化编辑器 + Navop 工作台（预编译二进制，`home/linux/gui/apps.nix`）。
 - 音频：PipeWire + WirePlumber（sof-firmware / alsa-ucm-conf / alsa-firmware）；电源：power-profiles-daemon（balanced）+ swayidle 空闲管理（10 分钟关屏+锁屏，20 分钟挂起）。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。

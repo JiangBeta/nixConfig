@@ -150,7 +150,7 @@ cp ~/.ssh/id_ed25519.pub secrets/ssh/
 
 **消费方：**
 - `modules/base/user.nix` → `users.users.<name>.openssh.authorizedKeys`
-- `home/base/git.nix` → Git SSH signing
+- `home/base/core/git.nix` → Git SSH signing
 - SSH 客户端配置
 
 ### 3. Credentials（`secrets/creds/`）

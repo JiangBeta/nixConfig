@@ -17,26 +17,16 @@ let
     # 条件导入 API token（gitignored，不存在时跳过）
     ++ (if builtins.pathExists ../../vars/tokens.nix then [ ../../vars/tokens.nix ] else [ ])
     ++ [
-      # 3. 系统模块
-      ../../modules/linux/base.nix
-      ../../modules/linux/boot.nix
-      ../../modules/linux/btrfs.nix
-      ../../modules/linux/disko-template.nix
-      ../../modules/base/fonts.nix
-      ../../modules/base/user.nix
+      # 3. 系统模块（跨平台 base + Linux core）
+      ../../modules/base/core
+      ../../modules/linux/core
 
-      # 4. 桌面系统模块
-      ../../modules/linux/desktop/audio.nix
-      ../../modules/linux/desktop/bluetooth.nix
-      ../../modules/linux/desktop/fcitx5.nix
-      ../../modules/linux/desktop/flatpak.nix
-      ../../modules/linux/desktop/ly.nix
-      ../../modules/linux/desktop/niri.nix
-      ../../modules/linux/desktop/noctalia.nix
+      # 4. 桌面系统模块（Linux gui）
+      ../../modules/linux/gui
       {
-        modules-nixos-desktop-ly.enable = true;
-        modules-nixos-desktop-niri.enable = true;
-        modules-nixos-desktop-noctalia.enable = true;
+        modules-nixos-gui-ly.enable = true;
+        modules-nixos-gui-niri.enable = true;
+        modules-nixos-gui-noctalia.enable = true;
       }
 
       # 5. Zen Browser（Wayland 原生 text-input-v3 / waylandim 前端，勿注入 GTK_IM_MODULE）

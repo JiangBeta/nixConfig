@@ -52,7 +52,7 @@
 | GPU | Mesa + Vulkan（Intel/AMD 自动） | 内核内置 |
 | 窗口截图/录屏 | Niri 内置 + grim/slurp | `grim`, `slurp` |
 
-## Flatpak 应用（modules/linux/desktop/flatpak.nix）
+## Flatpak 应用（modules/linux/gui/flatpak.nix）
 
 系统级 Flatpak，声明式安装（Flathub 稳定版，USTC 镜像加速）：
 
@@ -67,7 +67,7 @@
 | AppImage 管理 | Gear Lever | `it.mijorus.gearlever` |
 
 - **镜像**：Flathub remote → `https://mirrors.ustc.edu.cn/flathub`（缓存，未命中回源）。
-- **兼容**：Electron 应用强制 `ELECTRON_OZONE_PLATFORM_HINT=auto`（Wayland）；Obsidian 追加 `--enable-wayland-ime`（fcitx5 输入法，见 `home/linux/Desktop/flatpak-compat.nix`）。
+- **兼容**：Electron 应用强制 `ELECTRON_OZONE_PLATFORM_HINT=auto`（Wayland）；Obsidian 追加 `--enable-wayland-ime`（fcitx5 输入法，见 `home/linux/gui/flatpak-compat.nix`）。
 - **权限**：文件访问由 Flatseal 按需授权（占位，待后续配置）。
 
 ## CLI 核心工具
@@ -81,7 +81,7 @@
 | 系统信息 | fastfetch | ✅ | ✅ | ✅ | ✅ |
 | 进程监视 | btop | ✅ | ✅ | ✅ | ✅ |
 
-### 系统 CLI（modules/linux/base.nix，Linux 专属，按类别分组）
+### 系统 CLI（modules/linux/core/base.nix，Linux 专属，按类别分组）
 | 类别 | 工具 | nix-server | nix-desktop |
 |------|------|:---:|:---:|
 | archives 压缩归档 | zip / xz / unzip / p7zip | ✅ | ✅ |
@@ -90,7 +90,7 @@
 | system call monitoring 系统调用监控 | lsof | ✅ | ✅ |
 | system tools 系统工具 | sysstat / lm_sensors / ethtool / pciutils / usbutils / openssl / btrfs-progs / dosfstools | ✅ | ✅ |
 
-## CLI 替代工具（home/base/cli.nix）
+## CLI 替代工具（home/base/core/cli.nix）
 
 | 组件 | 替代 | base | darwin | nix-server | nix-desktop |
 |------|------|:---:|:---:|:---:|:---:|
@@ -105,7 +105,7 @@
 | doggo | dig | ✅ | ✅ | ✅ | ✅ |
 | aria2 | 下载 | ✅ | ✅ | ✅ | ✅ |
 
-## TUI 工具（home/base/tui.nix）
+## TUI 工具（home/base/tui/apps.nix）
 
 | 组件 | 说明 | base | darwin | nix-server | nix-desktop |
 |------|------|:---:|:---:|:---:|:---:|
@@ -114,7 +114,7 @@
 | lazygit | Git TUI | ✅ | ✅ | ✅ | ✅ |
 | Neovim + LazyVim(neovim 配置框架) | 文本编辑 | ✅ | ✅ | ✅ | ✅ |
 
-## 字体（modules/base/fonts.nix）
+## 字体（modules/base/core/fonts.nix）
 
 | 字体 | 用途 |
 |------|------|
