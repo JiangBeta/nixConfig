@@ -80,6 +80,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 
 ### 待完成
 - 🔲 fcitx5 候选框在 Xwayland 应用（微信/WPS）下偏小：候选框是 Wayland 层，Niri 下不随 1.25x 缩放，Xft.dpi/GDK_SCALE 均不影响它；`ForceWaylandDPI` 会导致候选框消失，暂未解决
+- 🔲 systemd-boot 引导菜单字体偏小：`consoleMode = "0"`（80x25，最大档）已设置但字体未变大，疑似固件不支持改分辨率
 - 🔲 `secrets/*/*.age`：需用 agenix 加密各 secret（AI tokens, SSH key 等）
 - 🔲 `.agenix.yaml`：需填入各主机 age 公钥（当前仅为注释占位）
 - 🔲 `common/env.nix`、`common/overlays/`
