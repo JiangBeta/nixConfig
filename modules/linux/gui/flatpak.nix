@@ -85,8 +85,9 @@ in
         flatpak override --system --env=GTK_IM_MODULE=fcitx com.tencent.WeChat
         flatpak override --system --env=GTK_IM_MODULE=fcitx com.wps.Office
 
-        # 7. 清除历史遗留的 scale 覆盖（早期设过 GDK_SCALE=1.5 等，现统一用 Xft.dpi 缩放）
-        ${lib.concatMapStringsSep "\n" (app: "flatpak override --system --unset-env=GDK_SCALE --unset-env=GDK_DPI_SCALE --unset-env=QT_SCALE_FACTOR ${app}") refs}
+        # 7. DPI 缩放（1.25x）：flatpak 沙盒不继承宿主缩放，需显式注入
+        #    注：Xft.dpi 对 Chromium/Electron（微信）无效，故用 GDK_SCALE/QT_SCALE_FACTOR
+        ${lib.concatMapStringsSep "\n" (app: "flatpak override --system --env=GDK_SCALE=1.25 --env=GDK_DPI_SCALE=1.25 --env=QT_SCALE_FACTOR=1.25 ${app}") refs}
       '';
     };
   };
