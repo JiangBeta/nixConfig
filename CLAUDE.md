@@ -45,15 +45,15 @@ nix fmt                                   # 格式化（需先配置 formatter �
 
 2. **`hosts/<hostname>/default.nix`** —— 每台主机**只做参数赋值**，声明 `mySystem = { user, diskDevice, bootMode, hardware = {...} }`，不写实现逻辑（参考 `hosts/pro13/default.nix`：`diskDevice = "/dev/nvme0n1"`、`enableHibernation = true`）。注意实际目录名是小写 `m4macmini`，而非 README 的 `M4MacMini`。
 
-3. **`modules/linux/*.nix`** —— 消费选项实现实际配置（典型写法 `cfg = config.mySystem` 后按 `cfg.bootMode` 等条件输出）：
-   - `boot.nix`：按 `bootMode` 选 systemd-boot(UEFI) / GRUB(BIOS)；按 `hardware.swap` 配置休眠（`resumeDevice`、`vm.swappiness`）
-   - `disko-template.nix`：按 `bootMode` / `swap` / `enableSnapper` 动态生成 Disko GPT 分区（UEFI ESP 或 BIOS boot、Btrfs 子卷、`@snapper` 快照子卷）
-   - `btrfs-snap.nix`：Btrfs autoScrub + Snapper 定时快照与 `.snapshots` 软链接
-   - `docker.nix`：Docker 支持
+3. **`modules/linux/`** —— 消费选项实现实际配置（典型写法 `cfg = config.mySystem` 后按 `cfg.bootMode` 等条件输出）：
+   - `core/boot.nix`：按 `bootMode` 选 systemd-boot(UEFI) / GRUB(BIOS)；按 `hardware.swap` 配置休眠（`resumeDevice`、`vm.swappiness`）
+   - `core/disko-template.nix`：按 `bootMode` / `swap` / `enableSnapper` 动态生成 Disko GPT 分区
+   - `core/btrfs.nix`：Btrfs autoScrub + Snapper 定时快照与 `.snapshots` 软链接
+   - `server/docker.nix`：Docker 支持（待服务器落地）
 
 4. **`output/`** —— Flake outputs 分发层。按架构分目录，每个 `output/<system>/default.nix` 定义该架构下主机的 `nixosSystem`。**实际目录名是 `output/`（单数）**，README 中写的是 `outputs/`。
 
-## 当前状态 (2026-08-13)
+## 当前状态 (2026-08-15)
 
 ### 已完成
 - ✅ `flake.nix`：入口已创建（inputs: nixpkgs/unstable, disko, home-manager, niri, noctalia, catppuccin, zen-browser, agenix）
@@ -165,7 +165,8 @@ nix fmt                                   # 格式化（需先配置 formatter �
 
 - `common/hosts-info.nix`：静态主机元数据映射表（IP、SSH 端口、架构、系统盘）。
 - 桌面栈：Niri + Noctalia Shell + Ly + Kitty + Fcitx5/Rime；CLI：Zsh + Starship + Sheldon + Atuin；磁盘：btrfs + disko + Snapper；内核：linux-zen。
-- Flatpak：系统级声明式安装 Flathub 应用（微信/Telegram/Discord/Obsidian/Foliate/WPS/Edge + Flatseal/Bazaar/Warehouse/Gear Lever），USTC 镜像加速，Electron 应用强制 Wayland ozone（`modules/linux/gui/flatpak.nix`）。
+- Flatpak：系统级声明式安装 Flathub 应用（微信/Telegram/Discord/Obsidian/Foliate/WPS/Edge + Flatseal/Bazaar/Warehouse/Gear Lever），USTC 镜像加速，注入 `GDK_SCALE/GDK_DPI_SCALE/QT_SCALE_FACTOR=1.25` 缩放 + Electron ozone/沙盒兼容（`modules/linux/gui/flatpak.nix`）。
 - 桌面应用：Typora（跨平台，`home/base/gui/typora.nix`）；ZedG 汉化编辑器 + Navop 工作台（预编译二进制，`home/linux/gui/apps.nix`）。
-- 音频：PipeWire + WirePlumber（sof-firmware / alsa-ucm-conf / alsa-firmware）；电源：power-profiles-daemon（balanced）+ swayidle 空闲管理（10 分钟关屏+锁屏，20 分钟挂起）。
+- X11 兼容：xwayland-satellite（Niri 的 Xwayland 桥接，微信/WPS 等 X11-only 应用依赖）。
+- 音频：PipeWire + WirePlumber（sof-firmware / alsa-ucm-conf / alsa-firmware）；电源：power-profiles-daemon（balanced）。空闲/锁屏/挂起与壁纸由 Noctalia Shell 控制。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。

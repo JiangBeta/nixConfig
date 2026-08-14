@@ -43,7 +43,7 @@ nixConfig/
 │   │   │   ├── fcitx5.nix            # Fcitx5 系统级 IM 模块注册
 │   │   │   ├── flatpak.nix           # Flatpak 应用（Flathub + USTC 镜像）
 │   │   │   ├── ly.nix                # Ly 显示管理器
-│   │   │   ├── niri.nix              # Niri Wayland 合成器 + swayidle 空闲管理
+│   │   │   ├── niri.nix              # Niri Wayland 合成器 + xwayland-satellite X11 桥接
 │   │   │   └── noctalia.nix          # Noctalia Shell
 │   │   └── server/                  # 服务器系统（仅服务器主机，待实现）
 │   │       ├── default.nix           # 聚合入口（自动收集）
@@ -189,7 +189,7 @@ nix fmt
 | **文件系统** | Btrfs + Disko + Snapper（快照） |
 | **音频** | PipeWire + WirePlumber（SOF/ALSA 固件） |
 | **电源管理** | power-profiles-daemon（balanced） |
-| **空闲/休眠** | swayidle（10 分钟关屏+锁屏，20 分钟挂起） |
+| **空闲/锁屏/壁纸** | Noctalia Shell 控制 |
 | **蓝牙** | bluez |
 | **网络** | NetworkManager + nftables |
 
@@ -226,9 +226,11 @@ nix fmt
 - **Qt 应用**：保留 `QT_IM_MODULE=fcitx`（Qt5/Xwayland 用 fcitx 插件），另设 `QT_IM_MODULES=wayland;fcitx`（Qt6 优先走 wayland 文本输入协议，回退 fcitx）。
 - **其他 Xwayland 应用**：`XMODIFIERS=@im=fcitx`。
 
+> ⚠️ 已知问题：fcitx5 候选框在 Xwayland 应用（微信/WPS）下偏小（Niri 下不随 1.25x 缩放），暂未解决，见 CLAUDE.md「待完成」。
+
 ## Flatpak 应用
 
-系统级 `modules/linux/gui/flatpak.nix` 启用 Flatpak，并通过 systemd oneshot 声明式安装以下应用（Flathub 稳定版，USTC 镜像加速）：
+系统级 `modules/linux/gui/flatpak.nix` 启用 Flatpak，并通过 systemd 服务声明式安装以下应用（Flathub 稳定版，USTC 镜像加速）：
 
 | 类型 | 应用 | Flatpak ID |
 |------|------|-----------|
@@ -238,6 +240,7 @@ nix fmt
 | 管理工具 | Flatseal / Bazaar / Warehouse / Gear Lever | 见模块文件 |
 
 - **镜像**：Flathub remote 指向 USTC 缓存（`https://mirrors.ustc.edu.cn/flathub`，未命中时 302 回源）。
+- **DPI 缩放**：所有应用注入 `GDK_SCALE/GDK_DPI_SCALE/QT_SCALE_FACTOR=1.25`；X11-only 应用（微信/WPS）另设 `GTK_IM_MODULE=fcitx` 使 fcitx5 候选框出现。
 - **Wayland/Fcitx5 兼容**：Electron 应用强制 `ELECTRON_OZONE_PLATFORM_HINT=auto` 走 Wayland；Obsidian 追加 `--enable-wayland-ime --wayland-text-input-version=3`（`home/linux/gui/flatpak-compat.nix`）使 fcitx5 输入法生效。
 - **文件访问权限**：由 Flatseal 按需授权，模块内留占位，待后续配置。
 
