@@ -127,5 +127,16 @@ in
       categories = [ "Development" "Utility" "Network" ];
       terminal = false;
     };
+
+    # zedg .desktop（补 icon 绝对路径，图标与 zed 相同）
+    xdg.desktopEntries.zedg = {
+      name = "ZedG";
+      exec = "zedg %F";
+      icon = "${zedg}/share/icons/hicolor/512x512/apps/zedg.png";
+      comment = "A high-performance, multiplayer code editor with globalization support.";
+      categories = [ "Utility" "TextEditor" "Development" "IDE" ];
+      mimeType = [ "text/plain" ];
+      terminal = false;
+    };
   };
 }

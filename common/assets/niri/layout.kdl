@@ -31,6 +31,6 @@ layout {
 }
 
 layer-rule {                           // 层规则
-    match namespace="^swww-daemon$"    // 匹配命名空间
+    match namespace="^(swww|awww)-daemon$"    // 匹配命名空间（swww 已改名 awww）
     place-within-backdrop true         // 表面放置在在概览和工作区之间可见的背景中
 }
