@@ -88,7 +88,6 @@ in
         Font="霞鹜文楷等宽 屏幕阅读版 14"
         MenuFont="霞鹜文楷等宽 屏幕阅读版 14"
         TrayFont="OPPO Sans 4.0 14"
-        ForceWaylandDPI=120
       '';
 
       "fcitx5/config".text = ''

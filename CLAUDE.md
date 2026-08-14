@@ -79,6 +79,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `.agenix.yaml`：主机 age 公钥注册表（结构已建）
 
 ### 待完成
+- 🔲 fcitx5 候选框在 Xwayland 应用（微信/WPS）下偏小：fcitx5 候选框是 Wayland 层，Niri 下不随 1.25x 缩放；`PerScreenDPI`（XWayland 恒禁用）、`ForceX11DPI`（不存在）、`ForceWaylandDPI`（会导致候选框消失）均无效，暂未解决（参考 niri#445 / xwayland-satellite#324）
 - 🔲 `secrets/*/*.age`：需用 agenix 加密各 secret（AI tokens, SSH key 等）
 - 🔲 `.agenix.yaml`：需填入各主机 age 公钥（当前仅为注释占位）
 - 🔲 `common/env.nix`、`common/overlays/`
