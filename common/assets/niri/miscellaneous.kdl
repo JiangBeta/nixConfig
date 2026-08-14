@@ -36,6 +36,7 @@ environment {
 }
 
 spawn-at-startup "xwayland-satellite"
+spawn-at-startup "~/.config/niri/script/dpi.sh"
 spawn-at-startup "noctalia"
 spawn-at-startup "~/.config/niri/script/tailscale.sh"
 spawn-at-startup "fcitx5" "--enable=waylandim"

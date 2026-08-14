@@ -54,6 +54,10 @@ in
         source = dotfile + "/script/tailscale.sh";
         executable = true;
       };
+      ".config/niri/script/dpi.sh" = {
+        source = dotfile + "/script/dpi.sh";
+        executable = true;
+      };
     };
   };
 }
