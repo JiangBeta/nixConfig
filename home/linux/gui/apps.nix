@@ -96,6 +96,9 @@ let
     installPhase = ''
       runHook preInstall
       install -Dm755 usr/bin/navop $out/bin/navop
+      # 图标（hicolor 多尺寸）
+      mkdir -p $out/share
+      cp -r usr/share/icons $out/share/
       runHook postInstall
     '';
     meta = with lib; {
@@ -119,7 +122,7 @@ in
     xdg.desktopEntries.navop = {
       name = "Navop";
       exec = "navop";
-      icon = "utilities-terminal";
+      icon = "${navop}/share/icons/hicolor/256x256/apps/navop.png";
       comment = "Databases, SSH, SFTP, terminals, remote desktop, monitoring, AI";
       categories = [ "Development" "Utility" "Network" ];
       terminal = false;
