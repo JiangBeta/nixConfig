@@ -43,6 +43,9 @@ in
     services.flatpak.enable = true;
 
     # 声明式安装 + 兼容配置（幂等：已安装/已配置则跳过）
+    # ⚠️ 用 Type=simple 而非 oneshot：oneshot 会让 systemctl start 阻塞到脚本跑完，
+    #    导致 nixos-rebuild switch / boot 卡在安装期间（下载 11 个应用很慢）。
+    #    simple 立即返回，安装在后台进行，不阻塞 switch。
     systemd.services.flatpak-setup = {
       description = "Flathub (USTC mirror) install + Wayland compat";
       wantedBy = [ "multi-user.target" ];
@@ -50,9 +53,7 @@ in
       wants = [ "network-online.target" ];
       path = [ config.services.flatpak.package pkgs.gnugrep pkgs.coreutils ];
       serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        TimeoutStartSec = "infinity";
+        Type = "simple";
       };
       script = ''
         # 1. Flathub remote：先加官方 .flatpakrepo（拉取 GPG key），再切 USTC 镜像加速
