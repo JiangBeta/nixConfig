@@ -80,8 +80,8 @@ in
         # 5. 微信 Chromium 沙盒：ptrace 被 flatpak bubblewrap 阻止，禁用 Electron 沙盒
         flatpak override --system --env=ELECTRON_DISABLE_SANDBOX=1 com.tencent.WeChat
 
-        # 6. DPI 缩放（1.5x）：flatpak 沙盒不继承宿主缩放，需显式注入
-        ${lib.concatMapStringsSep "\n" (app: "flatpak override --system --env=GDK_SCALE=1.5 --env=GDK_DPI_SCALE=1.5 --env=QT_SCALE_FACTOR=1.5 ${app}") refs}
+        # 6. DPI 缩放（1.25x）：flatpak 沙盒不继承宿主缩放，需显式注入
+        ${lib.concatMapStringsSep "\n" (app: "flatpak override --system --env=GDK_SCALE=1.25 --env=GDK_DPI_SCALE=1.25 --env=QT_SCALE_FACTOR=1.25 ${app}") refs}
 
         # 7. X11-only 应用输入法：显式注入 GTK_IM_MODULE（Electron/部分组件需要）
         #    注意：仅对 Xwayland 的 flatpak 应用设；原生 Wayland 应用仍走 text-input-v3 不设
