@@ -122,7 +122,7 @@ in
       # 背景色
       background #282c34
       # 背景透明度（需合成器支持）
-      background_opacity 0.95
+      background_opacity 0.85
       # 选区前景色
       selection_foreground #282c34
       # 选区背景色
