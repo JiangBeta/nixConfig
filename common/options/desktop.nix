@@ -1,4 +1,4 @@
-# common/options/desktop.nix — 桌面硬件级 Option 声明（摄像头 / 人脸识别）
+# common/options/desktop.nix — 桌面硬件级 Option 声明（摄像头 / 电池）
 #
 # 定义 mySystem.desktop.* 选项树，供:
 #   - hosts/<hostname>/ 按主机赋值（pro13 笔记本启用，nuc8-d 桌面不启用）
@@ -17,6 +17,15 @@ in
         type = types.bool;
         default = false;
         description = "是否启用内置摄像头支持（v4l-utils 工具 + uvcvideo 驱动 + Cheese）";
+      };
+    };
+
+    # 内置电池（笔记本电脑电源，需 upower 守护进程 + upower/acpi 工具）
+    battery = {
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = "是否启用电池监控（upower 守护进程 + upower/acpi 工具）";
       };
     };
   };

@@ -33,9 +33,10 @@
       };
     };
 
-    # 桌面硬件：内置摄像头
+    # 桌面硬件：内置摄像头 + 内置电池
     desktop = {
       camera.enable = true;
+      battery.enable = true;
     };
   };
 }

@@ -77,7 +77,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `common/secrets/`：agenix secrets 管理体系（README + default.nix）
 - ✅ `secrets/`：加密 secret 目录结构（ai/ssh/creds/api）
 - ✅ `.agenix.yaml`：主机 age 公钥注册表（结构已建）
-- ✅ `modules/linux/desktop/`：camera（uvcvideo + v4l-utils + Cheese，pro13 笔记本启用，nuc8-d 不启用）
+- ✅ `modules/linux/desktop/`：camera（uvcvideo + v4l-utils + Cheese）+ battery（upower 守护进程 + upower/acpi 工具，pro13 笔记本启用，nuc8-d 不启用）
 - ✅ `home/base/ai/opencode/`：OpenCode（消费共享 mcp/skills，deepseek provider，pro13/nuc8-d 启用）
 
 ### 待完成
@@ -173,4 +173,5 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - X11 兼容：xwayland-satellite（Niri 的 Xwayland 桥接，微信/WPS 等 X11-only 应用依赖）。
 - 音频：PipeWire + WirePlumber（sof-firmware / alsa-ucm-conf / alsa-firmware）；电源：power-profiles-daemon（balanced）。空闲/锁屏/挂起与壁纸由 Noctalia Shell 控制。
 - 摄像头：Chicony UVC（`uvcvideo` 驱动开箱即用）+ `v4l-utils` + Cheese 应用（`modules/linux/desktop/`，pro13 启用）。Cheese 依赖 Clutter，已 wrapper 强制 X11 后端（绕开 niri 全局 `GDK/EGL/CLUTTER=wayland`，否则无窗口卡死）。
+- 电池：`services.upower` 守护进程（提供 `org.freedesktop.UPower` D-Bus 接口，Noctalia 状态栏电池模块依赖）+ `upower` / `acpi` CLI（`modules/linux/desktop/battery.nix`，pro13 启用）。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。
