@@ -33,6 +33,9 @@ let
         modules-nixos-gui-noctalia.enable = true;
       }
 
+      # 4b. 桌面硬件模块（Linux desktop：摄像头 / Gaze 人脸识别，按 mySystem.desktop.* 选项启用）
+      ../../modules/linux/desktop
+
       # 5. Zen Browser（Wayland 原生 text-input-v3 / waylandim 前端，勿注入 GTK_IM_MODULE）
       ({ pkgs, ... }: {
         environment.systemPackages = [

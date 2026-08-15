@@ -50,8 +50,14 @@
       url = "github:ryantm/agenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Gaze — 人脸识别登录（登录/锁屏/sudo 面部认证）
+    gaze = {
+      url = "github:GunduLabs/gaze";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs @ { self, nixpkgs, disko, home-manager, niri, noctalia, catppuccin, zen-browser, agenix, ... }:
+  outputs = inputs @ { self, nixpkgs, disko, home-manager, niri, noctalia, catppuccin, zen-browser, agenix, gaze, ... }:
     import ./output inputs;
 }

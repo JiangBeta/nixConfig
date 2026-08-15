@@ -16,7 +16,7 @@ Always reply in Chinese.
 
 | 主机 | 系统 | 架构 | 角色 |
 |------|------|------|------|
-| pro13 | NixOS | x86_64 | 桌面 PC |
+| pro13 | NixOS | x86_64 | 笔记本 |
 | nuc8-d / nuc8-s | NixOS | x86_64 | 桌面 / 服务器 |
 | appgateway | NixOS VM | x86_64 | 网关 |
 | macmini | macOS (nix-darwin) | aarch64 | AI 服务器 |
@@ -77,6 +77,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `common/secrets/`：agenix secrets 管理体系（README + default.nix）
 - ✅ `secrets/`：加密 secret 目录结构（ai/ssh/creds/api）
 - ✅ `.agenix.yaml`：主机 age 公钥注册表（结构已建）
+- ✅ `modules/linux/desktop/`：camera（uvcvideo + v4l-utils）+ gaze 人脸识别登录（pro13 笔记本启用，nuc8-d 不启用）
 
 ### 待完成
 - 🔲 fcitx5 候选框在 Xwayland 应用（微信/WPS）下偏小：候选框是 Wayland 层，Niri 下不随 1.25x 缩放，Xft.dpi/GDK_SCALE 均不影响它；`ForceWaylandDPI` 会导致候选框消失，暂未解决
@@ -162,6 +163,25 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - **Qt**：`QT_IM_MODULE=fcitx`（Qt5/Xwayland）+ `QT_IM_MODULES=wayland;fcitx`（Qt6 优先 wayland 协议）。
 - **其他 Xwayland**：`XMODIFIERS=@im=fcitx`。
 
+## Gaze 人脸识别登录
+
+**核心**：Gaze（GunduLabs，Rust）Linux 面部认证。`gazed` 系统守护进程经 D-Bus（`com.gundulabs.Gaze`）捕获摄像头画面并与已录入人脸比对，`pam_gaze.so` PAM 模块接入登录/sudo/polkit，失败回退密码。人脸数据仅存本地，含活体检测（MiniFASNet-V2）。
+
+### 配置分层
+- `common/options/desktop.nix`：`mySystem.desktop.camera.enable` / `mySystem.desktop.faceAuth.enable`（默认 false）。
+- `modules/linux/desktop/camera.nix`：`uvcvideo` 驱动 + `v4l-utils`（验证/调试）。
+- `modules/linux/desktop/gaze.nix`：导入 `inputs.gaze.nixosModules.default`，`services.gaze`（enable + gui + `pam.defaultServices = [ "sudo" "polkit-1" "login" ]`）。
+- `hosts/pro13/default.nix`：`desktop = { camera.enable = true; faceAuth.enable = true; }`（笔记本启用；nuc8-d 桌面不启用，默认 false）。
+- `output/X86_64-linux/default.nix`：第 4b 步导入 `../../modules/linux/desktop`。
+
+### 安装后手动步骤（无法声明式）
+1. `sudo nixos-rebuild switch --flake .#pro13` 激活。
+2. `systemctl status gazed` 确认守护进程运行。
+3. `gaze add-face` 录入人脸（或 GUI `gaze-gui`），`gaze doctor` 自检。
+4. Ly 登录 / sudo / polkit 弹窗时正对摄像头即可人脸认证，失败回退密码。
+
+> ⚠️ pro13 摄像头为 Chicony UVC（04f2:b67c，非红外），照片可欺骗；生产环境务必保留密码回退。
+
 ## 数据与组件约定
 
 - `common/hosts-info.nix`：静态主机元数据映射表（IP、SSH 端口、架构、系统盘）。
@@ -170,4 +190,5 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - 桌面应用：Typora（跨平台，`home/base/gui/typora.nix`）；ZedG 汉化编辑器 + Navop 工作台（预编译二进制，`home/linux/gui/apps.nix`）。
 - X11 兼容：xwayland-satellite（Niri 的 Xwayland 桥接，微信/WPS 等 X11-only 应用依赖）。
 - 音频：PipeWire + WirePlumber（sof-firmware / alsa-ucm-conf / alsa-firmware）；电源：power-profiles-daemon（balanced）。空闲/锁屏/挂起与壁纸由 Noctalia Shell 控制。
+- 摄像头：Chicony UVC（`uvcvideo` 驱动开箱即用）+ `v4l-utils`；人脸识别：Gaze（`modules/linux/desktop/`，pro13 启用）。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。

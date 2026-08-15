@@ -7,5 +7,6 @@
     ./hardware.nix
     ./system.nix
     ./ai.nix
+    ./desktop.nix
   ];
 }

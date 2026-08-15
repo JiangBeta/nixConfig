@@ -15,7 +15,8 @@ nixConfig/
 │   │   ├── user.nix               # mySystem.user / myHome.userFullName / myHome.dirs
 │   │   ├── system.nix             # mySystem.bootMode / kernel / firewall
 │   │   ├── hardware.nix           # mySystem.diskDevice / cpuMicrocode / swap / btrfs
-│   │   └── ai.nix                 # myHome.ai.tokens / defaultProvider（AI 工具）
+│   │   ├── ai.nix                 # myHome.ai.tokens / defaultProvider（AI 工具）
+│   │   └── desktop.nix            # mySystem.desktop.camera / faceAuth（摄像头 / 人脸识别）
 │   ├── hosts-info.nix            # 静态主机元数据映射表（IP、SSH 端口、架构）
 │   ├── lib/default.nix           # 辅助函数（scanPaths 等）
 │   └── secrets/default.nix       # agenix 密钥占位（待实现）
@@ -45,6 +46,10 @@ nixConfig/
 │   │   │   ├── ly.nix                # Ly 显示管理器
 │   │   │   ├── niri.nix              # Niri Wayland 合成器 + xwayland-satellite X11 桥接
 │   │   │   └── noctalia.nix          # Noctalia Shell
+│   │   ├── desktop/                # 桌面硬件（摄像头 / 人脸识别，按 mySystem.desktop.* 启用）
+│   │   │   ├── default.nix           # 聚合入口（自动收集）
+│   │   │   ├── camera.nix            # uvcvideo 驱动 + v4l-utils
+│   │   │   └── gaze.nix              # Gaze 人脸识别登录（gazed + PAM + GUI）
 │   │   └── server/                  # 服务器系统（仅服务器主机，待实现）
 │   │       ├── default.nix           # 聚合入口（自动收集）
 │   │       └── docker.nix            # Docker 支持（TODO）
@@ -92,7 +97,7 @@ nixConfig/
 │   └── darwin/                    # macOS 专属（待实现）
 │
 ├── hosts/                       # 主机实例（只做参数赋值）
-│   └── pro13/                    # 桌面 PC（x86_64 NixOS）
+│   └── pro13/                    # 笔记本（x86_64 NixOS）
 │       ├── default.nix            # mySystem / myHome 参数赋值
 │       ├── hardware.nix           # 硬件配置（nixos-generate-config 生成）
 │       └── networking.nix         # 网络 / 防火墙
@@ -118,7 +123,7 @@ nixConfig/
 
 | 主机 | 系统 | 架构 | 角色 | 状态 |
 |------|------|------|------|------|
-| pro13 | NixOS | x86_64 | 桌面 PC | ✅ 已配置 |
+| pro13 | NixOS | x86_64 | 笔记本 | ✅ 已配置 |
 | nuc8-d | NixOS | x86_64 | 桌面 PC | ✅ 已配置 |
 | nuc8-s | NixOS | x86_64 | 服务器 | 🔲 计划中 |
 | appgateway | NixOS VM | x86_64 | 网关 | 🔲 计划中 |
@@ -191,6 +196,8 @@ nix fmt
 | **电源管理** | power-profiles-daemon（balanced） |
 | **空闲/锁屏/壁纸** | Noctalia Shell 控制 |
 | **蓝牙** | bluez |
+| **摄像头** | Chicony UVC（uvcvideo 驱动）+ v4l-utils |
+| **人脸识别登录** | Gaze（gazed 守护进程 + PAM + GTK4 GUI，pro13 启用） |
 | **网络** | NetworkManager + nftables |
 
 ### CLI/TUI 工具

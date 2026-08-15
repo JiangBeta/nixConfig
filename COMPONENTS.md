@@ -38,6 +38,8 @@
 | 窗口管理器 | Niri | `niri` (flake) |
 | 状态栏/启动器/锁屏 | Noctalia Shell | `noctalia` (flake) |
 | 显示管理器 | Ly | `ly` |
+| 摄像头 | Chicony UVC（`uvcvideo` 驱动开箱即用）+ v4l-utils | `v4l-utils` |
+| 人脸识别登录 | Gaze（`gazed` 守护进程 + PAM + GTK4 GUI，pro13 启用） | `gaze` (flake) |
 | 终端 | Kitty | `kitty` |
 | 输入法 | Fcitx5 + Rime + 雾凇拼音小鹤双拼 | `fcitx5`, `fcitx5-rime`, `rime-ice` |
 | 浏览器 | Zen Browser | `zen-browser` |

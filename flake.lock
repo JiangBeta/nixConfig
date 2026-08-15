@@ -85,6 +85,26 @@
         "type": "github"
       }
     },
+    "gaze": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786717881,
+        "narHash": "sha256-fG9qmxZQeNj4Ibjx3VlKAr/Av26aBz3SryKWkTfV95s=",
+        "owner": "GunduLabs",
+        "repo": "gaze",
+        "rev": "d2bd745f7cddfcf136e6774dcdab18176bd9140f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "GunduLabs",
+        "repo": "gaze",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -188,6 +208,7 @@
         "agenix": "agenix",
         "catppuccin": "catppuccin",
         "disko": "disko",
+        "gaze": "gaze",
         "home-manager": "home-manager_2",
         "niri": "niri",
         "nixpkgs": "nixpkgs",

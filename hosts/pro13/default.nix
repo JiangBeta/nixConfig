@@ -32,5 +32,11 @@
         enableSnapper = true;
       };
     };
+
+    # 桌面硬件：内置摄像头 + 人脸识别登录（Gaze）
+    desktop = {
+      camera.enable = true;
+      faceAuth.enable = true;
+    };
   };
 }
