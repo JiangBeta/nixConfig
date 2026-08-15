@@ -61,7 +61,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `common/options/*.nix`：user/system/hardware/ai 选项声明
 - ✅ `modules/base/`：core(user/fonts) + ai(claude_code，系统级 Node.js 已启用)
 - ✅ `modules/linux/core/`：base/boot/btrfs/disko-template（所有 Linux 主机）
-- ✅ `modules/linux/gui/`：audio/bluetooth/fcitx5/flatpak/ly/niri/noctalia（桌面）
+- ✅ `modules/linux/gui/`：audio/bluetooth/fcitx5/flatpak/ly/niri/noctalia/sunshine（桌面）
 - ✅ `modules/linux/server/`：docker（占位，待服务器落地）
 - ✅ `home/base/`：core(shell/git/cli)/tui(neovim/apps)/gui(kitty/browsers/typora/fcitx5)
 - ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP) + skills (共享) + claude_code (Claude Code 全配置，含专属 hooks) + opencode
@@ -167,11 +167,12 @@ nix fmt                                   # 格式化（需先配置 formatter �
 ## 数据与组件约定
 
 - `common/hosts-info.nix`：静态主机元数据映射表（IP、SSH 端口、架构、系统盘）。
-- 桌面栈：Niri + Noctalia Shell + Ly + Kitty + Fcitx5/Rime；CLI：Zsh + Starship + Sheldon + Atuin；磁盘：btrfs + disko + Snapper；内核：linux-zen。
+- 桌面栈：Niri + Noctalia Shell + Ly + Kitty + Fcitx5/Rime；CLI：Zsh + Starship + Sheldon + Atuin；磁盘：btrfs + disko + Snapper；内核：linux-zen。远程桌面：Sunshine（服务端）+ Moonlight（客户端）。
 - Flatpak：系统级声明式安装 Flathub 应用（微信/Telegram/Discord/Obsidian/Foliate/WPS/Edge + Flatseal/Bazaar/Warehouse/Gear Lever），USTC 镜像加速，注入 `GDK_SCALE/GDK_DPI_SCALE/QT_SCALE_FACTOR=1.25` 缩放 + Electron ozone/沙盒兼容（`modules/linux/gui/flatpak.nix`）。
 - 桌面应用：Typora（跨平台，`home/base/gui/typora.nix`）；ZedG 汉化编辑器 + Navop 工作台（预编译二进制，`home/linux/gui/apps.nix`）。
 - X11 兼容：xwayland-satellite（Niri 的 Xwayland 桥接，微信/WPS 等 X11-only 应用依赖）。
 - 音频：PipeWire + WirePlumber（sof-firmware / alsa-ucm-conf / alsa-firmware）；电源：power-profiles-daemon（balanced）。空闲/锁屏/挂起与壁纸由 Noctalia Shell 控制。
 - 摄像头：Chicony UVC（`uvcvideo` 驱动开箱即用）+ `v4l-utils` + Cheese 应用（`modules/linux/desktop/`，pro13 启用）。Cheese 依赖 Clutter，已 wrapper 强制 X11 后端（绕开 niri 全局 `GDK/EGL/CLUTTER=wayland`，否则无窗口卡死）。
 - 电池：`services.upower` 守护进程（提供 `org.freedesktop.UPower` D-Bus 接口，Noctalia 状态栏电池模块依赖）+ `upower` / `acpi` CLI（`modules/linux/desktop/battery.nix`，pro13 启用）。
+- 远程桌面：Sunshine（自托管 GameStream 服务端，`services.sunshine` 开启 KMS 抓屏 + 开放流式端口）+ Moonlight 客户端（`moonlight-qt`），所有桌面主机统一启用（`modules/linux/gui/sunshine.nix`）。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。

@@ -45,7 +45,8 @@ nixConfig/
 │   │   │   ├── flatpak.nix           # Flatpak 应用（Flathub + USTC 镜像）
 │   │   │   ├── ly.nix                # Ly 显示管理器
 │   │   │   ├── niri.nix              # Niri Wayland 合成器 + xwayland-satellite X11 桥接
-│   │   │   └── noctalia.nix          # Noctalia Shell
+│   │   │   ├── noctalia.nix          # Noctalia Shell
+│   │   │   └── sunshine.nix          # Sunshine 服务端 + Moonlight 客户端
 │   │   ├── desktop/                # 桌面硬件（摄像头 / 电池，按 mySystem.desktop.* 启用）
 │   │   │   ├── default.nix           # 聚合入口（自动收集）
 │   │   │   ├── camera.nix            # uvcvideo 驱动 + v4l-utils + Cheese
@@ -195,6 +196,7 @@ nix fmt
 | **音频** | PipeWire + WirePlumber（SOF/ALSA 固件） |
 | **电源管理** | power-profiles-daemon（balanced） |
 | **空闲/锁屏/壁纸** | Noctalia Shell 控制 |
+| **远程桌面** | Sunshine（服务端）+ Moonlight（客户端） |
 | **蓝牙** | bluez |
 | **摄像头** | Chicony UVC（uvcvideo 驱动）+ v4l-utils + Cheese |
 | **电池** | upower 守护进程 + upower / acpi（pro13 笔记本） |
