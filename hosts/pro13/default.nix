@@ -33,10 +33,9 @@
       };
     };
 
-    # 桌面硬件：内置摄像头 + 人脸识别登录（Gaze）
+    # 桌面硬件：内置摄像头
     desktop = {
       camera.enable = true;
-      faceAuth.enable = true;
     };
   };
 }

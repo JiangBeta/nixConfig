@@ -11,21 +11,12 @@ in
 {
   options.mySystem.desktop = {
 
-    # 内置摄像头（UVC 摄像头开箱即用，需 v4l-utils 工具验证/调试）
+    # 内置摄像头（UVC 摄像头开箱即用，需 v4l-utils 调试 + Cheese 应用）
     camera = {
       enable = mkOption {
         type = types.bool;
         default = false;
-        description = "是否启用内置摄像头支持（v4l-utils 工具 + uvcvideo 驱动）";
-      };
-    };
-
-    # 人脸识别登录（Gaze：gazed 守护进程 + PAM + GUI）
-    faceAuth = {
-      enable = mkOption {
-        type = types.bool;
-        default = false;
-        description = "是否启用人脸识别登录（Gaze）";
+        description = "是否启用内置摄像头支持（v4l-utils 工具 + uvcvideo 驱动 + Cheese）";
       };
     };
   };

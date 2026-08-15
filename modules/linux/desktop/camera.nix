@@ -12,9 +12,10 @@ in
     # USB 视频类驱动（UVC 摄像头开箱即用；与 hardware.nix 的 boot.kernelModules 合并）
     boot.kernelModules = [ "uvcvideo" ];
 
-    # v4l2-ctl / v4l2-ctl --list-devices 等工具
+    # v4l2-ctl 调试工具 + Cheese 摄像头应用（预览/拍照/录像）
     environment.systemPackages = with pkgs; [
       v4l-utils
+      cheese
     ];
   };
 }
