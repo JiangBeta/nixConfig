@@ -4,7 +4,7 @@
 
 **单一真相源 + 分层共享，按工具生成。**
 
-所有 AI 编码工具共享同一份配置真相源（Node.js 运行时、MCP 服务器、供应商/token、skills、hooks、prompts）。每个工具模块只做「翻译」——把共享层数据转成自己的配置格式，不做数据定义。
+所有 AI 编码工具共享同一份配置真相源（Node.js 运行时、MCP 服务器、供应商/token、skills、prompts）。每个工具模块只做「翻译」——把共享层数据转成自己的配置格式，不做数据定义。hooks 为 Claude Code 专属，随 claude_code 模块自带，不在共享层。
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -12,11 +12,9 @@
 │  nodejs.nix  ── Node.js 运行时基座                      │
 │  mcp.nix     ── MCP 服务器统一声明                       │
 │  skills.nix  ── Skills 目录统一声明                      │
-│  hooks.nix   ── Hooks 脚本目录统一声明                   │
 │  providers.nix ── 供应商 + token 统一声明（将来）          │
 │  prompts.nix  ── CLAUDE.md/AGENTS.md 同步（将来）          │
 │  skills/     ── 跨工具共享 skills（SKILL.md + agents）   │
-│  hooks/      ── 跨工具共享 hooks 脚本                     │
 ├──────────────────────┬───────────────────────────────────┤
 │   Claude Code        │   OpenCode / Codex（将来）        │
 │   ~/.claude/*.json   │   ~/.config/<tool>/*.json         │
@@ -64,7 +62,6 @@ home/base/ai/
 ├── nodejs.nix               ← 🔧 共享：Node.js 22 运行时
 ├── mcp.nix                  ← 🔧 共享：MCP 服务器声明 (modules-home-base-ai-mcp)
 ├── skills.nix               ← 🔧 共享：Skills 模块声明 (modules-home-base-ai-skills)
-├── hooks.nix                ← 🔧 共享：Hooks 模块声明 (modules-home-base-ai-hooks)
 ├── skills/                  ← 🔧 共享：跨工具 skills 内容（SKILL.md）
 │   ├── codebase-memory/
 │   ├── git-master/
@@ -73,13 +70,14 @@ home/base/ai/
 │   ├── grilling/
 │   ├── smart-search-cli/
 │   └── using-superpowers/
-├── hooks/                   ← 🔧 共享：跨工具 hooks 脚本内容
-│   ├── cbm-code-discovery-gate
-│   ├── cbm-session-reminder
-│   └── cbm-subagent-reminder
 ├── claude_code/
-│   └── default.nix          ← 🎯 Claude Code：消费共享层，生成 settings.json
-├── opencode/                ← 🎯 将来：OpenCode 模块
+│   ├── default.nix          ← 🎯 Claude Code：消费共享层，生成 settings.json
+│   └── hooks/               ← 🎯 Claude Code 专属 hooks 脚本（非共享）
+│       ├── cbm-code-discovery-gate
+│       ├── cbm-session-reminder
+│       └── cbm-subagent-reminder
+├── opencode/
+│   └── default.nix          ← 🎯 OpenCode：消费共享层，生成 opencode.json
 └── codex/                   ← 🎯 将来：Codex 模块
 
 modules/base/ai/
@@ -106,8 +104,8 @@ vars/
 | `home/base/ai/nodejs.nix` | `modules-home-base-ai-nodejs` |
 | `home/base/ai/mcp.nix` | `modules-home-base-ai-mcp` |
 | `home/base/ai/skills.nix` | `modules-home-base-ai-skills` |
-| `home/base/ai/hooks.nix` | `modules-home-base-ai-hooks` |
 | `home/base/ai/claude_code/default.nix` | `modules-home-base-ai-claudeCode` |
+| `home/base/ai/opencode/default.nix` | `modules-home-base-ai-opencode` |
 | `modules/base/ai/claude_code.nix` | `modules-base-ai-claudeCode` |
 
 ---
@@ -131,7 +129,7 @@ vars/tokens.nix (gitignored)
 ```
 mcp.nix → modules-home-base-ai-mcp.servers (统一声明)
   ├── claude_code → ~/.claude/.mcp.json      (Claude Code 格式)
-  ├── opencode    → ~/.config/opencode/mcp.json  (将来)
+  ├── opencode    → ~/.config/opencode/opencode.json 的 mcp 字段
   └── codex       → ~/.config/codex/mcp.json     (将来)
 ```
 
@@ -140,39 +138,41 @@ mcp.nix → modules-home-base-ai-mcp.servers (统一声明)
 ```
 home/base/ai/skills.nix → modules-home-base-ai-skills.dir (默认 ./skills)
   → claude_code/default.nix 读取 .dir symlink → ~/.claude/skills/
-  → opencode（将来）消费同一份 skills/，生成 ~/.config/opencode/skills/
+  → opencode/default.nix 消费同一份 skills/，生成 ~/.config/opencode/skills/
 
-home/base/ai/hooks.nix → modules-home-base-ai-hooks.dir (默认 ./hooks)
-  → claude_code/default.nix 读取 .dir symlink → ~/.claude/hooks/
+hooks（Claude Code 专属，不共享）
+  → home/base/ai/claude_code/hooks/ → claude_code/default.nix symlink → ~/.claude/hooks/
 ```
 
 ---
 
 ## 添加新 AI 工具（分步指南）
 
-以 OpenCode 为例：
+以 Codex 为例：
 
 ### 1. 创建工具子目录
 
 ```bash
-mkdir -p home/base/ai/opencode
+mkdir -p home/base/ai/codex
 ```
 
-### 2. 编写工具模块 `home/base/ai/opencode/default.nix`
+### 2. 编写工具模块 `home/base/ai/codex/default.nix`
 
 ```nix
 { config, lib, pkgs, osConfig ? { }, ... }:
 
 let
-  cfg = config.modules-home-base-ai-opencode;
+  cfg = config.modules-home-base-ai-codex;
   # 消费共享 MCP
   mcpServers = config.modules-home-base-ai-mcp.servers or { };
+  # 消费共享 skills
+  skillsDir = config.modules-home-base-ai-skills.dir or null;
   # 消费共享 token
   aiCfg = osConfig.myHome.ai or { };
 in
 {
-  options.modules-home-base-ai-opencode = {
-    enable = lib.mkEnableOption "OpenCode";
+  options.modules-home-base-ai-codex = {
+    enable = lib.mkEnableOption "Codex";
     package = lib.mkOption { ... };
   };
 
@@ -181,10 +181,10 @@ in
 
     home.packages = [ cfg.package ];
 
-    # 消费共享 skills（../skills）
-    # 消费共享 MCP，生成 OpenCode 格式
+    # 消费共享 skills（symlink ../skills）
+    # 消费共享 MCP，生成 Codex 格式的 MCP 配置
     home.file = {
-      ".config/opencode/mcp.json".text =
+      ".config/codex/mcp.json".text =
         builtins.toJSON { servers = ...; };
     };
   };
@@ -193,12 +193,12 @@ in
 
 ### 3. 注册到聚合入口
 
-在 `home/base/ai/default.nix` 的 `imports` 中追加 `./opencode`。
+在 `home/base/ai/default.nix` 的 `imports` 中追加 `./codex`。
 
 ### 4. 在 host 层启用
 
 ```nix
-modules-home-base-ai-opencode.enable = true;
+modules-home-base-ai-codex.enable = true;
 ```
 
 ---
@@ -321,6 +321,41 @@ Nix 模块生成的 `~/.claude/settings.json` 结构：
 }
 ```
 
+## OpenCode opencode.json 结构
+
+Nix 模块生成的 `~/.config/opencode/opencode.json` 结构：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "deepseek/deepseek-v4-pro",
+  "small_model": "deepseek/deepseek-v4-flash",
+  "provider": {
+    "deepseek": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "DeepSeek",
+      "options": {
+        "baseURL": "https://api.deepseek.com/anthropic",
+        "apiKey": "<from vars/tokens.nix>"
+      },
+      "models": {
+        "deepseek-v4-pro": { "name": "DeepSeek V4 Pro" },
+        "deepseek-v4-flash": { "name": "DeepSeek V4 Flash" }
+      }
+    }
+  },
+  "mcp": {
+    "codebase-memory-mcp": {
+      "type": "local",
+      "command": ["/home/beta/.local/bin/codebase-memory-mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+> Skills 由 `~/.config/opencode/skills/` 下的 symlink 提供（消费共享 `skills/` 目录）。OpenCode 无 hooks 概念。
+
 ---
 
 ## 依赖关系
@@ -329,8 +364,7 @@ Nix 模块生成的 `~/.claude/settings.json` 结构：
 nodejs.nix         ← 无依赖
 mcp.nix            ← 无依赖（可选依赖 nodejs）
 skills/            ← 无依赖（静态文件）
-hooks/             ← 无依赖（静态文件）
-claude_code.nix    ← nodejs (auto-enable) + mcp (读 servers) + skills/hooks + osConfig (读 token)
+claude_code.nix    ← nodejs (auto-enable) + mcp (读 servers) + skills + 自带 hooks + osConfig (读 token)
 opencode.nix       ← nodejs (auto-enable) + mcp (读 servers) + skills + osConfig (读 token)
 ```
 
@@ -348,3 +382,9 @@ opencode.nix       ← nodejs (auto-enable) + mcp (读 servers) + skills + osCon
 | | 确立「单一真相源 + 工具模块只做翻译」原则 |
 | 2026-08-13 | **提取 `skills.nix` / `hooks.nix` 共享模块**（对齐 `mcp.nix` 声明式模式） |
 | | claude_code 改为消费 `modules-home-base-ai-skills.dir` / `-hooks.dir`，不再自带 `skillsDir`/`hooksDir` 选项 |
+| 2026-08-15 | **实现 `opencode` 模块**（`home/base/ai/opencode/default.nix`） |
+| | 消费共享 `mcp.servers` → `opencode.json` 的 mcp 字段；消费共享 `skills.dir` → `~/.config/opencode/skills/` |
+| | provider/model 默认对齐 claude_code（deepseek anthropic 兼容端点）；Phase 2 agenix token 注入同 claude_code |
+| 2026-08-15 | **hooks 下移到 `claude_code/`**（hooks 为 Claude Code 专属，非共享） |
+| | 删除共享 `hooks.nix` + `hooks/` 目录，脚本移入 `claude_code/hooks/` |
+| | claude_code 自带 `hooksDir = ./hooks`，不再依赖 `modules-home-base-ai-hooks` |

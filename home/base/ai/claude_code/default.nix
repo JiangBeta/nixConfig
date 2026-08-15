@@ -5,7 +5,7 @@
 #   - ~/.claude/.mcp.json       (MCP — 消费 modules-home-base-ai-mcp.servers)
 #   - ~/.claude/config.json
 #   - ~/.claude/skills/         (消费 modules-home-base-ai-skills.dir，共享层)
-#   - ~/.claude/hooks/          (消费 modules-home-base-ai-hooks.dir，共享层)
+#   - ~/.claude/hooks/          (Claude 专属，自带 ./hooks)
 #
 # Token 消费（两阶段）：
 #   Phase 1（当前）：osConfig.myHome.ai.tokens.* → vars/tokens.nix (NixOS option)
@@ -19,9 +19,9 @@
 let
   cfg = config.modules-home-base-ai-claudeCode;
   mcpServers = config.modules-home-base-ai-mcp.servers or { };
-  # 消费共享 skills / hooks（与 mcp 同层，由 skills.nix / hooks.nix 声明）
+  # 消费共享 skills（由 skills.nix 声明）；hooks 为 Claude 专属，自带 ./hooks
   skillsDir = config.modules-home-base-ai-skills.dir or null;
-  hooksDir = config.modules-home-base-ai-hooks.dir or null;
+  hooksDir = ./hooks;
   aiCfg = osConfig.myHome.ai or { };
 
   # ---- 根据 provider 确定 API 配置 ----

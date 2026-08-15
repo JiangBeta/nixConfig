@@ -64,7 +64,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `modules/linux/gui/`：audio/bluetooth/fcitx5/flatpak/ly/niri/noctalia（桌面）
 - ✅ `modules/linux/server/`：docker（占位，待服务器落地）
 - ✅ `home/base/`：core(shell/git/cli)/tui(neovim/apps)/gui(kitty/browsers/typora/fcitx5)
-- ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP) + skills/hooks (共享) + claude_code (Claude Code 全配置)
+- ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP) + skills (共享) + claude_code (Claude Code 全配置，含专属 hooks) + opencode
 - ✅ `home/linux/gui/`：niri/noctalia/fcitx5/gtk/xdg/apps/flatpak-compat
 - ✅ `home/linux/default.nix`：Linux HM 聚合入口（含 AI 模块启用）
 - ✅ `hosts/pro13/`：default/hardware/networking 全部填充（hardware.nix 已由 `nixos-generate-config` 生成）
@@ -78,6 +78,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `secrets/`：加密 secret 目录结构（ai/ssh/creds/api）
 - ✅ `.agenix.yaml`：主机 age 公钥注册表（结构已建）
 - ✅ `modules/linux/desktop/`：camera（uvcvideo + v4l-utils + Cheese，pro13 笔记本启用，nuc8-d 不启用）
+- ✅ `home/base/ai/opencode/`：OpenCode（消费共享 mcp/skills，deepseek provider，pro13/nuc8-d 启用）
 
 ### 待完成
 - 🔲 fcitx5 候选框在 Xwayland 应用（微信/WPS）下偏小：候选框是 Wayland 层，Niri 下不随 1.25x 缩放，Xft.dpi/GDK_SCALE 均不影响它；`ForceWaylandDPI` 会导致候选框消失，暂未解决
@@ -86,7 +87,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - 🔲 `.agenix.yaml`：需填入各主机 age 公钥（当前仅为注释占位）
 - 🔲 `common/env.nix`、`common/overlays/`
 - 🔲 `modules/darwin/`、`home/darwin/`、`hosts/m4macmini/`（macOS 支持）
-- 🔲 `home/base/ai/opencode/`、`home/base/ai/codex/`（其他 AI 工具）
+- 🔲 `home/base/ai/codex/`（其他 AI 工具）
 
 ## 规范约定
 
@@ -134,10 +135,10 @@ nix fmt                                   # 格式化（需先配置 formatter �
 | `nodejs.nix` | 🔧 共享：Node.js 22 运行时 | `modules-home-base-ai-nodejs` |
 | `mcp.nix` | 🔧 共享：MCP 服务器声明 | `modules-home-base-ai-mcp` |
 | `skills.nix` | 🔧 共享：Skills 目录（SKILL.md） | `modules-home-base-ai-skills` |
-| `hooks.nix` | 🔧 共享：Hooks 脚本目录 | `modules-home-base-ai-hooks` |
-| `claude_code/default.nix` | 🎯 专属：Claude Code 全配置 | `modules-home-base-ai-claudeCode` |
+| `claude_code/default.nix` | 🎯 专属：Claude Code 全配置（含专属 hooks） | `modules-home-base-ai-claudeCode` |
+| `opencode/default.nix` | 🎯 专属：OpenCode 配置 | `modules-home-base-ai-opencode` |
 
-设计原则：Node.js、MCP、Skills、Hooks 是所有 AI 工具的共享基础设施，各工具模块消费同一份 `mcp.servers` / `skills.dir` / `hooks.dir` 生成各自格式的配置文件。
+设计原则：Node.js、MCP、Skills 是所有 AI 工具的共享基础设施，各工具模块消费同一份 `mcp.servers` / `skills.dir` 生成各自格式的配置文件；hooks 为 Claude Code 专属，随 claude_code 模块自带。
 
 ### Secrets 管理（`common/secrets/` + `secrets/`）
 
