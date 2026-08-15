@@ -1,5 +1,5 @@
 # home/linux/gui/gtk.nix — GTK 主题
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 let
   cfg = config.modules-home-linux-gui-gtk;
 in
@@ -16,8 +16,8 @@ in
         package = null;  # 使用系统自带
       };
       iconTheme = {
-        name = "Adwaita";
-        package = null;
+        name = "Tela-dark";
+        package = pkgs.tela-icon-theme;
       };
       gtk3.extraConfig = {
         # Xwayland 的 GTK 应用使用 fcitx（勿设 GTK_IM_MODULE 环境变量）

@@ -29,6 +29,7 @@
   modules-home-linux-gui-noctalia.enable = true;
   modules-home-linux-gui-fcitx5.enable = true;
   modules-home-linux-gui-gtk.enable = true;
+  modules-home-linux-gui-qt.enable = true;
   modules-home-linux-gui-xdg.enable = true;
   modules-home-linux-gui-apps.enable = true;
   modules-home-linux-gui-flatpak-compat.enable = true;

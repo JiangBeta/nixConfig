@@ -15,11 +15,6 @@ in
       cliphist
     ];
 
-    home.sessionVariables = {
-      QT_QPA_PLATFORM = "wayland;xcb";
-      QT_QPA_PLATFORMTHEME = "qt6ct";
-    };
-
     # Noctalia 配置（来自 dotfile）
     xdg.configFile = {
       "noctalia/obsidian.toml".text = builtins.readFile (dotfile + "/obsidian.toml");
