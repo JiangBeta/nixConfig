@@ -175,5 +175,5 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - 摄像头：Chicony UVC（`uvcvideo` 驱动开箱即用）+ `v4l-utils` + Cheese 应用（`modules/linux/desktop/`，pro13 启用）。Cheese 依赖 Clutter，已 wrapper 强制 X11 后端（绕开 niri 全局 `GDK/EGL/CLUTTER=wayland`，否则无窗口卡死）。
 - 电池：`services.upower` 守护进程（提供 `org.freedesktop.UPower` D-Bus 接口，Noctalia 状态栏电池模块依赖）+ `upower` / `acpi` CLI（`modules/linux/desktop/battery.nix`，pro13 启用）。
 - 远程桌面：Sunshine（自托管 GameStream 服务端，`services.sunshine` 开启 KMS 抓屏 + 开放流式端口，用户加入 `uinput` 组以创建虚拟键鼠/手柄）+ Moonlight 客户端（Linux `moonlight-qt`；macOS `moonlight-macos-enhanced`，`.dmg` 手动安装，见 README），所有桌面主机统一启用（`modules/base/gui/sunshine.nix`）。
-- VNC / 键鼠共享：wayvnc（Wayland VNC 服务端，`systemd.user` 服务，默认 `localhost:5900`）+ pynergy（synergy 协议键鼠共享客户端，flake `pynergy-client`，兼容 Deskflow，经 `uinput` 注入），均位于 `modules/linux/gui/`。
+- VNC / 键鼠共享：wayvnc（Wayland VNC 服务端，`systemd.user` 服务，默认 `localhost:5900`，前置 `wl-uinput-proxy` 修复 Niri 键盘快捷键）+ pynergy（synergy 协议键鼠共享客户端，flake `pynergy-client`，兼容 Deskflow，KVM 键鼠共享场景），均位于 `modules/linux/gui/`。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。

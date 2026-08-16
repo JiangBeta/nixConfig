@@ -201,8 +201,8 @@ nix fmt
 | **电源管理** | power-profiles-daemon（balanced） |
 | **空闲/锁屏/壁纸** | Noctalia Shell 控制 |
 | **远程桌面** | Sunshine（服务端）+ Moonlight（客户端） |
-| **VNC 服务端** | wayvnc（Wayland VNC，默认 localhost:5900） |
-| **键鼠共享** | pynergy（synergy 协议，兼容 Deskflow） |
+| **VNC 服务端** | wayvnc（Wayland VNC，默认 localhost:5900，前置 wl-uinput-proxy 修复 Niri 键盘） |
+| **键鼠共享** | pynergy（synergy 协议 KVM，兼容 Deskflow） |
 | **蓝牙** | bluez |
 | **摄像头** | Chicony UVC（uvcvideo 驱动）+ v4l-utils + Cheese |
 | **电池** | upower 守护进程 + upower / acpi（pro13 笔记本） |
@@ -220,8 +220,8 @@ macOS 客户端说明：官方 Moonlight 的增强版（Metal 超分 / 低延迟
 
 ### VNC / 键鼠共享（wayvnc + pynergy）
 
-- **wayvnc**：Wayland VNC 服务端（`systemd.user` 服务，默认监听 `localhost:5900`），供 VNC 客户端远程查看/控制桌面；VNC 明文无加密，远程请走 SSH 隧道。
-- **pynergy**：synergy 协议键鼠共享客户端（flake `pynergy-client`），兼容 Deskflow 等 synergy 软件，作为「被控制端」接收另一台机器的键鼠输入，经 `uinput` 注入本机。
+- **wayvnc**：Wayland VNC 服务端（`systemd.user` 服务，默认监听 `localhost:5900`），供 VNC 客户端远程查看/控制桌面。因 Niri（Smithay）下 virtual-keyboard 无法触发窗口快捷键，前置 `wl-uinput-proxy`（uinput 注入）修复键盘/滚动；VNC 明文无加密，远程请走 SSH 隧道。
+- **pynergy**：synergy 协议键鼠共享客户端（flake `pynergy-client`），兼容 Deskflow 等 synergy 软件——用于「两台物理相邻机器无缝共享键鼠（KVM）」场景，与 VNC 远程控制无关。
 
 ### CLI/TUI 工具
 
