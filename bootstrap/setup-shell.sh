@@ -14,8 +14,9 @@
 #   bash setup-shell.sh --skip-apt   # 跳过 apt 阶段（已手动装好系统包时）
 #
 # 说明：
-#   - 需要 sudo（仅 apt 阶段），其余工具安装到用户目录（~/.local/bin）
-#   - apt 优先：有 apt 包的优先装 apt，仅 apt 无包的（sheldon/doggo/superfile/yazi）才从 GitHub 下载
+#   - 安装方式：默认 apt + 第三方仓库（deb.griffo.io / yazi / PPA）+ 官方安装脚本，GitHub 仅作兜底
+#   - PPA（fastfetch / neovim）仅 Ubuntu 生效；Debian 走默认仓库，缺包时回退 GitHub
+#   - 需要 sudo（apt 阶段），其余工具安装到用户目录（~/.local/bin）
 #   - 幂等：已安装的工具会自动跳过
 # ================================================================
 set -euo pipefail
@@ -74,19 +75,18 @@ dl() {
 
 # ---------- 系统检测 ----------
 detect_os() {
+  OS="unknown"; IS_UBUNTU=0; IS_DEBIAN=0; CODENAME=""
   if [ -f /etc/os-release ]; then
     . /etc/os-release
     case "${ID:-}" in
-      ubuntu|debian) OS="$ID" ;;
-      *) OS="unknown" ;;
+      ubuntu) OS="ubuntu"; IS_UBUNTU=1; CODENAME="${VERSION_CODENAME:-}" ;;
+      debian) OS="debian"; IS_DEBIAN=1; CODENAME="${VERSION_CODENAME:-}" ;;
     esac
-  else
-    OS="unknown"
   fi
   if [ "$OS" = "unknown" ]; then
     warn "未识别为 Ubuntu/Debian（ID=${ID:-未知}），脚本可能不完全适用，继续执行..."
   else
-    ok "检测到系统：${PRETTY_NAME:-$OS}"
+    ok "检测到系统：${PRETTY_NAME:-$OS}（代号 ${CODENAME:-未知}）"
   fi
 }
 
@@ -102,31 +102,60 @@ check_user() {
   fi
 }
 
-# ---------- 阶段 1：apt 系统包 ----------
+# ---------- 阶段 1：apt 系统包 + 第三方仓库 ----------
 install_apt() {
-  section "阶段 1/4：安装 apt 系统包"
-  [ "$SKIP_APT" -eq 1 ] && { warn "已跳过 apt 阶段"; return 0; }
+  section "阶段 1/4：安装 apt 包（默认仓库 + 第三方仓库）"
+  if [ "$SKIP_APT" -eq 1 ]; then warn "已跳过 apt 阶段"; return 0; fi
 
   info "更新软件源..."
   sudo apt-get update -y
 
-  # 核心 shell + CLI + TUI + 构建依赖
+  info "安装仓库前置依赖（gnupg / add-apt-repository 等）..."
+  sudo apt-get install -y --no-install-recommends \
+    gnupg software-properties-common ca-certificates curl apt-transport-https lsb-release unzip
+
+  # ---- 第三方仓库：deb.griffo.io（sheldon / atuin / lazygit） ----
+  if [ -n "$CODENAME" ] && [ ! -f /etc/apt/sources.list.d/deb.griffo.io.list ]; then
+    info "添加 deb.griffo.io 仓库（sheldon / atuin / lazygit）"
+    sudo install -d -m 0755 /etc/apt/keyrings
+    curl -fsSL https://deb.griffo.io/EA0F721D231FDD3A0A17B9AC7808B4DD62C41256.asc \
+      | sudo gpg --dearmor --yes -o /etc/apt/keyrings/deb.griffo.io.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/deb.griffo.io.gpg] https://deb.griffo.io/apt ${CODENAME} main" \
+      | sudo tee /etc/apt/sources.list.d/deb.griffo.io.list > /dev/null
+  fi
+
+  # ---- 第三方仓库：yazi ----
+  if [ ! -f /etc/apt/sources.list.d/yazi.list ]; then
+    info "添加 yazi 仓库"
+    curl -fsSL https://yazi-rs.github.io/builds/yazi-keyring.gpg \
+      | sudo tee /usr/share/keyrings/yazi-keyring.gpg > /dev/null
+    echo 'deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main' \
+      | sudo tee /etc/apt/sources.list.d/yazi.list > /dev/null
+  fi
+
+  # ---- PPA（仅 Ubuntu）----
+  if [ "$IS_UBUNTU" = 1 ]; then
+    info "添加 fastfetch / neovim PPA（Ubuntu 专属）"
+    sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch || warn "fastfetch PPA 添加失败"
+    sudo add-apt-repository -y ppa:neovim-ppa/stable || warn "neovim PPA 添加失败"
+  fi
+
+  sudo apt-get update -y
+
+  # ---- 安装包 ----
   local pkgs=(
     # shell 核心
     zsh git git-lfs direnv
     # CLI 工具
-    fzf zoxide fd-find ripgrep bat tealdeer
+    fzf zoxide fd-find ripgrep bat tealdeer eza duf gh
     # TUI / 系统
     tmux btop
     # zsh 插件
     zsh-syntax-highlighting zsh-autosuggestions
     # git 美化
     git-delta
-    # 下载 / 解压（安装器依赖）
-    curl wget ca-certificates unzip tar
-    # 优先 apt 的 GitHub 预编译工具（新版 Debian 13 / Ubuntu 25.10+ 才有，
-    # 旧版 release 会被 apt-cache 过滤跳过，由 install_releases 回退 GitHub）
-    starship atuin eza du-dust fastfetch lazygit duf gh neovim
+    # 第三方仓库 / PPA / 默认仓库提供
+    sheldon atuin lazygit yazi fastfetch neovim
   )
 
   local available=()
@@ -135,7 +164,7 @@ install_apt() {
     if apt-cache show "$p" >/dev/null 2>&1; then
       available+=("$p")
     else
-      warn "apt 源中无 $p，跳过"
+      warn "apt 源中无 $p，跳过（稍后由安装脚本/GitHub 兜底）"
     fi
   done
 
@@ -156,10 +185,32 @@ install_apt() {
   fi
 }
 
-# starship / atuin / eza / sheldon / dust 统一走 gh_bin（GitHub Release 预编译），
-# 全程无需 Rust 工具链，也避免各自安装脚本直连 github.com 在大陆卡死。
+# ---------- 阶段 2：官方安装脚本（starship / dust / doggo / superfile） ----------
+install_scripts() {
+  section "阶段 2/4：安装脚本（starship / dust / doggo / superfile）"
 
-# ---------- 阶段 2：GitHub Release 预编译二进制 ----------
+  if have starship; then ok "starship 已安装，跳过"; else
+    info "安装 starship..."
+    curl -sS https://starship.rs/install.sh | sh || warn "starship 安装失败，可稍后手动执行"
+  fi
+
+  if have dust; then ok "dust 已安装，跳过"; else
+    info "安装 dust..."
+    curl -sSfL https://raw.githubusercontent.com/bootandy/dust/refs/heads/master/install.sh | sh || warn "dust 安装失败"
+  fi
+
+  if have doggo; then ok "doggo 已安装，跳过"; else
+    info "安装 doggo..."
+    curl -fsSL https://raw.githubusercontent.com/mr-karan/doggo/main/install.sh | sh || warn "doggo 安装失败"
+  fi
+
+  if have superfile; then ok "superfile 已安装，跳过"; else
+    info "安装 superfile..."
+    bash -c "$(curl -sLo- https://superfile.dev/install.sh)" || warn "superfile 安装失败"
+  fi
+}
+
+# ---------- GitHub 兜底下载器 ----------
 # 通用下载器：从 GitHub 最新 release 按正则匹配资产，解压后装二进制到 ~/.local/bin
 # 用法: gh_bin <owner/repo> <资产正则> <归档内二进制名> [安装名]
 gh_bin() {
@@ -220,56 +271,15 @@ gh_bin() {
   rm -rf "$tmpdir"
 }
 
-# yazi 归档内同时含 yazi + ya 两个二进制
-install_yazi() {
-  if have yazi; then ok "yazi 已安装，跳过"; return 0; fi
-  local archpat
-  case "$(uname -m)" in
-    x86_64)  archpat="x86_64|amd64" ;;
-    aarch64) archpat="aarch64|arm64" ;;
-    *)       archpat="$(uname -m)" ;;
-  esac
-  local api="https://api.github.com/repos/sxyazi/yazi/releases/latest"
-  local url tmpdir file meta
-  tmpdir="$(mktemp -d)"
-  meta="$tmpdir/releases.json"
-  if ! dl "$api" "$meta"; then
-    warn "获取 yazi 发布信息失败，跳过"; rm -rf "$tmpdir"; return 1
-  fi
-  url="$(grep -oE '"browser_download_url": *"[^"]+"' "$meta" | cut -d'"' -f4 | grep -E 'yazi-.*linux.*\.zip' | grep -iE "$archpat" | head -n1)"
-  [ -z "$url" ] && url="$(grep -oE '"browser_download_url": *"[^"]+"' "$meta" | cut -d'"' -f4 | grep -E 'yazi-.*linux.*\.zip' | head -n1)"
-  if [ -z "$url" ]; then warn "未找到 yazi 资产，跳过"; rm -rf "$tmpdir"; return 1; fi
-
-  info "下载 yazi ..."
-  file="$tmpdir/yazi.zip"
-  dl "$url" "$file" || { warn "下载 yazi 失败，跳过"; rm -rf "$tmpdir"; return 1; }
-  unzip -q "$file" -d "$tmpdir"
-  mkdir -p "$LOCAL_BIN"
-  install -m 755 "$tmpdir"/*/yazi "$LOCAL_BIN/yazi"
-  install -m 755 "$tmpdir"/*/ya   "$LOCAL_BIN/ya"
-  ok "已安装 yazi + ya"
-  rm -rf "$tmpdir"
+# ---------- 阶段 3：GitHub 兜底（apt / 脚本未覆盖时） ----------
+install_fallback() {
+  section "阶段 3/4：GitHub 兜底（apt / 脚本未覆盖时）"
+  install_neovim
+  gh_bin "fastfetch-cli/fastfetch" 'fastfetch-linux.*\.tar\.gz' "fastfetch" || true
 }
 
-install_releases() {
-  section "阶段 2/4：安装 GitHub Release 预编译工具"
-  gh_bin "starship/starship"          'starship-.*linux.*\.tar\.gz'  "starship"  || true
-  gh_bin "atuinsh/atuin"              'atuin-.*linux.*\.tar\.gz'     "atuin"     || true
-  gh_bin "eza-community/eza"          'eza_.*linux.*\.tar\.gz'       "eza"       || true
-  gh_bin "rossmacarthur/sheldon"      'sheldon-.*linux.*\.tar\.gz'   "sheldon"   || true
-  gh_bin "bootandy/dust"              'dust-.*linux.*\.tar\.gz'      "dust"      || true
-  gh_bin "fastfetch-cli/fastfetch"    'fastfetch-linux.*\.tar\.gz'   "fastfetch" || true
-  gh_bin "jesseduffield/lazygit"      'lazygit_.*Linux_.*\.tar\.gz'  "lazygit"   || true
-  gh_bin "muesli/duf"                 'duf_.*linux_.*\.tar\.gz'      "duf"       || true
-  gh_bin "mr-karan/doggo"             'doggo_.*Linux_.*\.tar\.gz'    "doggo"     || true
-  gh_bin "cli/cli"                    'gh_.*linux_.*\.tar\.gz'       "gh"        || true
-  gh_bin "yorukot/superfile"          'superfile.*\.tar\.gz'         "spf"       || true
-  install_yazi || true
-}
-
-# ---------- 阶段 3：Neovim（GitHub Release，含完整 runtime） ----------
+# Neovim 兜底：apt/PPA 版本 < 0.9（LazyVim 要求）时从 GitHub 下完整 runtime
 install_neovim() {
-  section "阶段 3/4：安装 Neovim（LazyVim 需 >= 0.9）"
   if have nvim && nvim --version 2>/dev/null | head -n1 | grep -qE '0\.(9|[1-9][0-9])'; then
     ok "neovim 版本满足要求，跳过"; return 0
   fi
@@ -808,8 +818,8 @@ main() {
   export PATH="$HOME_DIR/bin:$LOCAL_BIN:$PATH"
 
   install_apt
-  install_releases
-  install_neovim
+  install_scripts
+  install_fallback
   deploy_configs
   set_default_shell
   summary

@@ -19,29 +19,24 @@ bash setup-shell.sh              # 完整安装（apt + 用户级工具 + 配置
 bash setup-shell.sh --skip-apt   # 跳过 apt 阶段（已手动装好系统包时）
 ```
 
-## 安装方式：apt 优先，GitHub 兜底
+## 安装方式
 
-有 apt 包的优先装 apt，仅 apt 恒无包的 4 个工具才从 GitHub 下载预编译二进制。
+按优先级：默认 apt → 第三方仓库 / PPA → 官方安装脚本 → GitHub 兜底。
 
-**恒无 apt 包（仅 GitHub）**：sheldon、doggo、superfile、yazi
+| 工具 | 安装方式 |
+|------|----------|
+| zsh / git / git-lfs / direnv / fzf / zoxide / fd-find / ripgrep / bat / tealdeer / tmux / btop / zsh-syntax-highlighting / zsh-autosuggestions / git-delta / eza / duf / gh | 默认 apt |
+| sheldon / atuin / lazygit | 第三方仓库 deb.griffo.io |
+| yazi | 第三方仓库 yazi-rs.github.io |
+| fastfetch | PPA `zhangsongcui3371/fastfetch`（仅 Ubuntu；Debian 走默认仓库，缺则 GitHub 兜底） |
+| neovim | PPA `neovim-ppa/stable`（仅 Ubuntu；Debian 走默认仓库，版本 <0.9 则 GitHub 兜底） |
+| starship | 官方脚本 `starship.rs/install.sh` |
+| dust | 官方脚本 `bootandy/dust` install.sh |
+| doggo | 官方脚本 `mr-karan/doggo` install.sh |
+| superfile | 官方脚本 `superfile.dev/install.sh` |
 
-**有 apt 包（apt 优先，旧版 release 自动回退 GitHub）**：
-
-| 工具 | Debian | Ubuntu |
-|------|--------|--------|
-| starship | trixie(13)+ | 25.10+（24.04 无） |
-| atuin | trixie(13)+ | 25.10+（24.04 无） |
-| eza | trixie(13)+ | 24.04+ |
-| dust（包名 du-dust） | trixie(13)+ | 25.10+（24.04 无） |
-| fastfetch | trixie(13)+ | 25.10+（24.04 无） |
-| lazygit | trixie(13)+ | 25.10+（24.04 无） |
-| duf | bookworm(12)+ | 22.04+ |
-| gh | bookworm(12)+ | 22.04+ |
-| neovim | bookworm=0.7.2 / trixie=0.10 | 22.04=0.6 / 24.04=0.9.5 |
-
-> 数据来自 packages.debian.org / packages.ubuntu.com（2026-08 查询）。脚本用 `apt-cache show` 判断当前 release 是否有包：有则 `apt install`，无则回退 GitHub 预编译（`gh_bin` 会检测「已安装」跳过重复下载）。
->
-> 所有 GitHub 下载支持 `GH_PROXY` 代理前缀：`export GH_PROXY=https://ghfast.top/` 后重跑（备选 `gh-proxy.com`、`ghproxy.net`）。
+> - **PPA 仅 Ubuntu 生效**：Debian 下 fastfetch/neovim 走默认仓库（trixie 有；bookworm 的 fastfetch 无、neovim 仅 0.7），缺失/过旧时自动 GitHub 兜底。
+> - **网络提示**：starship/dust/doggo/superfile 的安装脚本、以及 GitHub 兜底都会连 GitHub；大陆网络下需系统代理 `export https_proxy=http://127.0.0.1:端口`，GitHub 兜底也可用 `export GH_PROXY=https://ghfast.top/`。
 
 ## 写入的配置
 
