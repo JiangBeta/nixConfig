@@ -32,6 +32,14 @@ in
   # wayvnc + wl-uinput-proxy（含 wayvncctl 控制工具）
   environment.systemPackages = [ pkgs.wayvnc wl-uinput-proxy ];
 
+  # wl-uinput-proxy 的 uinput 虚拟鼠标声明了高分辨率滚轮（REL_WHEEL_HI_RES）
+  # 却只发送低分辨率事件，libinput 误判导致滚轮失效；unset HI_RES 事件码修复。
+  environment.etc."libinput/local-overrides.quirks".text = ''
+    [wl-uinput-proxy mouse]
+    MatchName=Mouse passthrough
+    AttrEventCode=-REL_WHEEL_HI_RES;-REL_HWHEEL_HI_RES;
+  '';
+
   # wayvnc 服务端（systemd user service，随图形会话启动）
   systemd.user.services.wayvnc = {
     description = "Wayland VNC server";
@@ -40,8 +48,9 @@ in
     after = [ "graphical-session.target" ];
     serviceConfig = {
       # wl-uinput-proxy 前置：uinput 实现 virtual-input，修复 Niri 键盘快捷键；
+      # -g = GPU 硬件编码（VAAPI H.264，需客户端支持），-f 60 = 限 60fps；
       # 0.0.0.0 = 监听所有接口，供局域网 VNC 客户端直连
-      ExecStart = "${wl-uinput-proxy}/bin/wl-uinput-proxy ${pkgs.wayvnc}/bin/wayvnc 0.0.0.0";
+      ExecStart = "${wl-uinput-proxy}/bin/wl-uinput-proxy ${pkgs.wayvnc}/bin/wayvnc -g -f 60 0.0.0.0";
       Restart = "on-failure";
       RestartSec = "3s";
     };
