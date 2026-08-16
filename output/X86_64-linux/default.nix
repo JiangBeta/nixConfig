@@ -23,6 +23,8 @@ let
       {
         # 系统级 AI 支持（Node.js 供 MCP 服务器等使用）
         modules-base-ai-claudeCode.enable = true;
+        # 远程桌面（Sunshine 服务端 + Moonlight 客户端，桌面主机）
+        modules-base-gui-sunshine.enable = true;
       }
 
       # 4. 桌面系统模块（Linux gui）

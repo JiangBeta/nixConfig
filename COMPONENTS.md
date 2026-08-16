@@ -50,7 +50,7 @@
 | 蓝牙 | bluez + blueman | `bluez`, `blueman` |
 | 电源管理 | power-profiles-daemon（balanced） | `power-profiles-daemon` |
 | 空闲/锁屏/壁纸 | Noctalia Shell 控制 | 内置 |
-| 远程桌面 | Sunshine（服务端）+ Moonlight（客户端） | `sunshine`, `moonlight-qt` |
+| 远程桌面 | Sunshine（服务端）+ Moonlight（客户端，macOS 用 moonlight-macos-enhanced） | `sunshine`, `moonlight-qt` |
 | XDG Portal | xdg-desktop-portal-gtk/gnome | `xdg-desktop-portal` |
 | GPU | Mesa + Vulkan（Intel/AMD 自动） | 内核内置 |
 | 窗口截图/录屏 | Niri 内置 + grim/slurp | `grim`, `slurp` |

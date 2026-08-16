@@ -59,9 +59,9 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `flake.nix`：入口已创建（inputs: nixpkgs/unstable, disko, home-manager, niri, noctalia, catppuccin, zen-browser, agenix）
 - ✅ `flake.lock`：已通过 `nix flake update` 生成
 - ✅ `common/options/*.nix`：user/system/hardware/ai 选项声明
-- ✅ `modules/base/`：core(user/fonts) + ai(claude_code，系统级 Node.js 已启用)
+- ✅ `modules/base/`：core(user/fonts) + gui(sunshine 远程桌面) + ai(claude_code，系统级 Node.js 已启用)
 - ✅ `modules/linux/core/`：base/boot/btrfs/disko-template（所有 Linux 主机）
-- ✅ `modules/linux/gui/`：audio/bluetooth/fcitx5/flatpak/ly/niri/noctalia/sunshine（桌面）
+- ✅ `modules/linux/gui/`：audio/bluetooth/fcitx5/flatpak/ly/niri/noctalia（桌面）
 - ✅ `modules/linux/server/`：docker（占位，待服务器落地）
 - ✅ `home/base/`：core(shell/git/cli)/tui(neovim/apps)/gui(kitty/browsers/typora/fcitx5)
 - ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP) + skills (共享) + claude_code (Claude Code 全配置，含专属 hooks) + opencode
@@ -174,5 +174,5 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - 音频：PipeWire + WirePlumber（sof-firmware / alsa-ucm-conf / alsa-firmware）；电源：power-profiles-daemon（balanced）。空闲/锁屏/挂起与壁纸由 Noctalia Shell 控制。
 - 摄像头：Chicony UVC（`uvcvideo` 驱动开箱即用）+ `v4l-utils` + Cheese 应用（`modules/linux/desktop/`，pro13 启用）。Cheese 依赖 Clutter，已 wrapper 强制 X11 后端（绕开 niri 全局 `GDK/EGL/CLUTTER=wayland`，否则无窗口卡死）。
 - 电池：`services.upower` 守护进程（提供 `org.freedesktop.UPower` D-Bus 接口，Noctalia 状态栏电池模块依赖）+ `upower` / `acpi` CLI（`modules/linux/desktop/battery.nix`，pro13 启用）。
-- 远程桌面：Sunshine（自托管 GameStream 服务端，`services.sunshine` 开启 KMS 抓屏 + 开放流式端口，用户加入 `uinput` 组以创建虚拟键鼠/手柄）+ Moonlight 客户端（`moonlight-qt`），所有桌面主机统一启用（`modules/linux/gui/sunshine.nix`）。
+- 远程桌面：Sunshine（自托管 GameStream 服务端，`services.sunshine` 开启 KMS 抓屏 + 开放流式端口，用户加入 `uinput` 组以创建虚拟键鼠/手柄）+ Moonlight 客户端（Linux `moonlight-qt`；macOS `moonlight-macos-enhanced`，`.dmg` 手动安装，见 README），所有桌面主机统一启用（`modules/base/gui/sunshine.nix`）。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。

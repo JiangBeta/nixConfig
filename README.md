@@ -27,6 +27,9 @@ nixConfig/
 │   │   │   ├── default.nix           # 聚合入口（自动收集）
 │   │   │   ├── user.nix              # 用户创建 + sudo（消费 mySystem.user）
 │   │   │   └── fonts.nix             # 系统字体
+│   │   ├── gui/                     # 跨平台桌面（远程桌面）
+│   │   │   ├── default.nix            # 聚合入口
+│   │   │   └── sunshine.nix           # Sunshine 服务端 + Moonlight 客户端
 │   │   └── ai/                     # AI 工具系统级支持
 │   │       ├── default.nix            # 聚合入口
 │   │       └── claude_code.nix        # 系统级 Node.js
@@ -45,8 +48,7 @@ nixConfig/
 │   │   │   ├── flatpak.nix           # Flatpak 应用（Flathub + USTC 镜像）
 │   │   │   ├── ly.nix                # Ly 显示管理器
 │   │   │   ├── niri.nix              # Niri Wayland 合成器 + xwayland-satellite X11 桥接
-│   │   │   ├── noctalia.nix          # Noctalia Shell
-│   │   │   └── sunshine.nix          # Sunshine 服务端 + Moonlight 客户端
+│   │   │   └── noctalia.nix          # Noctalia Shell
 │   │   ├── desktop/                # 桌面硬件（摄像头 / 电池，按 mySystem.desktop.* 启用）
 │   │   │   ├── default.nix           # 聚合入口（自动收集）
 │   │   │   ├── camera.nix            # uvcvideo 驱动 + v4l-utils + Cheese
@@ -201,6 +203,16 @@ nix fmt
 | **摄像头** | Chicony UVC（uvcvideo 驱动）+ v4l-utils + Cheese |
 | **电池** | upower 守护进程 + upower / acpi（pro13 笔记本） |
 | **网络** | NetworkManager + nftables |
+
+### 远程桌面（Sunshine + Moonlight）
+
+| 平台 | 角色 | 实现 |
+|------|------|------|
+| Linux（NixOS） | 服务端 | Sunshine（`services.sunshine`，声明式，`modules/base/gui/sunshine.nix`） |
+| Linux（NixOS） | 客户端 | `moonlight-qt`（nixpkgs） |
+| macOS | 客户端 | [moonlight-macos-enhanced](https://github.com/skyhua0224/moonlight-macos-enhanced)（GitHub release `.dmg` 手动安装） |
+
+macOS 客户端说明：官方 Moonlight 的增强版（Metal 超分 / 低延迟 Core Audio / 高回报率鼠标 / HDR / 双向剪贴板），**无 Homebrew cask**，从 GitHub Releases 下载 `.dmg`（`universal` / `arm64` / `x86_64`，不确定选 `universal`）手动安装；未公证，首次打开需右键 → 打开，或 `xattr -dr com.apple.quarantine /Applications/Moonlight.app`。
 
 ### CLI/TUI 工具
 
