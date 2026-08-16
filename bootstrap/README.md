@@ -21,10 +21,9 @@ bash setup-shell.sh --skip-apt   # 跳过 apt 阶段（已手动装好系统包�
 
 ## 安装方式分布
 
-- **apt（需 sudo）**：zsh、git、git-lfs、direnv、fzf、zoxide、fd-find、ripgrep、bat、tealdeer、tmux、btop、zsh-syntax-highlighting、zsh-autosuggestions、git-delta、构建依赖
-- **cargo（~/.cargo/bin）**：eza、sheldon、dust（首次编译 1-3 分钟）
+- **apt（需 sudo）**：zsh、git、git-lfs、direnv、fzf、zoxide、fd-find、ripgrep、bat、tealdeer、tmux、btop、zsh-syntax-highlighting、zsh-autosuggestions、git-delta
 - **官方安装脚本**：starship、atuin
-- **GitHub Release 预编译（~/.local/bin）**：fastfetch、lazygit、duf、doggo、gh、superfile、yazi、neovim
+- **GitHub Release 预编译（~/.local/bin）**：eza、sheldon、dust、fastfetch、lazygit、duf、doggo、gh、superfile、yazi、neovim
 
 ## 写入的配置
 
@@ -48,4 +47,5 @@ bash setup-shell.sh --skip-apt   # 跳过 apt 阶段（已手动装好系统包�
 2. **默认 shell**：脚本末尾会 `chsh -s zsh`（需输入密码），重新登录后生效。
 3. **中文环境**：`~/.zshrc` 设置 `LANG=zh_CN.UTF-8`，若系统无此 locale 需 `sudo locale-gen zh_CN.UTF-8`。
 4. **Neovim 版本**：为保证 LazyVim 可用（需 ≥ 0.9），neovim 走 GitHub Release 而非 apt（Debian 12 / Ubuntu 22.04 的 apt 版本过旧）。
+5. **无需 Rust 工具链**：eza/sheldon/dust 均使用 GitHub Release 预编译二进制，不安装 rustup/cargo（避免大陆下载 static.rust-lang.org 缓慢超时）。
 5. **命名冲突**：Debian/Ubuntu 的 `bat` 实际为 `batcat`、`fd` 为 `fdfind`，脚本自动在 `~/.local/bin` 建软链接；`~/.local/bin` 已在 `~/.zshrc` 的 PATH 首位。

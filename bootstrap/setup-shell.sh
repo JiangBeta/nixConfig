@@ -14,7 +14,7 @@
 #   bash setup-shell.sh --skip-apt   # 跳过 apt 阶段（已手动装好系统包时）
 #
 # 说明：
-#   - 需要 sudo（仅 apt 阶段），其余工具安装到用户目录（~/.local/bin、~/.cargo/bin）
+#   - 需要 sudo（仅 apt 阶段），其余工具安装到用户目录（~/.local/bin）
 #   - 幂等：已安装的工具会自动跳过
 # ================================================================
 set -euo pipefail
@@ -39,7 +39,6 @@ ICON_INFO="${CYAN}ℹ${NC}"
 # ---------- 全局变量 ----------
 HOME_DIR="${HOME}"
 LOCAL_BIN="$HOME_DIR/.local/bin"
-CARGO_BIN="$HOME_DIR/.cargo/bin"
 CONFIG_DIR="$HOME_DIR/.config"
 
 # Git 用户信息（对应 vars/default.nix，可改成你自己的）
@@ -92,7 +91,7 @@ check_user() {
 
 # ---------- 阶段 1：apt 系统包 ----------
 install_apt() {
-  section "阶段 1/6：安装 apt 系统包"
+  section "阶段 1/5：安装 apt 系统包"
   [ "$SKIP_APT" -eq 1 ] && { warn "已跳过 apt 阶段"; return 0; }
 
   info "更新软件源..."
@@ -112,8 +111,6 @@ install_apt() {
     git-delta
     # 下载 / 解压（安装器依赖）
     curl wget ca-certificates unzip tar
-    # Rust 工具编译依赖（eza/sheldon/dust 需 libgit2）
-    build-essential pkg-config cmake libgit2-dev libssl-dev
   )
 
   local available=()
@@ -143,31 +140,10 @@ install_apt() {
   fi
 }
 
-# ---------- 阶段 2：Rust 工具（eza/sheldon/dust） ----------
-install_rust_tools() {
-  section "阶段 2/6：安装 Rust 工具（eza / sheldon / dust）"
+# eza / sheldon / dust 改用 GitHub Release 预编译二进制（见 install_releases），
+# 避免下载 Rust 工具链（static.rust-lang.org 在大陆缓慢/超时）。
 
-  # 安装 rustup（无交互、不改 profile）
-  if ! have rustup && ! have cargo; then
-    info "安装 Rust 工具链（rustup）..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
-  fi
-  export PATH="$CARGO_BIN:$PATH"
-  [ -f "$CARGO_BIN/env" ] && . "$CARGO_BIN/env"
-
-  local tool
-  for tool in eza sheldon dust; do
-    if have "$tool"; then
-      ok "$tool 已安装，跳过"
-    else
-      info "cargo install $tool（首次编译约 1-3 分钟）..."
-      cargo install --locked "$tool"
-      ok "$tool 安装完成"
-    fi
-  done
-}
-
-# ---------- 阶段 3：starship / atuin ----------
+# ---------- 阶段 2：starship / atuin ----------
 install_starship() {
   if have starship; then ok "starship 已安装，跳过"; return 0; fi
   info "安装 starship..."
@@ -184,7 +160,7 @@ install_atuin() {
 }
 
 install_scripts() {
-  section "阶段 3/6：安装 starship / atuin"
+  section "阶段 2/5：安装 starship / atuin"
   install_starship
   install_atuin
 }
@@ -272,8 +248,11 @@ install_yazi() {
 }
 
 install_releases() {
-  section "阶段 4/6：安装 GitHub Release 预编译工具"
-  gh_bin "fastfetch-cli/fastfetch"   'fastfetch-linux.*\.tar\.gz' "fastfetch" || true
+  section "阶段 3/5：安装 GitHub Release 预编译工具"
+  gh_bin "eza-community/eza"          'eza_.*linux.*\.tar\.gz'       "eza"       || true
+  gh_bin "rossmacarthur/sheldon"      'sheldon-.*linux.*\.tar\.gz'   "sheldon"   || true
+  gh_bin "bootandy/dust"              'dust-.*linux.*\.tar\.gz'      "dust"      || true
+  gh_bin "fastfetch-cli/fastfetch"    'fastfetch-linux.*\.tar\.gz'   "fastfetch" || true
   gh_bin "jesseduffield/lazygit"     'lazygit_.*Linux_.*\.tar\.gz' "lazygit"   || true
   gh_bin "muesli/duf"                'duf_.*linux_.*\.tar\.gz'     "duf"       || true
   gh_bin "mr-karan/doggo"            'doggo_.*Linux_.*\.tar\.gz'   "doggo"     || true
@@ -284,7 +263,7 @@ install_releases() {
 
 # ---------- 阶段 5：Neovim（GitHub Release，含完整 runtime） ----------
 install_neovim() {
-  section "阶段 5/6：安装 Neovim（LazyVim 需 >= 0.9）"
+  section "阶段 4/5：安装 Neovim（LazyVim 需 >= 0.9）"
   if have nvim && nvim --version 2>/dev/null | head -n1 | grep -qE '0\.(9|[1-9][0-9])'; then
     ok "neovim 版本满足要求，跳过"; return 0
   fi
@@ -322,7 +301,7 @@ write_config() {
 }
 
 deploy_configs() {
-  section "阶段 6/6：写入配置文件"
+  section "阶段 5/5：写入配置文件"
 
   # ---- ~/.zshrc ----
   info "写入 ~/.zshrc"
@@ -331,7 +310,7 @@ deploy_configs() {
 # 对应 home/base/core/shell.nix + cli.nix
 
 # ---- PATH ----
-export PATH="$HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
 # ---- 语言 ----
 export LANG="zh_CN.UTF-8"
@@ -816,10 +795,9 @@ main() {
   check_user
 
   mkdir -p "$LOCAL_BIN"
-  export PATH="$HOME_DIR/bin:$LOCAL_BIN:$CARGO_BIN:$PATH"
+  export PATH="$HOME_DIR/bin:$LOCAL_BIN:$PATH"
 
   install_apt
-  install_rust_tools
   install_scripts
   install_releases
   install_neovim
