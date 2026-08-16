@@ -50,6 +50,10 @@ for arg in "$@"; do
   [ "$arg" = "--skip-apt" ] && SKIP_APT=1
 done
 
+# GitHub 下载代理前缀（大陆访问 GitHub Release 慢/超时可用）。
+# 例：export GH_PROXY=https://ghfast.top/  或  https://gh-proxy.com/
+GH_PROXY="${GH_PROXY:-}"
+
 # ---------- 日志函数 ----------
 info()  { printf "${ICON_INFO} ${CYAN}%s${NC}\n" "$*"; }
 ok()    { printf "${ICON_CHECK} ${GREEN}%s${NC}\n" "$*"; }
@@ -58,6 +62,14 @@ err()   { printf "${ICON_CROSS} ${RED}%s${NC}\n" "$*"; }
 section(){ printf "\n${BOLD}${PURPLE}==> %s${NC}\n" "$*"; }
 
 have()  { command -v "$1" >/dev/null 2>&1; }
+
+# 带代理与超时的下载函数（避免 GitHub 卡死）
+dl() {
+  local url="$1" out="$2"
+  local full="$url"
+  [ -n "$GH_PROXY" ] && full="${GH_PROXY%/}/$url"
+  curl -fL --connect-timeout 15 --max-time 600 --retry 2 -o "$out" "$full"
+}
 
 # ---------- 系统检测 ----------
 detect_os() {
@@ -91,7 +103,7 @@ check_user() {
 
 # ---------- 阶段 1：apt 系统包 ----------
 install_apt() {
-  section "阶段 1/5：安装 apt 系统包"
+  section "阶段 1/4：安装 apt 系统包"
   [ "$SKIP_APT" -eq 1 ] && { warn "已跳过 apt 阶段"; return 0; }
 
   info "更新软件源..."
@@ -140,32 +152,10 @@ install_apt() {
   fi
 }
 
-# eza / sheldon / dust 改用 GitHub Release 预编译二进制（见 install_releases），
-# 避免下载 Rust 工具链（static.rust-lang.org 在大陆缓慢/超时）。
+# starship / atuin / eza / sheldon / dust 统一走 gh_bin（GitHub Release 预编译），
+# 全程无需 Rust 工具链，也避免各自安装脚本直连 github.com 在大陆卡死。
 
-# ---------- 阶段 2：starship / atuin ----------
-install_starship() {
-  if have starship; then ok "starship 已安装，跳过"; return 0; fi
-  info "安装 starship..."
-  curl -fsSL https://starship.rs/install.sh | sh -s -- -y -b "$LOCAL_BIN"
-  ok "starship 安装完成"
-}
-
-install_atuin() {
-  if have atuin; then ok "atuin 已安装，跳过"; return 0; fi
-  info "安装 atuin..."
-  curl --proto '=https' --tlsv1.2 -LsSf \
-    https://github.com/atuinsh/atuin/releases/latest/download/atuin-installer.sh | sh
-  ok "atuin 安装完成"
-}
-
-install_scripts() {
-  section "阶段 2/5：安装 starship / atuin"
-  install_starship
-  install_atuin
-}
-
-# ---------- 阶段 4：GitHub Release 预编译二进制 ----------
+# ---------- 阶段 2：GitHub Release 预编译二进制 ----------
 # 通用下载器：从 GitHub 最新 release 按正则匹配资产，解压后装二进制到 ~/.local/bin
 # 用法: gh_bin <owner/repo> <资产正则> <归档内二进制名> [安装名]
 gh_bin() {
@@ -179,20 +169,25 @@ gh_bin() {
 
   local api="https://api.github.com/repos/${repo}/releases/latest"
   local urls url
-  urls="$(curl -fsSL "$api" | grep -oE '"browser_download_url": *"[^"]+"' | cut -d'"' -f4 | grep -E "$pattern")"
+  local tmpdir file meta
+  tmpdir="$(mktemp -d)"
+  meta="$tmpdir/releases.json"
+  if ! dl "$api" "$meta"; then
+    warn "获取 ${repo} 发布信息失败（可 export GH_PROXY=https://ghfast.top/ 后重跑），跳过"
+    rm -rf "$tmpdir"; return 1
+  fi
+  urls="$(grep -oE '"browser_download_url": *"[^"]+"' "$meta" | cut -d'"' -f4 | grep -E "$pattern")"
   url="$(printf '%s\n' "$urls" | grep -iE "$archpat" | head -n1)"
   [ -z "$url" ] && url="$(printf '%s\n' "$urls" | head -n1)"
 
   if [ -z "$url" ]; then
     warn "未找到 ${repo} 匹配资产（pattern: $pattern），跳过"
-    return 1
+    rm -rf "$tmpdir"; return 1
   fi
 
   info "下载 ${repo} ..."
-  local tmpdir file
-  tmpdir="$(mktemp -d)"
   file="$tmpdir/$(basename "$url")"
-  curl -fL --retry 3 -o "$file" "$url"
+  dl "$url" "$file" || { warn "下载 ${repo} 失败，跳过"; rm -rf "$tmpdir"; return 1; }
 
   case "$file" in
     *.deb)
@@ -230,15 +225,19 @@ install_yazi() {
     *)       archpat="$(uname -m)" ;;
   esac
   local api="https://api.github.com/repos/sxyazi/yazi/releases/latest"
-  local url tmpdir file
-  url="$(curl -fsSL "$api" | grep -oE '"browser_download_url": *"[^"]+"' | cut -d'"' -f4 | grep -E 'yazi-.*linux.*\.zip' | grep -iE "$archpat" | head -n1)"
-  [ -z "$url" ] && url="$(curl -fsSL "$api" | grep -oE '"browser_download_url": *"[^"]+"' | cut -d'"' -f4 | grep -E 'yazi-.*linux.*\.zip' | head -n1)"
-  if [ -z "$url" ]; then warn "未找到 yazi 资产，跳过"; return 1; fi
+  local url tmpdir file meta
+  tmpdir="$(mktemp -d)"
+  meta="$tmpdir/releases.json"
+  if ! dl "$api" "$meta"; then
+    warn "获取 yazi 发布信息失败，跳过"; rm -rf "$tmpdir"; return 1
+  fi
+  url="$(grep -oE '"browser_download_url": *"[^"]+"' "$meta" | cut -d'"' -f4 | grep -E 'yazi-.*linux.*\.zip' | grep -iE "$archpat" | head -n1)"
+  [ -z "$url" ] && url="$(grep -oE '"browser_download_url": *"[^"]+"' "$meta" | cut -d'"' -f4 | grep -E 'yazi-.*linux.*\.zip' | head -n1)"
+  if [ -z "$url" ]; then warn "未找到 yazi 资产，跳过"; rm -rf "$tmpdir"; return 1; fi
 
   info "下载 yazi ..."
-  tmpdir="$(mktemp -d)"
   file="$tmpdir/yazi.zip"
-  curl -fL --retry 3 -o "$file" "$url"
+  dl "$url" "$file" || { warn "下载 yazi 失败，跳过"; rm -rf "$tmpdir"; return 1; }
   unzip -q "$file" -d "$tmpdir"
   mkdir -p "$LOCAL_BIN"
   install -m 755 "$tmpdir"/*/yazi "$LOCAL_BIN/yazi"
@@ -248,22 +247,24 @@ install_yazi() {
 }
 
 install_releases() {
-  section "阶段 3/5：安装 GitHub Release 预编译工具"
+  section "阶段 2/4：安装 GitHub Release 预编译工具"
+  gh_bin "starship/starship"          'starship-.*linux.*\.tar\.gz'  "starship"  || true
+  gh_bin "atuinsh/atuin"              'atuin-.*linux.*\.tar\.gz'     "atuin"     || true
   gh_bin "eza-community/eza"          'eza_.*linux.*\.tar\.gz'       "eza"       || true
   gh_bin "rossmacarthur/sheldon"      'sheldon-.*linux.*\.tar\.gz'   "sheldon"   || true
   gh_bin "bootandy/dust"              'dust-.*linux.*\.tar\.gz'      "dust"      || true
   gh_bin "fastfetch-cli/fastfetch"    'fastfetch-linux.*\.tar\.gz'   "fastfetch" || true
-  gh_bin "jesseduffield/lazygit"     'lazygit_.*Linux_.*\.tar\.gz' "lazygit"   || true
-  gh_bin "muesli/duf"                'duf_.*linux_.*\.tar\.gz'     "duf"       || true
-  gh_bin "mr-karan/doggo"            'doggo_.*Linux_.*\.tar\.gz'   "doggo"     || true
-  gh_bin "cli/cli"                   'gh_.*linux_.*\.tar\.gz'      "gh"        || true
-  gh_bin "yorukot/superfile"         'superfile.*\.tar\.gz'        "spf"                     || true
+  gh_bin "jesseduffield/lazygit"      'lazygit_.*Linux_.*\.tar\.gz'  "lazygit"   || true
+  gh_bin "muesli/duf"                 'duf_.*linux_.*\.tar\.gz'      "duf"       || true
+  gh_bin "mr-karan/doggo"             'doggo_.*Linux_.*\.tar\.gz'    "doggo"     || true
+  gh_bin "cli/cli"                    'gh_.*linux_.*\.tar\.gz'       "gh"        || true
+  gh_bin "yorukot/superfile"          'superfile.*\.tar\.gz'         "spf"       || true
   install_yazi || true
 }
 
-# ---------- 阶段 5：Neovim（GitHub Release，含完整 runtime） ----------
+# ---------- 阶段 3：Neovim（GitHub Release，含完整 runtime） ----------
 install_neovim() {
-  section "阶段 4/5：安装 Neovim（LazyVim 需 >= 0.9）"
+  section "阶段 3/4：安装 Neovim（LazyVim 需 >= 0.9）"
   if have nvim && nvim --version 2>/dev/null | head -n1 | grep -qE '0\.(9|[1-9][0-9])'; then
     ok "neovim 版本满足要求，跳过"; return 0
   fi
@@ -274,14 +275,18 @@ install_neovim() {
     *) err "不支持的架构：$(uname -m)"; return 1 ;;
   esac
   local api="https://api.github.com/repos/neovim/neovim/releases/latest"
-  local url tmpdir file
-  url="$(curl -fsSL "$api" | grep -oE '"browser_download_url": *"[^"]+"' | cut -d'"' -f4 | grep -E "nvim-linux-${archpat}\.tar\.gz" | head -n1)"
-  if [ -z "$url" ]; then warn "未找到 neovim 资产，跳过"; return 1; fi
+  local url tmpdir file meta
+  tmpdir="$(mktemp -d)"
+  meta="$tmpdir/releases.json"
+  if ! dl "$api" "$meta"; then
+    warn "获取 neovim 发布信息失败，跳过"; rm -rf "$tmpdir"; return 1
+  fi
+  url="$(grep -oE '"browser_download_url": *"[^"]+"' "$meta" | cut -d'"' -f4 | grep -E "nvim-linux-${archpat}\.tar\.gz" | head -n1)"
+  if [ -z "$url" ]; then warn "未找到 neovim 资产，跳过"; rm -rf "$tmpdir"; return 1; fi
 
   info "下载 neovim ..."
-  tmpdir="$(mktemp -d)"
   file="$tmpdir/nvim.tar.gz"
-  curl -fL --retry 3 -o "$file" "$url"
+  dl "$url" "$file" || { warn "下载 neovim 失败，跳过"; rm -rf "$tmpdir"; return 1; }
   tar -xzf "$file" -C "$tmpdir"
   local root
   root="$(find "$tmpdir" -maxdepth 1 -type d -name 'nvim-linux*' | head -n1)"
@@ -293,7 +298,7 @@ install_neovim() {
   rm -rf "$tmpdir"
 }
 
-# ---------- 阶段 6：写入配置 ----------
+# ---------- 阶段 4：写入配置 ----------
 write_config() {
   local file="$1"
   mkdir -p "$(dirname "$file")"
@@ -301,7 +306,7 @@ write_config() {
 }
 
 deploy_configs() {
-  section "阶段 5/5：写入配置文件"
+  section "阶段 4/4：写入配置文件"
 
   # ---- ~/.zshrc ----
   info "写入 ~/.zshrc"
@@ -798,7 +803,6 @@ main() {
   export PATH="$HOME_DIR/bin:$LOCAL_BIN:$PATH"
 
   install_apt
-  install_scripts
   install_releases
   install_neovim
   deploy_configs
