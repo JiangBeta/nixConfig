@@ -15,6 +15,7 @@
 #
 # 说明：
 #   - 需要 sudo（仅 apt 阶段），其余工具安装到用户目录（~/.local/bin）
+#   - apt 优先：有 apt 包的优先装 apt，仅 apt 无包的（sheldon/doggo/superfile/yazi）才从 GitHub 下载
 #   - 幂等：已安装的工具会自动跳过
 # ================================================================
 set -euo pipefail
@@ -123,6 +124,9 @@ install_apt() {
     git-delta
     # 下载 / 解压（安装器依赖）
     curl wget ca-certificates unzip tar
+    # 优先 apt 的 GitHub 预编译工具（新版 Debian 13 / Ubuntu 25.10+ 才有，
+    # 旧版 release 会被 apt-cache 过滤跳过，由 install_releases 回退 GitHub）
+    starship atuin eza du-dust fastfetch lazygit duf gh neovim
   )
 
   local available=()
@@ -160,6 +164,7 @@ install_apt() {
 # 用法: gh_bin <owner/repo> <资产正则> <归档内二进制名> [安装名]
 gh_bin() {
   local repo="$1" pattern="$2" bin="$3" name="${4:-$3}"
+  if have "$name"; then ok "$name 已安装，跳过"; return 0; fi
   local archpat
   case "$(uname -m)" in
     x86_64)  archpat="x86_64|amd64" ;;
