@@ -183,6 +183,26 @@
         "type": "github"
       }
     },
+    "pynergy-client": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785826953,
+        "narHash": "sha256-XxsAXNQL4r51cCp0+J1KspAbwFWiOPztLAHI3ZJccAk=",
+        "owner": "GOKORURI007",
+        "repo": "pynergy",
+        "rev": "c8f90a2c64740a21b73a877fd1a5e17308febdb9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "GOKORURI007",
+        "repo": "pynergy",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -192,6 +212,7 @@
         "niri": "niri",
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",
+        "pynergy-client": "pynergy-client",
         "zen-browser": "zen-browser"
       }
     },

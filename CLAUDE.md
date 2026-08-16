@@ -32,7 +32,7 @@ nix flake check                           # 检查 flake 求值
 nix fmt                                   # 格式化（需先配置 formatter 才可用）
 ```
 
-> `flake.nix` 已创建，含 nixpkgs/disko/home-manager/niri/noctalia/catppuccin/zen-browser/agenix inputs。构建前需在 Nix 环境中运行 `nix flake update` 生成 `flake.lock`。
+> `flake.nix` 已创建，含 nixpkgs/disko/home-manager/niri/noctalia/catppuccin/zen-browser/agenix/pynergy-client inputs。构建前需在 Nix 环境中运行 `nix flake update` 生成 `flake.lock`。
 
 ## 架构：Custom Options 作为契约
 
@@ -61,7 +61,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `common/options/*.nix`：user/system/hardware/ai 选项声明
 - ✅ `modules/base/`：core(user/fonts) + gui(sunshine 远程桌面) + ai(claude_code，系统级 Node.js 已启用)
 - ✅ `modules/linux/core/`：base/boot/btrfs/disko-template（所有 Linux 主机）
-- ✅ `modules/linux/gui/`：audio/bluetooth/fcitx5/flatpak/ly/niri/noctalia（桌面）
+- ✅ `modules/linux/gui/`：audio/bluetooth/fcitx5/flatpak/ly/niri/noctalia/wayvnc/pynergy（桌面）
 - ✅ `modules/linux/server/`：docker（占位，待服务器落地）
 - ✅ `home/base/`：core(shell/git/cli)/tui(neovim/apps)/gui(kitty/browsers/typora/fcitx5)
 - ✅ `home/base/ai/`：nodejs (共享运行时) + mcp (共享 MCP) + skills (共享) + claude_code (Claude Code 全配置，含专属 hooks) + opencode
@@ -175,4 +175,5 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - 摄像头：Chicony UVC（`uvcvideo` 驱动开箱即用）+ `v4l-utils` + Cheese 应用（`modules/linux/desktop/`，pro13 启用）。Cheese 依赖 Clutter，已 wrapper 强制 X11 后端（绕开 niri 全局 `GDK/EGL/CLUTTER=wayland`，否则无窗口卡死）。
 - 电池：`services.upower` 守护进程（提供 `org.freedesktop.UPower` D-Bus 接口，Noctalia 状态栏电池模块依赖）+ `upower` / `acpi` CLI（`modules/linux/desktop/battery.nix`，pro13 启用）。
 - 远程桌面：Sunshine（自托管 GameStream 服务端，`services.sunshine` 开启 KMS 抓屏 + 开放流式端口，用户加入 `uinput` 组以创建虚拟键鼠/手柄）+ Moonlight 客户端（Linux `moonlight-qt`；macOS `moonlight-macos-enhanced`，`.dmg` 手动安装，见 README），所有桌面主机统一启用（`modules/base/gui/sunshine.nix`）。
+- VNC / 键鼠共享：wayvnc（Wayland VNC 服务端，`systemd.user` 服务，默认 `localhost:5900`）+ pynergy（synergy 协议键鼠共享客户端，flake `pynergy-client`，兼容 Deskflow，经 `uinput` 注入），均位于 `modules/linux/gui/`。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。

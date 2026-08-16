@@ -48,7 +48,9 @@ nixConfig/
 │   │   │   ├── flatpak.nix           # Flatpak 应用（Flathub + USTC 镜像）
 │   │   │   ├── ly.nix                # Ly 显示管理器
 │   │   │   ├── niri.nix              # Niri Wayland 合成器 + xwayland-satellite X11 桥接
-│   │   │   └── noctalia.nix          # Noctalia Shell
+│   │   │   ├── noctalia.nix          # Noctalia Shell
+│   │   │   ├── wayvnc.nix            # Wayland VNC 服务端
+│   │   │   └── pynergy.nix           # synergy 键鼠共享客户端
 │   │   ├── desktop/                # 桌面硬件（摄像头 / 电池，按 mySystem.desktop.* 启用）
 │   │   │   ├── default.nix           # 聚合入口（自动收集）
 │   │   │   ├── camera.nix            # uvcvideo 驱动 + v4l-utils + Cheese
@@ -199,6 +201,8 @@ nix fmt
 | **电源管理** | power-profiles-daemon（balanced） |
 | **空闲/锁屏/壁纸** | Noctalia Shell 控制 |
 | **远程桌面** | Sunshine（服务端）+ Moonlight（客户端） |
+| **VNC 服务端** | wayvnc（Wayland VNC，默认 localhost:5900） |
+| **键鼠共享** | pynergy（synergy 协议，兼容 Deskflow） |
 | **蓝牙** | bluez |
 | **摄像头** | Chicony UVC（uvcvideo 驱动）+ v4l-utils + Cheese |
 | **电池** | upower 守护进程 + upower / acpi（pro13 笔记本） |
@@ -213,6 +217,11 @@ nix fmt
 | macOS | 客户端 | [moonlight-macos-enhanced](https://github.com/skyhua0224/moonlight-macos-enhanced)（GitHub release `.dmg` 手动安装） |
 
 macOS 客户端说明：官方 Moonlight 的增强版（Metal 超分 / 低延迟 Core Audio / 高回报率鼠标 / HDR / 双向剪贴板），**无 Homebrew cask**，从 GitHub Releases 下载 `.dmg`（`universal` / `arm64` / `x86_64`，不确定选 `universal`）手动安装；未公证，首次打开需右键 → 打开，或 `xattr -dr com.apple.quarantine /Applications/Moonlight.app`。
+
+### VNC / 键鼠共享（wayvnc + pynergy）
+
+- **wayvnc**：Wayland VNC 服务端（`systemd.user` 服务，默认监听 `localhost:5900`），供 VNC 客户端远程查看/控制桌面；VNC 明文无加密，远程请走 SSH 隧道。
+- **pynergy**：synergy 协议键鼠共享客户端（flake `pynergy-client`），兼容 Deskflow 等 synergy 软件，作为「被控制端」接收另一台机器的键鼠输入，经 `uinput` 注入本机。
 
 ### CLI/TUI 工具
 
