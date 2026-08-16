@@ -51,7 +51,7 @@
 | 电源管理 | power-profiles-daemon（balanced） | `power-profiles-daemon` |
 | 空闲/锁屏/壁纸 | Noctalia Shell 控制 | 内置 |
 | 远程桌面 | Sunshine（服务端）+ Moonlight（客户端，macOS 用 moonlight-macos-enhanced） | `sunshine`, `moonlight-qt` |
-| VNC 服务端 | wayvnc（Wayland VNC，默认 localhost:5900，前置 wl-uinput-proxy 修复 Niri 键盘） | `wayvnc`, `wl-uinput-proxy` |
+| VNC 服务端 | wayvnc（Wayland VNC，监听 0.0.0.0:5900 直连，前置 wl-uinput-proxy 修复 Niri 键盘） | `wayvnc`, `wl-uinput-proxy` |
 | 键鼠共享 | pynergy（synergy 协议 KVM，兼容 Deskflow） | `pynergy-client` (flake) |
 | XDG Portal | xdg-desktop-portal-gtk/gnome | `xdg-desktop-portal` |
 | GPU | Mesa + Vulkan（Intel/AMD 自动） | 内核内置 |

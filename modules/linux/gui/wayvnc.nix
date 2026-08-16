@@ -4,8 +4,8 @@
 # 合成器无法拦截做窗口管理快捷键（Super 组合键失效）。故用 wl-uinput-proxy 前置代理，
 # 以 uinput 实现 virtual-input，修复键盘快捷键/滚动（需 /dev/uinput 权限）。
 #
-# 默认监听 localhost:5900（VNC 明文，远程请走 SSH 隧道）：
-#   ssh -L 5900:localhost:5900 beta@pro13   # 然后 VNC 客户端连 localhost:5900
+# 监听 0.0.0.0:5900（局域网直连，VNC 客户端连 <pro13 IP>:5900）。
+# ⚠️ VNC 明文无认证，仅限可信局域网；公网/不可信网络勿用（需另行加密码认证）。
 { config, lib, pkgs, ... }:
 
 let
@@ -26,6 +26,9 @@ in
   hardware.uinput.enable = true;
   users.users.${config.mySystem.user}.extraGroups = [ "uinput" ];
 
+  # VNC 端口（局域网直连）
+  networking.firewall.allowedTCPPorts = [ 5900 ];
+
   # wayvnc + wl-uinput-proxy（含 wayvncctl 控制工具）
   environment.systemPackages = [ pkgs.wayvnc wl-uinput-proxy ];
 
@@ -36,8 +39,9 @@ in
     partOf = [ "graphical-session.target" ];
     after = [ "graphical-session.target" ];
     serviceConfig = {
-      # wl-uinput-proxy 前置：uinput 实现 virtual-input，修复 Niri 键盘快捷键
-      ExecStart = "${wl-uinput-proxy}/bin/wl-uinput-proxy ${pkgs.wayvnc}/bin/wayvnc";
+      # wl-uinput-proxy 前置：uinput 实现 virtual-input，修复 Niri 键盘快捷键；
+      # 0.0.0.0 = 监听所有接口，供局域网 VNC 客户端直连
+      ExecStart = "${wl-uinput-proxy}/bin/wl-uinput-proxy ${pkgs.wayvnc}/bin/wayvnc 0.0.0.0";
       Restart = "on-failure";
       RestartSec = "3s";
     };
