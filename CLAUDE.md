@@ -174,5 +174,5 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - 音频：PipeWire + WirePlumber（sof-firmware / alsa-ucm-conf / alsa-firmware）；电源：power-profiles-daemon（balanced）。空闲/锁屏/挂起与壁纸由 Noctalia Shell 控制。
 - 摄像头：Chicony UVC（`uvcvideo` 驱动开箱即用）+ `v4l-utils` + Cheese 应用（`modules/linux/desktop/`，pro13 启用）。Cheese 依赖 Clutter，已 wrapper 强制 X11 后端（绕开 niri 全局 `GDK/EGL/CLUTTER=wayland`，否则无窗口卡死）。
 - 电池：`services.upower` 守护进程（提供 `org.freedesktop.UPower` D-Bus 接口，Noctalia 状态栏电池模块依赖）+ `upower` / `acpi` CLI（`modules/linux/desktop/battery.nix`，pro13 启用）。
-- 远程桌面：Sunshine（自托管 GameStream 服务端，`services.sunshine` 开启 KMS 抓屏 + 开放流式端口）+ Moonlight 客户端（`moonlight-qt`），所有桌面主机统一启用（`modules/linux/gui/sunshine.nix`）。
+- 远程桌面：Sunshine（自托管 GameStream 服务端，`services.sunshine` 开启 KMS 抓屏 + 开放流式端口，用户加入 `uinput` 组以创建虚拟键鼠/手柄）+ Moonlight 客户端（`moonlight-qt`），所有桌面主机统一启用（`modules/linux/gui/sunshine.nix`）。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。

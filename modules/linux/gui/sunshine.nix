@@ -13,6 +13,10 @@
     openFirewall = true;   # 开放 Moonlight 流式端口（TCP 47984/47989/48010 + UDP 47998-48010）
   };
 
+  # Sunshine 以 systemd user service 运行（当前登录用户），需加入 uinput 组
+  # 才能通过 /dev/uinput 创建虚拟键鼠/手柄（否则报 Permission denied）
+  users.users.${config.mySystem.user}.extraGroups = [ "uinput" ];
+
   # Moonlight 客户端
   environment.systemPackages = with pkgs; [
     moonlight-qt
