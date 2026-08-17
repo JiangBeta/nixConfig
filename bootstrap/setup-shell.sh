@@ -2,20 +2,20 @@
 # ================================================================
 # Ubuntu / Debian Shell 环境一键安装脚本（非 root 用户）
 #
-# 从 nixConfig 提取的 shell 相关配置，等价于以下模块：
+# 从 nixConfig 提取的 shell 相关配置（已精简），对应以下模块：
 #   home/base/core/shell.nix   → zsh + starship + sheldon + atuin + direnv
 #   home/base/core/cli.nix     → eza/bat/fzf/zoxide/tealdeer/rg/fd/tmux/fastfetch/dust/duf/doggo
-#   home/base/core/git.nix     → git + git-lfs + delta + lazygit + gh
-#   home/base/tui/apps.nix     → yazi + btop + superfile
-#   home/base/tui/neovim.nix   → neovim + LazyVim
+#   home/base/core/git.nix     → git + git-lfs + delta + gh
+#   home/base/tui/apps.nix     → btop
+#   编辑器                     → vim（替代原 neovim）
 #
 # 用法：
 #   bash setup-shell.sh          # 安装全部 + 写入配置
 #   bash setup-shell.sh --skip-apt   # 跳过 apt 阶段（已手动装好系统包时）
 #
 # 说明：
-#   - 安装方式：默认 apt + 第三方仓库（deb.griffo.io / yazi / PPA）+ 官方安装脚本，GitHub 仅作兜底
-#   - PPA（fastfetch / neovim）仅 Ubuntu 生效；Debian 走默认仓库，缺包时回退 GitHub
+#   - 安装方式：默认 apt + 第三方仓库（deb.griffo.io / PPA）+ 官方安装脚本，GitHub 仅作兜底
+#   - fastfetch PPA 仅 Ubuntu 生效；Debian 走默认仓库，缺包时回退 GitHub
 #   - 需要 sudo（apt 阶段），其余工具安装到用户目录（~/.local/bin）
 #   - 幂等：已安装的工具会自动跳过
 # ================================================================
@@ -114,9 +114,9 @@ install_apt() {
   sudo apt-get install -y --no-install-recommends \
     gnupg software-properties-common ca-certificates curl apt-transport-https lsb-release unzip
 
-  # ---- 第三方仓库：deb.griffo.io（sheldon / atuin / lazygit） ----
+  # ---- 第三方仓库：deb.griffo.io（sheldon / atuin） ----
   if [ -n "$CODENAME" ] && [ ! -f /etc/apt/sources.list.d/deb.griffo.io.list ]; then
-    info "添加 deb.griffo.io 仓库（sheldon / atuin / lazygit）"
+    info "添加 deb.griffo.io 仓库（sheldon / atuin）"
     sudo install -d -m 0755 /etc/apt/keyrings
     curl -fsSL https://deb.griffo.io/EA0F721D231FDD3A0A17B9AC7808B4DD62C41256.asc \
       | sudo gpg --dearmor --yes -o /etc/apt/keyrings/deb.griffo.io.gpg
@@ -124,20 +124,10 @@ install_apt() {
       | sudo tee /etc/apt/sources.list.d/deb.griffo.io.list > /dev/null
   fi
 
-  # ---- 第三方仓库：yazi ----
-  if [ ! -f /etc/apt/sources.list.d/yazi.list ]; then
-    info "添加 yazi 仓库"
-    curl -fsSL https://yazi-rs.github.io/builds/yazi-keyring.gpg \
-      | sudo tee /usr/share/keyrings/yazi-keyring.gpg > /dev/null
-    echo 'deb [signed-by=/usr/share/keyrings/yazi-keyring.gpg] https://yazi-rs.github.io/builds/ stable main' \
-      | sudo tee /etc/apt/sources.list.d/yazi.list > /dev/null
-  fi
-
   # ---- PPA（仅 Ubuntu）----
   if [ "$IS_UBUNTU" = 1 ]; then
-    info "添加 fastfetch / neovim PPA（Ubuntu 专属）"
+    info "添加 fastfetch PPA（Ubuntu 专属）"
     sudo add-apt-repository -y ppa:zhangsongcui3371/fastfetch || warn "fastfetch PPA 添加失败"
-    sudo add-apt-repository -y ppa:neovim-ppa/stable || warn "neovim PPA 添加失败"
   fi
 
   sudo apt-get update -y
@@ -146,16 +136,16 @@ install_apt() {
   local pkgs=(
     # shell 核心
     zsh git git-lfs direnv
+    # 编辑器
+    vim
     # CLI 工具
     fzf zoxide fd-find ripgrep bat tealdeer eza duf gh
     # TUI / 系统
     tmux btop
-    # zsh 插件
-    zsh-syntax-highlighting zsh-autosuggestions
     # git 美化
     git-delta
     # 第三方仓库 / PPA / 默认仓库提供
-    sheldon atuin lazygit yazi fastfetch neovim
+    sheldon atuin fastfetch
   )
 
   local available=()
@@ -185,9 +175,9 @@ install_apt() {
   fi
 }
 
-# ---------- 阶段 2：官方安装脚本（starship / dust / doggo / superfile） ----------
+# ---------- 阶段 2：官方安装脚本（starship / dust / doggo） ----------
 install_scripts() {
-  section "阶段 2/4：安装脚本（starship / dust / doggo / superfile）"
+  section "阶段 2/4：安装脚本（starship / dust / doggo）"
 
   if have starship; then ok "starship 已安装，跳过"; else
     info "安装 starship..."
@@ -202,11 +192,6 @@ install_scripts() {
   if have doggo; then ok "doggo 已安装，跳过"; else
     info "安装 doggo..."
     curl -fsSL https://raw.githubusercontent.com/mr-karan/doggo/main/install.sh | sh || warn "doggo 安装失败"
-  fi
-
-  if have superfile; then ok "superfile 已安装，跳过"; else
-    info "安装 superfile..."
-    bash -c "$(curl -sLo- https://superfile.dev/install.sh)" || warn "superfile 安装失败"
   fi
 }
 
@@ -274,43 +259,7 @@ gh_bin() {
 # ---------- 阶段 3：GitHub 兜底（apt / 脚本未覆盖时） ----------
 install_fallback() {
   section "阶段 3/4：GitHub 兜底（apt / 脚本未覆盖时）"
-  install_neovim
   gh_bin "fastfetch-cli/fastfetch" 'fastfetch-linux.*\.tar\.gz' "fastfetch" || true
-}
-
-# Neovim 兜底：apt/PPA 版本 < 0.9（LazyVim 要求）时从 GitHub 下完整 runtime
-install_neovim() {
-  if have nvim && nvim --version 2>/dev/null | head -n1 | grep -qE '0\.(9|[1-9][0-9])'; then
-    ok "neovim 版本满足要求，跳过"; return 0
-  fi
-  local archpat
-  case "$(uname -m)" in
-    x86_64)  archpat="x86_64|64" ;;     # 兼容 nvim-linux-x86_64 / nvim-linux64
-    aarch64) archpat="arm64" ;;
-    *) err "不支持的架构：$(uname -m)"; return 1 ;;
-  esac
-  local api="https://api.github.com/repos/neovim/neovim/releases/latest"
-  local url tmpdir file meta
-  tmpdir="$(mktemp -d)"
-  meta="$tmpdir/releases.json"
-  if ! dl "$api" "$meta"; then
-    warn "获取 neovim 发布信息失败，跳过"; rm -rf "$tmpdir"; return 1
-  fi
-  url="$(grep -oE '"browser_download_url": *"[^"]+"' "$meta" | cut -d'"' -f4 | grep -E "nvim-linux-${archpat}\.tar\.gz" | head -n1)"
-  if [ -z "$url" ]; then warn "未找到 neovim 资产，跳过"; rm -rf "$tmpdir"; return 1; fi
-
-  info "下载 neovim ..."
-  file="$tmpdir/nvim.tar.gz"
-  dl "$url" "$file" || { warn "下载 neovim 失败，跳过"; rm -rf "$tmpdir"; return 1; }
-  tar -xzf "$file" -C "$tmpdir"
-  local root
-  root="$(find "$tmpdir" -maxdepth 1 -type d -name 'nvim-linux*' | head -n1)"
-  mkdir -p "$LOCAL_BIN" "$HOME_DIR/.local/share" "$HOME_DIR/.local/lib"
-  cp -r "$root"/bin/*   "$LOCAL_BIN/"
-  [ -d "$root/share" ] && cp -r "$root"/share/* "$HOME_DIR/.local/share/"
-  [ -d "$root/lib"   ] && cp -r "$root"/lib/*   "$HOME_DIR/.local/lib/"
-  ok "neovim 安装完成（$(nvim --version 2>/dev/null | head -n1 || true)）"
-  rm -rf "$tmpdir"
 }
 
 # ---------- 阶段 4：写入配置 ----------
@@ -337,8 +286,8 @@ export LANG="zh_CN.UTF-8"
 export LC_ALL="zh_CN.UTF-8"
 
 # ---- 编辑器 ----
-export EDITOR="nvim"
-export VISUAL="nvim"
+export EDITOR="vim"
+export VISUAL="vim"
 
 # ---- History ----
 HISTFILE="$HOME/.zsh_history"
@@ -365,16 +314,11 @@ export FZF_DEFAULT_OPTS='--preview "cat {}" --preview-window right:50%'
 export FZF_CTRL_R_OPTS="--scheme=history -i"
 export FZF_CTRL_T_OPTS='--preview "[[ -d {} ]] && tree -C {} || highlight -0 ansi {} 2> /dev/null"'
 
-# ---- 插件：sheldon（zsh-defer / zsh-completions / you-should-use / ohmyzsh） ----
+# ---- 插件：sheldon（zsh-defer / autosuggestions / syntax-highlighting /
+#          zsh-completions / you-should-use / ohmyzsh，全部由 sheldon 管理） ----
 if command -v sheldon >/dev/null 2>&1; then
   eval "$(sheldon source)"
 fi
-
-# ---- 插件：zsh-syntax-highlighting / zsh-autosuggestions（apt 安装） ----
-[ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && \
-  source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-[ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ] && \
-  source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # ---- fzf 集成 ----
 if command -v fzf >/dev/null 2>&1; then
@@ -424,8 +368,7 @@ alias gst="git status"
 alias gd="git diff"
 alias gco="git checkout"
 alias gb="git branch"
-# lazygit / docker
-alias lg="lazygit"
+# docker
 alias d="docker"
 alias dc="docker compose"
 
@@ -446,23 +389,12 @@ zx() {
   [[ -n "$dir" ]] && cd "$dir"
 }
 
-# ---- 函数：Yazi（退出时 cd 到浏览目录） ----
-function y() {
-  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
-  command yazi "$@" --cwd-file="$tmp"
-  if [ -f "$tmp" ]; then
-    local cwd="$(cat "$tmp")"
-    [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
-    rm -f "$tmp"
-  fi
-}
-
 # ---- Starship 提示符（放最后，覆盖 RPROMPT） ----
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 
-# ---- fastfetch 启动（不在 VSCode/Nvim 中） ----
+# ---- fastfetch 启动（不在 VSCode/编辑器内） ----
 if [[ "$TERM_PROGRAM" != "vscode" && -z "$VSCODE_INJECTION" && -z "$NVIM" ]] && command -v fastfetch >/dev/null 2>&1; then
   fastfetch --pipe false
 fi
@@ -584,6 +516,9 @@ defer = "{% for file in files %}zsh-defer -p source \"{{ file }}\"\n{% endfor %}
 [plugins.zsh-defer]
 github = "romkatv/zsh-defer"
 
+[plugins.zsh-autosuggestions]
+github = "zsh-users/zsh-autosuggestions"
+
 [plugins.zsh-completions]
 github = "zsh-users/zsh-completions"
 
@@ -595,6 +530,10 @@ github = "ohmyzsh/ohmyzsh"
 dir = "plugins"
 use = ["{command-not-found,git,sudo,systemd,extract,fzf}/*.plugin.zsh"]
 apply = ["defer"]
+
+# syntax-highlighting 必须最后 source（放在所有非 deferred 插件之后）
+[plugins.zsh-syntax-highlighting]
+github = "zsh-users/zsh-syntax-highlighting"
 EOF
   ok "sheldon plugins.toml 已写入"
 
@@ -636,15 +575,6 @@ vim_keys = True
 EOF
   ok "btop config 已写入"
 
-  # ---- ~/.config/yazi/yazi.toml ----
-  info "写入 ~/.config/yazi/yazi.toml"
-  write_config "$CONFIG_DIR/yazi/yazi.toml" <<'EOF'
-[manager]
-show_hidden = true
-show_symlink = true
-EOF
-  ok "yazi config 已写入"
-
   # ---- ~/.config/atuin/config.toml ----
   info "写入 ~/.config/atuin/config.toml"
   write_config "$CONFIG_DIR/atuin/config.toml" <<'EOF'
@@ -684,54 +614,6 @@ bind -r | split-window -h -c "#{pane_current_path}"
 bind -r - split-window -v -c "#{pane_current_path}"
 EOF
   ok "~/.tmux.conf 已写入"
-
-  # ---- ~/.config/nvim/init.lua（LazyVim bootstrap） ----
-  info "写入 ~/.config/nvim/init.lua"
-  write_config "$CONFIG_DIR/nvim/init.lua" <<'EOF'
--- ~/.config/nvim/init.lua — LazyVim bootstrap（对应 home/base/tui/neovim.nix）
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-  if vim.v.shell_error ~= 0 then
-    vim.api.nvim_echo({
-      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
-      { "\nPress any key to exit..." },
-    }, true, {})
-    vim.fn.getchar()
-    os.exit(1)
-  end
-end
-vim.opt.rtp:prepend(lazypath)
-
-require("lazy").setup({
-  spec = {
-    { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-  },
-  defaults = {
-    lazy = true,
-    version = false,
-  },
-  install = { colorscheme = { "tokyonight", "habamax" } },
-  checker = { enabled = true, notify = false },
-  performance = {
-    rtp = {
-      disabled_plugins = {
-        "gzip",
-        "matchit",
-        "matchparen",
-        "netrwPlugin",
-        "tarPlugin",
-        "tohtml",
-        "tutor",
-        "zipPlugin",
-      },
-    },
-  },
-})
-EOF
-  ok "nvim init.lua 已写入"
 
   # ---- Git 全局配置（用 git config 避免转义问题） ----
   info "写入 Git 全局配置"
@@ -794,15 +676,14 @@ summary() {
   section "安装完成，摘要如下"
   printf "  ${CYAN}Shell${NC}     : zsh + starship + sheldon + atuin + direnv\n"
   printf "  ${CYAN}CLI${NC}       : eza bat fzf zoxide tealdeer ripgrep fd tmux fastfetch dust duf doggo\n"
-  printf "  ${CYAN}TUI${NC}       : yazi btop superfile\n"
-  printf "  ${CYAN}Git${NC}       : git git-lfs delta lazygit gh\n"
-  printf "  ${CYAN}Editor${NC}    : neovim + LazyVim\n\n"
+  printf "  ${CYAN}TUI${NC}       : btop\n"
+  printf "  ${CYAN}Git${NC}       : git git-lfs delta gh\n"
+  printf "  ${CYAN}Editor${NC}    : vim\n\n"
 
   printf "  ${BOLD}下一步：${NC}\n"
   printf "    1. 重新登录（或 exec zsh）使默认 shell 生效\n"
-  printf "    2. 首次启动 nvim 会自动安装 LazyVim 插件（需 Node.js 已装）\n"
-  printf "    3. 若 sheldon 插件未加载，先执行：sheldon lock && exec zsh\n"
-  printf "    4. 确认语言环境存在：locale | grep zh_CN.UTF-8（无则 sudo locale-gen zh_CN.UTF-8）\n"
+  printf "    2. 若 sheldon 插件未加载，先执行：sheldon lock && exec zsh\n"
+  printf "    3. 确认语言环境存在：locale | grep zh_CN.UTF-8（无则 sudo locale-gen zh_CN.UTF-8）\n"
 }
 
 # ---------- 主流程 ----------
