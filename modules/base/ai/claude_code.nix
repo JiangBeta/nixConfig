@@ -24,6 +24,6 @@ in
 
   config = lib.mkIf cfg.enable {
     # 系统级 Node.js（供 MCP 服务器等使用）
-    environment.systemPackages = lib.mkIf cfg.enableSystemNodejs [ pkgs.nodejs_22 ];
+    environment.systemPackages = lib.mkIf cfg.enableSystemNodejs [ pkgs.nodejs_24 ];
   };
 }

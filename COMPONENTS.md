@@ -120,6 +120,29 @@
 | Neovim + LazyVim(neovim 配置框架) | 文本编辑 | ✅ | ✅ | ✅ | ✅ |
 | vortex | 服务器管理 TUI（SSH 管理 VPS 集群） | ✅ | ✅ | ✅ | ✅ |
 
+## 开发环境工具链（dev）
+
+### Go（home/base/dev/go.nix，nix-desktop）
+| 组件 | 说明 | nixpkgs |
+|------|------|---------|
+| go | Go 编译器（默认最新稳定版 1.26，可经 option 固定 go_1_26） | `go` |
+| gopls | Go 语言服务器 | `gopls` |
+| golangci-lint | Go 代码检查 | `golangci-lint` |
+| delve | Go 调试器（命令 `dlv`） | `delve` |
+
+### Node.js（home/base/dev/nodejs.nix，nix-desktop）
+| 组件 | 说明 | nixpkgs |
+|------|------|---------|
+| nodejs | JavaScript/TypeScript 运行时（24.18，与 AI 工具运行时统一为 Node 24） | `nodejs_24` |
+| pnpm | 前端包管理器 | `pnpm` |
+| vue-language-server | Vue 的 Volar 语言服务 | `vue-language-server` |
+
+### Docker（modules/linux/dev/docker.nix，nix-desktop）
+| 组件 | 说明 | nixpkgs |
+|------|------|---------|
+| docker | 容器引擎（守护进程 + CLI + `docker compose` 插件，用户入 docker 组） | `docker` |
+| docker-compose | 独立 compose 命令 `docker-compose` | `docker-compose` |
+
 ## 字体（modules/base/core/fonts.nix）
 
 | 字体 | 用途 |

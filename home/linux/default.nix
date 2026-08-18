@@ -54,6 +54,10 @@
   modules-home-base-ai-claudeCode.enable = true;
   modules-home-base-ai-opencode.enable = true;
 
+  # ---- 开发环境（Go / Node.js 工具链） ----
+  modules-home-base-dev-go.enable = true;
+  modules-home-base-dev-nodejs.enable = true;
+
   # Linux 专属用户级包
   home.packages = with pkgs; [
     brightnessctl

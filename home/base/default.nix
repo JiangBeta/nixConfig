@@ -9,6 +9,7 @@
     ./tui
     ./gui
     ./ai
+    ./dev
   ];
 
   home.stateVersion = "26.05";

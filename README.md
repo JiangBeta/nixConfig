@@ -55,6 +55,9 @@ nixConfig/
 │   │   │   ├── default.nix           # 聚合入口（自动收集）
 │   │   │   ├── camera.nix            # uvcvideo 驱动 + v4l-utils + Cheese
 │   │   │   └── battery.nix           # upower 守护进程 + upower/acpi 工具
+│   │   ├── dev/                     # 开发环境系统（桌面/开发主机）
+│   │   │   ├── default.nix           # 聚合入口（自动收集）
+│   │   │   └── docker.nix            # Docker 守护进程 + docker + docker-compose
 │   │   └── server/                  # 服务器系统（仅服务器主机，待实现）
 │   │       ├── default.nix           # 聚合入口（自动收集）
 │   │       └── docker.nix            # Docker 支持（TODO）
@@ -78,9 +81,13 @@ nixConfig/
 │   │   │   ├── browsers.nix          # Zen Browser
 │   │   │   ├── typora.nix            # Typora Markdown 编辑器
 │   │   │   └── fcitx5.nix            # Fcitx5 通用配置（Rime + macos12-dark 主题）
+│   │   ├── dev/                     # 开发环境工具链（跨平台）
+│   │   │   ├── default.nix           # 聚合入口（自动收集）
+│   │   │   ├── go.nix                # Go + gopls + golangci-lint + delve
+│   │   │   └── nodejs.nix            # Node.js 24 + pnpm + vue-language-server
 │   │   └── ai/                     # AI 编码工具
 │   │       ├── default.nix           # 聚合入口（自动导入 .nix + ./claude_code）
-│   │       ├── nodejs.nix            # 🔧 共享：Node.js 22（所有 AI 工具运行时基座）
+│   │       ├── nodejs.nix            # 🔧 共享：Node.js 24（所有 AI 工具运行时基座）
 │   │       ├── mcp.nix               # 🔧 共享：MCP 服务器声明（各工具消费）
 │   │       ├── skills.nix            # 🔧 共享：Skills 目录声明
 │   │       ├── hooks.nix             # 🔧 共享：Hooks 脚本目录声明
@@ -284,10 +291,10 @@ macOS 客户端说明：官方 Moonlight 的增强版（Metal 超分 / 低延迟
 |------|------|------|
 | 层 | `home/` / `modules/` | 用户级 HM / 系统级 |
 | 平台 | `base` / `linux` / `darwin` | 跨平台 / Linux / macOS |
-| 类别 | `core` / `tui` / `gui` / `ai` / `server` | 基础环境 / 终端应用 / 图形应用 / AI 工具 / 服务器 |
+| 类别 | `core` / `tui` / `gui` / `ai` / `dev` / `server` | 基础环境 / 终端应用 / 图形应用 / AI 工具 / 开发环境 / 服务器 |
 
 - `base` 永远 = 跨平台（macOS + Linux 共用）；`core` 永远 = 平台内通用（该平台所有机器都要）。
-- `gui` 仅桌面主机导入，`server` 仅服务器主机导入，`core`/`tui` 所有主机可用。
+- `gui`/`dev` 仅桌面/开发主机导入，`server` 仅服务器主机导入，`core`/`tui` 所有主机可用。
 - 每个类别目录的 `default.nix` 用 `common/lib` 的 `scanPaths` 自动收集同目录 `.nix` 子模块（`custom = import ../../../common/lib { inherit lib; }; imports = custom.scanPaths ./.;`）。
 
 ### Option 命名：`modules-<层>-<平台>-<类别>-<名>`

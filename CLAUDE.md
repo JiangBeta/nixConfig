@@ -80,6 +80,9 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - ✅ `modules/linux/desktop/`：camera（uvcvideo + v4l-utils + Cheese）+ battery（upower 守护进程 + upower/acpi 工具，pro13 笔记本启用，nuc8-d 不启用）
 - ✅ `home/base/ai/opencode/`：OpenCode（消费共享 mcp/skills，deepseek provider，pro13/nuc8-d 启用）
 
+- ✅ `home/base/dev/`：开发工具链 —— go（Go + gopls + golangci-lint + delve）+ nodejs（nodejs_24 + pnpm + vue-language-server），桌面主机启用
+- ✅ `modules/linux/dev/`：docker（守护进程 + docker + docker-compose，用户入 docker 组），桌面主机启用
+
 ### 待完成
 - 🔲 fcitx5 候选框在 Xwayland 应用（微信/WPS）下偏小：候选框是 Wayland 层，Niri 下不随 1.25x 缩放，Xft.dpi/GDK_SCALE 均不影响它；`ForceWaylandDPI` 会导致候选框消失，暂未解决
 - 🔲 systemd-boot 引导菜单字体偏小：`consoleMode = "0"`（80x25，最大档）已设置但字体未变大，疑似固件不支持改分辨率
@@ -96,9 +99,9 @@ nix fmt                                   # 格式化（需先配置 formatter �
 `<层>/<平台>/<类别>/`：
 - 层：`home/`（用户级 HM）、`modules/`（系统级）
 - 平台：`base`（跨平台）、`linux`、`darwin`
-- 类别：`core`（基础环境）、`tui`（终端应用）、`gui`（图形应用）、`ai`（AI 工具）、`server`（服务器）
+- 类别：`core`（基础环境）、`tui`（终端应用）、`gui`（图形应用）、`ai`（AI 工具）、`dev`（开发环境）、`server`（服务器）
 
-规则：`base` 永远 = 跨平台（macOS + Linux 共用）；`core` 永远 = 平台内通用（该平台所有机器都要）。`gui` 仅桌面主机导入、`server` 仅服务器主机导入。每个类别目录的 `default.nix` 用 `common/lib` 的 `scanPaths` 自动收集同目录 `.nix` 子模块。完整目录树见 `README.md`。
+规则：`base` 永远 = 跨平台（macOS + Linux 共用）；`core` 永远 = 平台内通用（该平台所有机器都要）。`gui`/`dev` 仅桌面/开发主机导入、`server` 仅服务器主机导入。每个类别目录的 `default.nix` 用 `common/lib` 的 `scanPaths` 自动收集同目录 `.nix` 子模块。完整目录树见 `README.md`。
 
 ### Option 命名体系
 - 系统级：`mySystem.bootMode`、`mySystem.firewall`、`mySystem.user`
@@ -132,7 +135,7 @@ nix fmt                                   # 格式化（需先配置 formatter �
 
 | 文件 | 角色 | Option 前缀 |
 |------|------|-------------|
-| `nodejs.nix` | 🔧 共享：Node.js 22 运行时 | `modules-home-base-ai-nodejs` |
+| `nodejs.nix` | 🔧 共享：Node.js 24 运行时 | `modules-home-base-ai-nodejs` |
 | `mcp.nix` | 🔧 共享：MCP 服务器声明 | `modules-home-base-ai-mcp` |
 | `skills.nix` | 🔧 共享：Skills 目录（SKILL.md） | `modules-home-base-ai-skills` |
 | `claude_code/default.nix` | 🎯 专属：Claude Code 全配置（含专属 hooks） | `modules-home-base-ai-claudeCode` |
@@ -177,4 +180,5 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - 远程桌面：Sunshine（自托管 GameStream 服务端，`services.sunshine` 开启 KMS 抓屏 + 开放流式端口，用户加入 `uinput` 组以创建虚拟键鼠/手柄）+ Moonlight 客户端（Linux `moonlight-qt`；macOS `moonlight-macos-enhanced`，`.dmg` 手动安装，见 README），所有桌面主机统一启用（`modules/base/gui/sunshine.nix`）。
 - VNC / 键鼠共享：wayvnc（Wayland VNC 服务端，`systemd.user` 服务，监听 `0.0.0.0:5900` 局域网直连，前置 `wl-uinput-proxy` 修复 Niri 键盘快捷键）+ pynergy（synergy 协议键鼠共享客户端，flake `pynergy-client`，兼容 Deskflow，KVM 键鼠共享场景），均位于 `modules/linux/gui/`。
 - 服务器管理：vortex（键盘优先的 TUI，SSH 管理 Linux VPS 服务器集群，agentless；跨平台 `home/base/tui/vortex.nix`，flake 输入 `vortex`，配置 `~/.config/vortex/config.yaml`），所有桌面主机启用。
+- 开发环境（dev）：Go 工具链（`go` / `gopls` / `golangci-lint` / `delve`，`home/base/dev/go.nix`）+ Node 工具链（`nodejs_24` / `pnpm` / `vue-language-server`，`home/base/dev/nodejs.nix`，与 AI 运行时统一为 Node 24）+ Docker（`docker` / `docker-compose`，`modules/linux/dev/docker.nix`，用户入 docker 组）。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。

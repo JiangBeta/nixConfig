@@ -13,7 +13,7 @@ in
 
     package = lib.mkOption {
       type = lib.types.package;
-      default = pkgs.nodejs_22;
+      default = pkgs.nodejs_24;
       description = "Node.js 版本";
     };
 

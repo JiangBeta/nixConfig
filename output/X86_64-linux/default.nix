@@ -38,6 +38,12 @@ let
       # 4b. 桌面硬件模块（Linux desktop：摄像头 / Gaze 人脸识别，按 mySystem.desktop.* 选项启用）
       ../../modules/linux/desktop
 
+      # 4c. 开发环境系统模块（Linux dev：docker 等，所有桌面主机）
+      ../../modules/linux/dev
+      {
+        modules-nixos-dev-docker.enable = true;
+      }
+
       # 5. Zen Browser（Wayland 原生 text-input-v3 / waylandim 前端，勿注入 GTK_IM_MODULE）
       ({ pkgs, ... }: {
         environment.systemPackages = [
