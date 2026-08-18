@@ -60,7 +60,7 @@ let
           useUserPackages = true;
           # 将 flake inputs 传入 HM 子模块
           extraSpecialArgs = {
-            inherit (inputs) niri noctalia catppuccin;
+            inherit (inputs) niri noctalia catppuccin vortex;
             # agenix 解密路径（供 AI 模块注入 token、SSH 模块部署密钥）
             # ⚠️ 仅当对应 .age 文件存在时才有效
             aiTokensPath = config.age.secrets."ai-tokens".path or null;

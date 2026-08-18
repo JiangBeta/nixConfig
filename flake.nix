@@ -56,8 +56,14 @@
       url = "github:GOKORURI007/pynergy";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # vortex — 服务器管理 TUI（SSH 管理 VPS 集群，agentless）
+    vortex = {
+      url = "github:berkayyytech/vortex";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs @ { self, nixpkgs, disko, home-manager, niri, noctalia, catppuccin, zen-browser, agenix, pynergy-client, ... }:
+  outputs = inputs @ { self, nixpkgs, disko, home-manager, niri, noctalia, catppuccin, zen-browser, agenix, pynergy-client, vortex, ... }:
     import ./output inputs;
 }

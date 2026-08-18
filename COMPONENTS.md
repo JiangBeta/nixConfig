@@ -118,6 +118,7 @@
 | btop | 系统监视 | ✅ | ✅ | ✅ | ✅ |
 | lazygit | Git TUI | ✅ | ✅ | ✅ | ✅ |
 | Neovim + LazyVim(neovim 配置框架) | 文本编辑 | ✅ | ✅ | ✅ | ✅ |
+| vortex | 服务器管理 TUI（SSH 管理 VPS 集群） | ✅ | ✅ | ✅ | ✅ |
 
 ## 字体（modules/base/core/fonts.nix）
 

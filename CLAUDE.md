@@ -32,7 +32,7 @@ nix flake check                           # 检查 flake 求值
 nix fmt                                   # 格式化（需先配置 formatter 才可用）
 ```
 
-> `flake.nix` 已创建，含 nixpkgs/disko/home-manager/niri/noctalia/catppuccin/zen-browser/agenix/pynergy-client inputs。构建前需在 Nix 环境中运行 `nix flake update` 生成 `flake.lock`。
+> `flake.nix` 已创建，含 nixpkgs/disko/home-manager/niri/noctalia/catppuccin/zen-browser/agenix/pynergy-client/vortex inputs。构建前需在 Nix 环境中运行 `nix flake update` 生成 `flake.lock`。
 
 ## 架构：Custom Options 作为契约
 
@@ -176,4 +176,5 @@ nix fmt                                   # 格式化（需先配置 formatter �
 - 电池：`services.upower` 守护进程（提供 `org.freedesktop.UPower` D-Bus 接口，Noctalia 状态栏电池模块依赖）+ `upower` / `acpi` CLI（`modules/linux/desktop/battery.nix`，pro13 启用）。
 - 远程桌面：Sunshine（自托管 GameStream 服务端，`services.sunshine` 开启 KMS 抓屏 + 开放流式端口，用户加入 `uinput` 组以创建虚拟键鼠/手柄）+ Moonlight 客户端（Linux `moonlight-qt`；macOS `moonlight-macos-enhanced`，`.dmg` 手动安装，见 README），所有桌面主机统一启用（`modules/base/gui/sunshine.nix`）。
 - VNC / 键鼠共享：wayvnc（Wayland VNC 服务端，`systemd.user` 服务，监听 `0.0.0.0:5900` 局域网直连，前置 `wl-uinput-proxy` 修复 Niri 键盘快捷键）+ pynergy（synergy 协议键鼠共享客户端，flake `pynergy-client`，兼容 Deskflow，KVM 键鼠共享场景），均位于 `modules/linux/gui/`。
+- 服务器管理：vortex（键盘优先的 TUI，SSH 管理 Linux VPS 服务器集群，agentless；跨平台 `home/base/tui/vortex.nix`，flake 输入 `vortex`，配置 `~/.config/vortex/config.yaml`），所有桌面主机启用。
 - 详细组件矩阵与 CLI/TUI 选型见 `COMPONENTS.md`。

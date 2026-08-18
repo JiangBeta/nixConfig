@@ -17,6 +17,7 @@
   # ---- base TUI 终端应用 ----
   modules-home-base-tui-neovim.enable = true;
   modules-home-base-tui-apps.enable = true;
+  modules-home-base-tui-vortex.enable = true;
 
   # ---- base GUI 图形应用 ----
   modules-home-base-gui-kitty.enable = true;
