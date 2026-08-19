@@ -23,6 +23,9 @@ let
       {
         # 系统级 AI 支持（Node.js 供 MCP 服务器等使用）
         modules-base-ai-claudeCode.enable = true;
+        # AI API 网关（Nenya：本地编码客户端 ↔ 上游 LLM 提供商）
+        # ⚠️ 需设置 clientToken（nk-$(openssl rand -hex 32)）与 providerKeys 才能启动
+        modules-base-ai-nenya.enable = true;
         # 远程桌面（Sunshine 服务端 + Moonlight 客户端，桌面主机）
         modules-base-gui-sunshine.enable = true;
       }

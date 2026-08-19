@@ -143,6 +143,12 @@
 | docker | 容器引擎（守护进程 + CLI + `docker compose` 插件，用户入 docker 组） | `docker` |
 | docker-compose | 独立 compose 命令 `docker-compose` | `docker-compose` |
 
+## AI API 网关（modules/base/ai/nenya.nix，系统服务）
+
+| 组件 | 说明 | 来源 |
+|------|------|------|
+| nenya | Go 编写的 AI API Gateway/Proxy（本地编码客户端 ↔ 上游 LLM 提供商，统一鉴权/限流/熔断/内容过滤/上下文压缩） | GitHub release 预编译二进制（amd64） |
+
 ## 字体（modules/base/core/fonts.nix）
 
 | 字体 | 用途 |

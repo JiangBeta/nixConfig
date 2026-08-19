@@ -32,7 +32,8 @@ nixConfig/
 │   │   │   └── sunshine.nix           # Sunshine 服务端 + Moonlight 客户端
 │   │   └── ai/                     # AI 工具系统级支持
 │   │       ├── default.nix            # 聚合入口
-│   │       └── claude_code.nix        # 系统级 Node.js
+│   │       ├── claude_code.nix        # 系统级 Node.js
+│   │       └── nenya.nix              # Nenya AI API 网关（systemd 服务）
 │   ├── linux/                    # NixOS 专属
 │   │   ├── core/                   # Linux 核心（所有主机：桌面 + 服务器）
 │   │   │   ├── default.nix           # 聚合入口（自动收集）
